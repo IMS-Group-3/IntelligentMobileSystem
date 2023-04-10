@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">IMS</string>
+    <string name="control_view">controler</string>
 </resources>
