@@ -38,10 +38,13 @@ class KeyInputCharacteristic(Characteristic):
             print(f"Publishing input: '{input_line}'")
             self._updateValueCallback(self._value.encode())
 
-def read_inputs_thread(key_input_characteristic):
-    while True:
+def read_inputs_thread(key_input_characteristic, stop_flag):
+    while not stop_flag.is_set():
         input_line = read_input_line()
         key_input_characteristic.publish_key_input(input_line)
+
+# Save current terminal settings
+old_settings = termios.tcgetattr(sys.stdin.fileno())
 
 # Create a KeyInputCharacteristic instance
 key_input_characteristic = KeyInputCharacteristic()
@@ -75,11 +78,11 @@ bleno.on("advertisingStart", onAdvertisingStart)
 # Start the Bleno service
 bleno.start()
 
-# Set terminal to the normal mode
-termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, termios.tcgetattr(sys.stdin.fileno()))
+# Create a stop flag for the key input thread
+stop_flag = threading.Event()
 
 # Start the thread to read inputs from the terminal
-key_input_thread = threading.Thread(target=read_inputs_thread, args=(key_input_characteristic,))
+key_input_thread = threading.Thread(target=read_inputs_thread, args=(key_input_characteristic, stop_flag))
 key_input_thread.start()
 
 print("Press Ctrl-C to stop the application...")
@@ -88,8 +91,15 @@ try:
     while True:
         pass
 except KeyboardInterrupt:
-    # Set terminal to the raw mode
-    tty.setraw(sys.stdin.fileno())
+    print("\nPress Enter to exit :)")
+finally:
+    # Set the stop flag
+    stop_flag.set()
+
+    # Restore terminal settings
+    termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, old_settings)
+
+    # Clean up
     key_input_thread.join()
     bleno.stopAdvertising()
     bleno.disconnect()
