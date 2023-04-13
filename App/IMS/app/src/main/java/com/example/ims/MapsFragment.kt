@@ -37,11 +37,22 @@ class MapsFragment : Fragment() {
         dialogBuilder.setPositiveButton("Submit") { dialog, which ->
             val editTextWidth = dialogView.findViewById<EditText>(R.id.editTextWidth)
             val editTextHeight = dialogView.findViewById<EditText>(R.id.editTextHeight)
-            val width = editTextWidth.text.toString().toInt()
-            val height = editTextHeight.text.toString().toInt()
+
+            // Setting the width and height to 0 if the string in the EditText widget is empty
+            val width = if (editTextWidth.text.toString().isNotEmpty()) {
+                editTextWidth.text.toString().toInt()
+            } else {
+                0
+            }
+            val height = if (editTextHeight.text.toString().isNotEmpty()) {
+                editTextHeight.text.toString().toInt()
+            } else {
+                0
+            }
 
             dialog.dismiss()
         }
+
         dialogBuilder.setNegativeButton("Cancel") { dialog, which ->
             dialog.dismiss()
         }
