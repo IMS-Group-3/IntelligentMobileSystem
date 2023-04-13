@@ -17,5 +17,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Mapbutton for navigating to the map fragment
+        viewBinding.mapButton.setOnClickListener{
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, MapsFragment())
+                .commit()
+        }
+
     }
 }
