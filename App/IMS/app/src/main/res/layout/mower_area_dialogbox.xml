@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mower_area_dialogbox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center">
-
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Enter the Width and Height of the area that your mower will operate within"
+        android:textSize="24dp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"
+        />
     <EditText
         android:id="@+id/editTextWidth"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Width"
+        android:hint="Width (mm)"
         android:inputType="number"
-        android:maxLength="3" />
+        android:maxLength="4" />
 
     <EditText
         android:id="@+id/editTextHeight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Height"
+        android:hint="Height (mm)"
         android:inputType="number"
-        android:maxLength="3" />
-
-    <Button
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Submit"
-        android:textColor="#FFFFFF" />
+        android:maxLength="4" />
 
 </LinearLayout>
 
