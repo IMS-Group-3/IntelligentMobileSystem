@@ -11,7 +11,7 @@
     <item
         android:id="@+id/controller"
         android:icon="@drawable/icon_control"
-        android:title="@string/controller" />
+        android:title="@string/control_view" />
     <item
         android:id="@+id/history"
         android:icon="@drawable/icon_history"

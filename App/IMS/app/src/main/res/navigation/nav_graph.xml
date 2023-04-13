@@ -11,15 +11,15 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
     <fragment
-        android:id="@+id/MapFragment"
-        android:name="com.example.ims.MapFragment"
-        android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        android:id="@+id/MapsFragment"
+        android:name="com.example.ims.MapsFragment"
+        android:label="fragment_maps"
+        tools:layout="@layout/fragment_maps" />
     <fragment
-        android:id="@+id/ControllerFragment"
-        android:name="com.example.ims.ControllerFragment"
-        android:label="fragment_controller"
-        tools:layout="@layout/fragment_controller" />
+        android:id="@+id/ControlFragment"
+        android:name="com.example.ims.ControlFragment"
+        android:label="fragment_control"
+        tools:layout="@layout/fragment_control" />
     <fragment
         android:id="@+id/HistoryFragment"
         android:name="com.example.ims.HistoryFragment"
