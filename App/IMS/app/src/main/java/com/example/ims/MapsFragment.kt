@@ -50,5 +50,3 @@ class MapsFragment : Fragment() {
         dialog.show()
     }
 }
-
-

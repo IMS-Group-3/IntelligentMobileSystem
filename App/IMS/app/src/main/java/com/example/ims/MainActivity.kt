@@ -1,28 +1,39 @@
 package com.example.ims
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import com.example.ims.databinding.ActivityMainBinding
 
-// This is a comment
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
 
-        viewBinding.controlButton.setOnClickListener{
-            val intent = Intent(this, ControlActivity::class.java)
-            startActivity(intent)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        replaceFragment(HomeFragment())
+
+        binding.bottomNavigationView.setOnItemSelectedListener {
+
+            when(it.itemId){
+                R.id.home -> replaceFragment(HomeFragment())
+                R.id.map -> replaceFragment(MapsFragment())
+                R.id.controller -> replaceFragment(ControlFragment())
+                R.id.history -> replaceFragment(HistoryFragment())
+
+                else -> {
+
+                }
+            }
+            true
         }
-
-        // Mapbutton for navigating to the map fragment
-        viewBinding.mapButton.setOnClickListener{
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, MapsFragment())
-                .commit()
-        }
-
+    }
+    private fun replaceFragment(fragment: Fragment){
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.nav_fragment, fragment)
+        fragmentTransaction.commit()
     }
 }
