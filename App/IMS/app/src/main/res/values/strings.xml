@@ -3,7 +3,8 @@
     <string name="startscreen_title">Intelligent Mobile Systems</string>
     <string name="startscreen_subTitle">Group 3</string>
     <string name="history">History</string>
-    <string name="map">Map</string>
+    <string name="map_view">Map</string>
     <string name="home">Home</string>
     <string name="control_view">Controls</string>
+    <string name="mower_area_dialogbox">Enter the Width and Height of the area that your mower will operate within</string>
 </resources>
