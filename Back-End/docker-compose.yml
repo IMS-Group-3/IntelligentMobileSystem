@@ -1,0 +1,8 @@
+version: '3'
+services:
+  "back-end-app": 
+    build: "./web-app"
+    ports:
+      - "3000:8080"
+    volumes: 
+      - "./web-app/src:/web-app/src"
