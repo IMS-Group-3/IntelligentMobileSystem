@@ -49,12 +49,23 @@ class MapsFragment : Fragment() {
             // Array of markers
             val markers = listOf(
                 GridMarker(50, 50, Color.RED),
-             //   GridMarker(51, 51, Color.RED),
+                GridMarker(51, 51, Color.RED),
                 GridMarker(52, 52, Color.RED),
-              //  GridMarker(51, 53, Color.RED),
+                GridMarker(51, 53, Color.RED),
                 GridMarker(50, 54, Color.RED),
+                GridMarker(49, 50, Color.RED),
+                GridMarker(48, 51, Color.RED),
+                GridMarker(47, 52, Color.RED),
+                GridMarker(46, 53, Color.RED),
+                GridMarker(45, 54, Color.RED),
+                GridMarker(44, 100, Color.RED),
+                GridMarker(44, 105, Color.RED),
+                GridMarker(44, 110, Color.RED),
+                GridMarker(44, 107, Color.RED),
+                GridMarker(44, 135, Color.RED),
+                GridMarker(20, 135, Color.RED),
+                GridMarker(25, 125, Color.RED),
             )
-
             mapGridView.addMarkers(markers)
 
             dialog.dismiss()

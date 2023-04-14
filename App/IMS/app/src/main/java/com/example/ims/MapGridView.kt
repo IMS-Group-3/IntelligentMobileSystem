@@ -67,17 +67,34 @@ class MapGridView : View {
                 it.drawLine(startX, 0f, endX, height.toFloat(), paint)
             }
 
-            // Draw markers
+            // Draw markers and lines
             val markerPaint = Paint().apply {
                 style = Paint.Style.FILL
             }
-            val markerRadius = 10f
+            val linePaint = Paint().apply {
+                color = Color.BLACK
+                style = Paint.Style.STROKE
+                strokeWidth = 2f
+            }
+            val markerRadius = 5f
 
-            markers.forEach { marker ->
+            markers.forEachIndexed { index, marker ->
+                // Draw marker
                 markerPaint.color = marker.color
                 val markerX = marker.x * cellWidth + cellWidth / 2
                 val markerY = marker.y * cellHeight + cellHeight / 2
                 it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+
+                // Draw line between markers
+                if (index > 0) {
+                    val prevMarker = markers[index - 1]
+                    val prevMarkerX = prevMarker.x * cellWidth + cellWidth / 2
+                    val prevMarkerY = prevMarker.y * cellHeight + cellHeight / 2
+
+                    linePaint.color = marker.color
+                    linePaint.strokeWidth = markerRadius * 2
+                    it.drawLine(prevMarkerX, prevMarkerY, markerX, markerY, linePaint)
+                }
             }
 
         }
