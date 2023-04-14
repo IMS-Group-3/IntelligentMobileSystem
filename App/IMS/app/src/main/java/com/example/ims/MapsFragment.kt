@@ -45,8 +45,17 @@ class MapsFragment : Fragment() {
             }
             val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
             mapGridView.setGridSize(width, height)
-            val markerColor = Color.RED // Set the color of the marker
-            mapGridView.addMarker(width, height, markerColor)
+
+            // Array of markers
+            val markers = listOf(
+                GridMarker(50, 50, Color.RED),
+             //   GridMarker(51, 51, Color.RED),
+                GridMarker(52, 52, Color.RED),
+              //  GridMarker(51, 53, Color.RED),
+                GridMarker(50, 54, Color.RED),
+            )
+
+            mapGridView.addMarkers(markers)
 
             dialog.dismiss()
         }

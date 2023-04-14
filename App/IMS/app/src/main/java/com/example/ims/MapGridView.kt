@@ -40,8 +40,8 @@ class MapGridView : View {
         invalidate()
     }
 
-    fun addMarker(x: Int, y: Int, color: Int) {
-        markers.add(GridMarker(x, y, color))
+    fun addMarkers(markers: List<GridMarker>) {
+        this.markers.addAll(markers)
         invalidate()
     }
 
@@ -71,7 +71,7 @@ class MapGridView : View {
             val markerPaint = Paint().apply {
                 style = Paint.Style.FILL
             }
-            val markerRadius = 10f // You can adjust this value as needed
+            val markerRadius = 10f
 
             markers.forEach { marker ->
                 markerPaint.color = marker.color
