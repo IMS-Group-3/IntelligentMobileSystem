@@ -3,7 +3,9 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "C:/Users/Oskar/Documents/Arduino/libraries/MakeBlockDrive/**",
+                "C:/Users/Oskar/AppData/Local/Arduino15/packages/**"
             ],
             "defines": [
                 "_DEBUG",
