@@ -10,6 +10,13 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 
+// For simulating the array coordinates from a socket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+
 class MapsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,13 +67,30 @@ class MapsFragment : Fragment() {
                 GridMarker(45, 54, Color.RED, false),
                 GridMarker(44, 100, Color.RED, false),
                 GridMarker(44, 105, Color.RED, false),
-                GridMarker(44, 110, Color.RED, true),
                 GridMarker(44, 107, Color.RED, true),
+                GridMarker(44, 110, Color.RED, true),
                 GridMarker(44, 135, Color.RED, true),
                 GridMarker(20, 135, Color.RED, false),
                 GridMarker(25, 125, Color.RED, false),
+                GridMarker(25, 120, Color.RED, false),
+                GridMarker(25, 115, Color.RED, false),
+                GridMarker(25, 110, Color.RED, false),
+                GridMarker(25, 105, Color.RED, false),
+                GridMarker(25, 100, Color.RED, false),
+                GridMarker(25, 95, Color.RED, true),
+                GridMarker(25, 90, Color.RED, false),
+                GridMarker(25, 85, Color.RED, false),
+                GridMarker(25, 80, Color.RED, false),
+                GridMarker(25, 75, Color.RED, false),
             )
-            mapGridView.addMarkers(markers)
+
+            // Simulate adding markers with a delay
+            CoroutineScope(Dispatchers.Main).launch {
+                markers.forEach { marker ->
+                    mapGridView.addMarker(marker)
+                    delay(500) // Add a 500ms delay between adding markers
+                }
+            }
 
             dialog.dismiss()
         }

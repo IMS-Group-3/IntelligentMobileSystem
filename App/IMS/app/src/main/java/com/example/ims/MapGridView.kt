@@ -42,6 +42,10 @@ class MapGridView : View {
         invalidate()
     }
 
+    fun addMarker(marker: GridMarker) {
+        this.markers.add(marker)
+        invalidate()
+    }
     fun addMarkers(markers: List<GridMarker>) {
         this.markers.addAll(markers)
         invalidate()
@@ -77,14 +81,22 @@ class MapGridView : View {
             val linePaint = Paint().apply {
                 style = Paint.Style.STROKE
             }
-            val markerRadius = 5f
+            var markerRadius = 5f
 
             markers.forEachIndexed { index, marker ->
-                // Draw marker
-                markerPaint.color = marker.color
+
                 val markerX = marker.x * cellWidth + cellWidth / 2
                 val markerY = marker.y * cellHeight + cellHeight / 2
-                it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+                // Draw marker
+                if (index == markers.size - 1){
+                    markerPaint.color = Color.BLACK
+                    markerRadius = 15f
+                    it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+                    markerRadius = 5f
+                } else {
+                    markerPaint.color = marker.color
+                    it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+                }
 
                 // Draw line between markers
                 if (index > 0) {
@@ -138,8 +150,7 @@ class MapGridView : View {
                     val markerRadius = 5f * 4  // 5f is the base markerRadius and 4 is the scaling factor
 
                     if (isTouchInsideMarker(touchX, touchY, markerX, markerY, markerRadius)) {
-                        // Handle the click event for the blue marker
-                        Toast.makeText(context, "Blue marker at (${marker.x}, ${marker.y}) clicked", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Collision avoided at (${marker.x}, ${marker.y})", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
