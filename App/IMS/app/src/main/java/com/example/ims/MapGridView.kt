@@ -10,18 +10,17 @@ import android.widget.GridView
 
 
 class MapGridView : View {
-    private var mapWidth: Int
-    private var mapHeight: Int
+    private var Width: Int
+    private var Height: Int
 
     constructor(context: Context, mapWidth: Int, mapHeight: Int) : super(context) {
-        this.mapWidth = mapWidth
-        this.mapHeight = mapHeight
+        this.Width = mapWidth
+        this.Height = mapHeight
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        // Initialize your view with default values or read the values from the attrs.
-        this.mapWidth = 100
-        this.mapHeight = 100
+        this.Width = 100
+        this.Height = 150
     }
 
 
@@ -33,10 +32,16 @@ class MapGridView : View {
 
     private var gridWidth = 0
     private var gridHeight = 0
+    private val markers = mutableListOf<GridMarker>()
 
     fun setGridSize(width: Int, height: Int) {
-        gridWidth = mapWidth
-        gridHeight = mapHeight
+        gridWidth = Width
+        gridHeight = Height
+        invalidate()
+    }
+
+    fun addMarker(x: Int, y: Int, color: Int) {
+        markers.add(GridMarker(x, y, color))
         invalidate()
     }
 
@@ -61,6 +66,20 @@ class MapGridView : View {
                 val endX = startX
                 it.drawLine(startX, 0f, endX, height.toFloat(), paint)
             }
+
+            // Draw markers
+            val markerPaint = Paint().apply {
+                style = Paint.Style.FILL
+            }
+            val markerRadius = 10f // You can adjust this value as needed
+
+            markers.forEach { marker ->
+                markerPaint.color = marker.color
+                val markerX = marker.x * cellWidth + cellWidth / 2
+                val markerY = marker.y * cellHeight + cellHeight / 2
+                it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+            }
+
         }
     }
 }

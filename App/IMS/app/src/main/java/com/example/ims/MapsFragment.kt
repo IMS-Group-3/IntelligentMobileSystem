@@ -1,5 +1,6 @@
 package com.example.ims
 
+import android.graphics.Color
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
@@ -7,15 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
-
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 
 class MapsFragment : Fragment() {
     override fun onCreateView(
@@ -52,6 +45,8 @@ class MapsFragment : Fragment() {
             }
             val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
             mapGridView.setGridSize(width, height)
+            val markerColor = Color.RED // Set the color of the marker
+            mapGridView.addMarker(width, height, markerColor)
 
             dialog.dismiss()
         }
