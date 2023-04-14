@@ -46,25 +46,25 @@ class MapsFragment : Fragment() {
             val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
             mapGridView.setGridSize(width, height)
 
-            // Array of markers
+            // Array of markers. Replace with real time coordinates from the mower team.
             val markers = listOf(
-                GridMarker(50, 50, Color.RED),
-                GridMarker(51, 51, Color.RED),
-                GridMarker(52, 52, Color.RED),
-                GridMarker(51, 53, Color.RED),
-                GridMarker(50, 54, Color.RED),
-                GridMarker(49, 50, Color.RED),
-                GridMarker(48, 51, Color.RED),
-                GridMarker(47, 52, Color.RED),
-                GridMarker(46, 53, Color.RED),
-                GridMarker(45, 54, Color.RED),
-                GridMarker(44, 100, Color.RED),
-                GridMarker(44, 105, Color.RED),
-                GridMarker(44, 110, Color.RED),
-                GridMarker(44, 107, Color.RED),
-                GridMarker(44, 135, Color.RED),
-                GridMarker(20, 135, Color.RED),
-                GridMarker(25, 125, Color.RED),
+                GridMarker(50, 50, Color.RED, false),
+                GridMarker(51, 51, Color.RED, false),
+                GridMarker(52, 52, Color.RED, false),
+                GridMarker(51, 53, Color.RED, false),
+                GridMarker(50, 54, Color.RED, false),
+                GridMarker(49, 50, Color.RED, false),
+                GridMarker(48, 51, Color.RED, false),
+                GridMarker(47, 52, Color.RED, true),
+                GridMarker(46, 53, Color.RED, false),
+                GridMarker(45, 54, Color.RED, false),
+                GridMarker(44, 100, Color.RED, false),
+                GridMarker(44, 105, Color.RED, false),
+                GridMarker(44, 110, Color.RED, true),
+                GridMarker(44, 107, Color.RED, true),
+                GridMarker(44, 135, Color.RED, true),
+                GridMarker(20, 135, Color.RED, false),
+                GridMarker(25, 125, Color.RED, false),
             )
             mapGridView.addMarkers(markers)
 
