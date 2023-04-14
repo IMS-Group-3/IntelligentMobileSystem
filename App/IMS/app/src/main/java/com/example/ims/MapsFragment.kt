@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -49,6 +50,8 @@ class MapsFragment : Fragment() {
             } else {
                 0
             }
+            val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
+            mapGridView.setGridSize(width, height)
 
             dialog.dismiss()
         }
