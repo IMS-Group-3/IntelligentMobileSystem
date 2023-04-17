@@ -15,6 +15,10 @@ module.exports = function (
     app.get('/', function (req, res) { 
         res.status(200).json({name: "alaa"})
     })
+
+    app.get('/position', function (req, res) { 
+        res.send('HELLO THERE')
+    })
     return app; 
 
 }
