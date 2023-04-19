@@ -9,8 +9,10 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.ViewConfiguration
 import android.widget.GridView
 import android.widget.Toast
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -41,6 +43,26 @@ class MapGridView : View {
     private val markers = mutableListOf<GridMarker>()
     private val matrix = Matrix()
     private val inverseMatrix = Matrix()
+    private var scaleFactor = 1f
+    private val scaleDetector: ScaleGestureDetector
+    private var lastTouchX = 0f
+    private var lastTouchY = 0f
+    private val touchSlop: Int
+
+
+    init {
+        val configuration = ViewConfiguration.get(context)
+        touchSlop = configuration.scaledTouchSlop
+
+        scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                scaleFactor *= detector.scaleFactor
+                scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
+                invalidate()
+                return true
+            }
+        })
+    }
 
     fun setGridSize(width: Int, height: Int) {
         gridWidth = Width
@@ -69,6 +91,22 @@ class MapGridView : View {
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+
+        // Update the matrix with the scale factor
+        val markerX = width / 2f
+        val markerY = height / 2f
+
+        matrix.reset()
+        matrix.postScale(scaleFactor, scaleFactor, markerX, markerY)
+        if (markers.isNotEmpty()) {
+            val marker = markers.last()
+            val cellWidth = width.toFloat() / gridWidth
+            val cellHeight = height.toFloat() / gridHeight
+
+            val x = marker.x * cellWidth + cellWidth / 2
+            val y = marker.y * cellHeight + cellHeight / 2
+            matrix.postTranslate(width / 2f - x * scaleFactor, height / 2f - y * scaleFactor)
+        }
 
         if (canvas != null) {
             canvas.save()
@@ -144,7 +182,30 @@ class MapGridView : View {
         val distance = sqrt(dx * dx + dy * dy)
         return distance <= markerRadius
     }
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+
+        scaleDetector.onTouchEvent(event)
+
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                lastTouchX = event.x
+                lastTouchY = event.y
+            }
+            MotionEvent.ACTION_MOVE -> {
+                if (!scaleDetector.isInProgress) {
+                    val dx = event.x - lastTouchX
+                    val dy = event.y - lastTouchY
+
+                    if (abs(dx) >= touchSlop || abs(dy) >= touchSlop) {
+                        matrix.postTranslate(dx, dy)
+                        invalidate()
+                        lastTouchX = event.x
+                        lastTouchY = event.y
+                    }
+                }
+            }
+
+            }
         if (event?.action == MotionEvent.ACTION_DOWN) {
 
             val touchPoint = floatArrayOf(event.x, event.y)
@@ -164,10 +225,23 @@ class MapGridView : View {
                 if (marker.collisionEvent) {
                     val markerX = marker.x * cellWidth + cellWidth / 2
                     val markerY = marker.y * cellHeight + cellHeight / 2
-                    val markerRadius = 5f * 4  // 5f is the base markerRadius and 4 is the scaling factor
+                    val markerRadius =
+                        5f * 4  // 5f is the base markerRadius and 4 is the scaling factor
 
-                    if (isTouchInsideMarker(touchX, touchY, markerX, markerY, markerRadius)) {
-                        Toast.makeText(context, "Collision avoided at (${marker.x}, ${marker.y})", Toast.LENGTH_SHORT).show()
+                    if (isTouchInsideMarker(
+                            touchX,
+                            touchY,
+                            markerX,
+                            markerY,
+                            markerRadius
+                        )
+                    ) {
+                        // Replace the block below with navigation or popup dialog with the Image recieved from the backend team.
+                        Toast.makeText(
+                            context,
+                            "Collision avoided at (${marker.x}, ${marker.y})",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
