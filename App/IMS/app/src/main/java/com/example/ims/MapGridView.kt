@@ -3,12 +3,16 @@ package com.example.ims
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.GridView
 import android.widget.Toast
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 
@@ -35,6 +39,8 @@ class MapGridView : View {
     private var gridWidth = 0
     private var gridHeight = 0
     private val markers = mutableListOf<GridMarker>()
+    private val matrix = Matrix()
+    private val inverseMatrix = Matrix()
 
     fun setGridSize(width: Int, height: Int) {
         gridWidth = Width
@@ -44,6 +50,16 @@ class MapGridView : View {
 
     fun addMarker(marker: GridMarker) {
         this.markers.add(marker)
+
+        val cellWidth = width.toFloat() / gridWidth
+        val cellHeight = height.toFloat() / gridHeight
+
+        val markerX = marker.x * cellWidth + cellWidth / 2
+        val markerY = marker.y * cellHeight + cellHeight / 2
+
+        matrix.reset()
+        matrix.postTranslate(width / 2f - markerX, height / 2f - markerY)
+
         invalidate()
     }
     fun addMarkers(markers: List<GridMarker>) {
@@ -54,25 +70,17 @@ class MapGridView : View {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+        if (canvas != null) {
+            canvas.save()
+        }
+        if (canvas != null) {
+            canvas.concat(matrix)
+        }
+
+        val cellWidth = width.toFloat() / gridWidth
+        val cellHeight = height.toFloat() / gridHeight
+
         canvas?.let {
-
-            // Calculate the size of each cell
-            val cellWidth = width.toFloat() / gridWidth
-            val cellHeight = height.toFloat() / gridHeight
-
-            // Draw the horizontal lines
-            for (y in 0 until gridHeight + 1) {
-                val startY = y * cellHeight
-                val endY = startY
-                it.drawLine(0f, startY, width.toFloat(), endY, paint)
-            }
-
-            // Draw the vertical lines
-            for (x in 0 until gridWidth + 1) {
-                val startX = x * cellWidth
-                val endX = startX
-                it.drawLine(startX, 0f, endX, height.toFloat(), paint)
-            }
 
             // markers and lines paint style
             val markerPaint = Paint().apply {
@@ -124,6 +132,9 @@ class MapGridView : View {
             }
 
         }
+        if (canvas != null) {
+            canvas.restore()
+        }
     }
 
     // Checking if the click is inside the marker radius
@@ -135,8 +146,14 @@ class MapGridView : View {
     }
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event?.action == MotionEvent.ACTION_DOWN) {
-            val touchX = event.x
-            val touchY = event.y
+
+            val touchPoint = floatArrayOf(event.x, event.y)
+            inverseMatrix.set(matrix)
+            inverseMatrix.invert(inverseMatrix)
+            inverseMatrix.mapPoints(touchPoint)
+
+            val touchX = touchPoint[0]
+            val touchY = touchPoint[1]
 
             // Calculate the size of each cell
             val cellWidth = width.toFloat() / gridWidth
@@ -155,7 +172,7 @@ class MapGridView : View {
                 }
             }
         }
-        return super.onTouchEvent(event)
+        return true
     }
 
 }
