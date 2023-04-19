@@ -4,8 +4,16 @@ MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
 MeUltrasonicSensor ultraSensor(PORT_7);
 MeRGBLed rgbled_0(0,12);
+
+bool LIGHT_DEBUG = true;
+
+//Creating Serial Reciving Arrays
+char PWMRightIn[4];
+char PWMLeftIn[4];
+
 //Empty Loop used by _delay. Danger! Busy Waiting
 void _loop(){}
+
 //Waits the amount of time specified in seconds. Danger! Busy Waiting
 void _delay(float seconds) {
   if(seconds < 0.0){
@@ -14,6 +22,7 @@ void _delay(float seconds) {
   long endTime = millis() + seconds * 1000;
   while(millis() < endTime) _loop();
 }
+
 /*Set All RGBLeds To The Color Determined by the Values Red Green Blue
 and how long in sec it is to show. Danger! Busy Waiting*/
 void RGBLightBlink(float onTime,int red,int green,int blue){
@@ -21,14 +30,16 @@ void RGBLightBlink(float onTime,int red,int green,int blue){
   _delay(onTime);
   RGBLight(0,0,0);//Set Light Off
 }
+
 //Set All RGBLeds To The Color Determined by the Values Red Green Blue
 void RGBLight(int red,int green,int blue){
   rgbled_0.setColor(0,red,green,blue);
   rgbled_0.show();
 }
-//Runs Encoder Loops
-void EncoderLoop(){
-for(int i=0;i<10;i++){
+
+//Runs Engine Encoder Loops
+void RunEncoderLoops(){
+for(int i = 0; i < 10; i++){
     Encoder_1.loop();
     Encoder_2.loop();
     delay(100);
@@ -37,36 +48,35 @@ for(int i=0;i<10;i++){
 
 //performs Avoidens routine Curently Reverces for 1 sec and then stops
 void Avoid(void){
-  //Drive Backward for 0,5 sec
-  Runing(1,128,-128);
-  EncoderLoop();
+  //Stopp
+  SetEnginenPWM(000,000);
+  RunEncoderLoops();
+  _delay(0.5);
+
+  //Todo Comunicate to the raspberry pi that a picture is to be taken.
+
+  //Drive Backward for 1 sec
+  SetEnginenPWM(128,-128);
+  RunEncoderLoops();
   _delay(1);
-  //Turn Right for 1 sec
-  Runing(0,000,000);
-  EncoderLoop();
-  _delay(1);
-}s
-//Movment Control Sets Engiens PWMs And Takes a Driectional Argument as "switchCase" 0 = Stop; 1 = Move; 2 = Avoid
-void Runing(int switchCase,signed int pwmRight,signed int pwmLeft){
-  switch(switchCase){
-    case 0://Stop
-      RGBLightBlink(0.5,128,128,128);//Blink Color White
-      Encoder_1.setTarPWM(pwmRight);//Right Engine negative
-      Encoder_2.setTarPWM(pwmLeft);//Left Engine
-      break;
-    case 1://Move
-      RGBLightBlink(0.5,0,128,0);//Blink Color Green
-      Encoder_1.setTarPWM(pwmRight);//Right Engine negative
-      Encoder_2.setTarPWM(pwmLeft);//Left Engine
-      break;
-    case 2://Avoid
-      RGBLightBlink(0.5,0,0,128);//Blink Color Blue
-      Avoid();//Curently Broken
-      break;
-    default://Default skip
-      RGBLightBlink(0.5,255,0,0);//Blink Color Red
-    break;
-  }  
+  //stopp
+  SetEnginenPWM(000,000);
+  RunEncoderLoops();
+  _delay(0.5);
+  //Forward at Half Speed
+  SetEnginenPWM(-128,128);
+  RunEncoderLoops();
+}
+
+//Movment Control Sets Engiens PWMs
+void SetEnginenPWM(signed int pwmRight,signed int pwmLeft){
+
+  if(LIGHT_DEBUG){
+    RGBLightBlink(0.5,0,128,0);//Blink Color Green
+  }
+
+  Encoder_1.setTarPWM(pwmRight);//Right Engine negative
+  Encoder_2.setTarPWM(pwmLeft);//Left Engine
 }
 
 void isr_process_encoder1(void)
@@ -100,7 +110,7 @@ void setup(){   // put your setup code here, to run once:
   
   //Start of Seral Comunication
   Serial.begin(115200);
-  
+
   // Set up leds
   rgbled_0.setpin(44);
   rgbled_0.fillPixelsBak(0, 2, 1);
@@ -116,57 +126,60 @@ void setup(){   // put your setup code here, to run once:
 void loop(){    // put your main code here, to run repeatedly:
 
   if(ultraSensor.distanceCm()> 10){ //Check if Distance forward is grater then 10 cm
-    RGBLight(0,0,0);//Set Color Off
-     
+    if(LIGHT_DEBUG){
+      RGBLight(0,0,0);//Set Color Off
+    }
     if(Serial.available()){  //Checks if The Serial recive Buffer contains data
-      //creating Reciving arrays
-      char pwmRightIn[4];
-      char pwmLeftIn[4];
-      
       //start population of reciving arrays
       for(int i = 0; i < 7; i++){
         char charIn = Serial.read();//Read in byte from the Recive Buffer
+
         if(i < 4){  // if first 4 caracters
           if(charIn == ',') {  //if End Of first message add \0
-            pwmRightIn[i] = '\0';
+            PWMRightIn[i] = '\0';
           }
           else{   //Else add to first message
-            pwmRightIn[i] = charIn;
+            PWMRightIn[i] = charIn;
           }
         }
         else{    //else 4 last caracters
-          pwmLeftIn[i-4] = charIn;
+          PWMLeftIn[i-4] = charIn;
         }
       }
       
-      //Convert Recived data To signed int
-      signed int pwmRight = atoi(pwmRightIn);
-      signed int pwmLeft = atoi(pwmLeftIn);
+      //Convert Recived data To signed ints
+      signed int pwmRight = atoi(PWMRightIn);
+      signed int pwmLeft = atoi(PWMLeftIn);
       
+      //Checks if pwmRight are in allowed span
+      if(pwmRight>510){
+        pwmRight = 510;
+      }else if(pwmRight<0){
+        pwmRight = 0;
+      }
+      //Checks if pwmLeft are in allowed span
+      if(pwmLeft > 510){
+        pwmLeft = 510;
+      }else if(pwmLeft < 0){
+        pwmLeft = 0;
+      }
+
       //Convert To allowed value Span of (-255) - (255)
       pwmRight = pwmRight - 255;
       pwmLeft = pwmLeft - 255;
-      
-      //Send Values to engine control
-      if(pwmLeft == pwmRight && pwmLeft == 0){
-        //Execute Stopp
-        Runing(0,0,0);
-      }
-      else{
-        //Execute Recived Movment Command
-        Runing(1,pwmRight,pwmLeft);
-      }
+    
+      //Execute Recived Movment Command
+      SetEnginenPWM(pwmRight,pwmLeft);
+      RunEncoderLoops();
     }
   }
   else{ //Distance Less Then 10 cm
-    RGBLight(255,0,0);//Set Color Red
+    if(LIGHT_DEBUG){
+      RGBLight(255,0,0);//Set Color Red
+    }
     
-    Runing(2,0,0);
+    Avoid();//Avoidens rutine
   }
-
-  //Engiens Loop
-  Encoder_1.loop();
-  Encoder_2.loop();
 
   //Ultra Sonic Sensor Minimum Delay of 100 Millisec
   delay(100);
