@@ -157,8 +157,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 // Loop through the markers and check if the touch event is inside the marker
                 markers.forEach { marker ->
                     if (marker.collisionEvent) {
-                        val markerX = marker.x * cellWidth + cellWidth / 2
-                        val markerY = marker.y * cellHeight + cellHeight / 2
+                        val markerX = marker.x * cellWidth + cellWidth / 2 + offsetX
+                        val markerY = marker.y * cellHeight + cellHeight / 2 + offsetY
                         val markerRadius = 5f * 4
 
                         if (isTouchInsideMarker(
