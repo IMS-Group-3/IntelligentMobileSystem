@@ -33,7 +33,7 @@ class MapsFragment : Fragment() {
 
             // Array of markers. Replace with real time coordinates from the mower team.
             val markers = listOf(
-                GridMarker(50, 50, Color.RED, false),
+                GridMarker(50, 50, Color.RED, true),
                 GridMarker(51, 51, Color.RED, false),
                 GridMarker(52, 52, Color.RED, false),
                 GridMarker(51, 53, Color.RED, false),

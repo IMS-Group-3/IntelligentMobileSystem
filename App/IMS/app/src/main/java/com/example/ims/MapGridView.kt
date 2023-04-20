@@ -1,11 +1,9 @@
 package com.example.ims
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -40,7 +38,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector): Boolean {
                 scaleFactor *= detector.scaleFactor
-                scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
+              //  scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
                 invalidate()
                 return true
             }
@@ -147,8 +145,10 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 lastTouchX = event.x
                 lastTouchY = event.y
 
-                val touchX = event.x
-                val touchY = event.y
+                // transform the touch points coordinates
+                val transformedTouchPoint = transformTouchCoordinates(event.x, event.y)
+                val touchX = transformedTouchPoint.x
+                val touchY = transformedTouchPoint.y
 
                 // Calculate the size of each cell
                 val cellWidth = width.toFloat() / Width
@@ -157,10 +157,11 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 // Loop through the markers and check if the touch event is inside the marker
                 markers.forEach { marker ->
                     if (marker.collisionEvent) {
-                        val markerX = marker.x * cellWidth + cellWidth / 2 + offsetX
-                        val markerY = marker.y * cellHeight + cellHeight / 2 + offsetY
+                        val markerX = (marker.x * cellWidth + cellWidth / 2 + offsetX)
+                        val markerY = (marker.y * cellHeight + cellHeight / 2 + offsetY)
                         val markerRadius = 5f * 4
 
+                        Log.e("ScaleFactor", scaleFactor.toString())
                         if (isTouchInsideMarker(
                                 touchX,
                                 touchY,
@@ -194,11 +195,31 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         return true
     }
 
+    // Transforms coordinates from the touch points to be in the same coordinate system as the markers
+    private fun transformTouchCoordinates(touchX: Float, touchY: Float): PointF {
+        val invertedMatrix = Matrix()
+        matrix.invert(invertedMatrix)
+
+        val touchCoords = floatArrayOf(touchX, touchY)
+        invertedMatrix.mapPoints(touchCoords)
+
+        return PointF(touchCoords[0], touchCoords[1])
+    }
     // Checks if the pointer is inside the marker radius
     private fun isTouchInsideMarker(touchX: Float, touchY: Float, markerX: Float, markerY: Float, markerRadius: Float): Boolean {
         val dx = touchX - markerX
         val dy = touchY - markerY
+        Log.e("isTouchInsideMarker", "------------------ Inne i isTouchInsideMarker -----------------------")
+        Log.e("touchX", touchX.toString())
+        Log.e("markerX", markerX.toString())
+        Log.e("dx", dx.toString())
+        Log.e("------------------", "-----------------------------------------------------------------------")
+        Log.e("touchY", touchY.toString())
+        Log.e("markerY", markerY.toString())
+        Log.e("dy", dy.toString())
+        Log.e("markerRadius", markerRadius.toString())
         val distance = sqrt(dx * dx + dy * dy)
+        Log.e("distance", distance.toString())
         return distance <= markerRadius
     }
 
