@@ -29,6 +29,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var offsetY = 0f
     private var cellWidth  = 0f
     private var cellHeight = 0f
+    private var centerMower = true
 
     init {
         val configuration = ViewConfiguration.get(context)
@@ -64,15 +65,15 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         matrix.postScale(scaleFactor, scaleFactor, markerX, markerY)
 
         // Centers the last marker on the map
-    /*    if (markers.isNotEmpty()) {
+        if (centerMower && markers.isNotEmpty()) {
             val marker = markers.last()
-            val cellWidth = width.toFloat() / gridWidth
-            val cellHeight = height.toFloat() / gridHeight
+            val cellWidth = width.toFloat() / Width
+            val cellHeight = height.toFloat() / Height
 
             val x = marker.x * cellWidth + cellWidth / 2
             val y = marker.y * cellHeight + cellHeight / 2
             matrix.postTranslate(width / 2f - x * scaleFactor, height / 2f - y * scaleFactor)
-        }*/
+        }
 
         if (canvas != null) {
             canvas.save()
@@ -138,7 +139,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
-
+        centerMower = false
         when (event.action) {
             // Pointer touches screen
             MotionEvent.ACTION_DOWN -> {
@@ -161,7 +162,6 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                         val markerY = marker.y * cellHeight + cellHeight / 2 + offsetY
                         val markerRadius = 5f * 4
 
-                        Log.e("ScaleFactor", scaleFactor.toString())
                         if (isTouchInsideMarker(
                                 touchX,
                                 touchY,
