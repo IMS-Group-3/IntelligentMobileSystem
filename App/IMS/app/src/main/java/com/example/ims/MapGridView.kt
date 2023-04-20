@@ -225,7 +225,20 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         val x = marker.x * cellWidth + cellWidth / 2
         val y = marker.y * cellHeight + cellHeight / 2
-        matrix.postTranslate(width / 2f - x * scaleFactor, height / 2f - y * scaleFactor)
+
+        // Calculate the translation required to center the latest marker
+        val translateX = (width / 2f - x * scaleFactor) - offsetX
+        val translateY = (height / 2f - y * scaleFactor) - offsetY
+
+        // Apply the translation
+        offsetX += translateX
+        offsetY += translateY
+
+        // Apply the scaleFactor
+        matrix.setScale(scaleFactor, scaleFactor, width / 2f, height / 2f)
+
+        // Redraw the map
+        invalidate()
 
         centerMower = true
     }
