@@ -66,13 +66,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         // Centers the last marker on the map
         if (centerMower && markers.isNotEmpty()) {
-            val marker = markers.last()
-            val cellWidth = width.toFloat() / Width
-            val cellHeight = height.toFloat() / Height
-
-            val x = marker.x * cellWidth + cellWidth / 2
-            val y = marker.y * cellHeight + cellHeight / 2
-            matrix.postTranslate(width / 2f - x * scaleFactor, height / 2f - y * scaleFactor)
+            centerMap()
         }
 
         if (canvas != null) {
@@ -223,5 +217,16 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         matrix.postTranslate(width / 2f - markerX, height / 2f - markerY)
 
         invalidate()
+    }
+    fun centerMap(){
+        val marker = markers.last()
+        val cellWidth = width.toFloat() / Width
+        val cellHeight = height.toFloat() / Height
+
+        val x = marker.x * cellWidth + cellWidth / 2
+        val y = marker.y * cellHeight + cellHeight / 2
+        matrix.postTranslate(width / 2f - x * scaleFactor, height / 2f - y * scaleFactor)
+
+        centerMower = true
     }
 }
