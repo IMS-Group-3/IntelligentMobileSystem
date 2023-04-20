@@ -10,52 +10,34 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewConfiguration
-import android.widget.GridView
 import android.widget.Toast
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
 
-class MapGridView : View {
-    private var Width: Int
-    private var Height: Int
+class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    constructor(context: Context, mapWidth: Int, mapHeight: Int) : super(context) {
-        this.Width = mapWidth
-        this.Height = mapHeight
-    }
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        this.Width = 100
-        this.Height = 150
-    }
-
-    // Paint val for the grid
-    private val paint = Paint().apply {
-        color = Color.WHITE
-        style = Paint.Style.STROKE
-        strokeWidth = 2f
-    }
-
-    private var gridWidth = 0
-    private var gridHeight = 0
+    private var Width: Int = 100
+    private var Height: Int = 150
     private val markers = mutableListOf<GridMarker>()
     private val matrix = Matrix()
-    private val inverseMatrix = Matrix()
     private var scaleFactor = 1f
     private val scaleDetector: ScaleGestureDetector
+    private val touchSlop: Int
     private var lastTouchX = 0f
     private var lastTouchY = 0f
-    private val touchSlop: Int
     private var offsetX = 0f
     private var offsetY = 0f
+    private var cellWidth  = 0f
+    private var cellHeight = 0f
 
     init {
         val configuration = ViewConfiguration.get(context)
         touchSlop = configuration.scaledTouchSlop
 
-        scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+
+            scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector): Boolean {
                 scaleFactor *= detector.scaleFactor
                 scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
@@ -64,44 +46,27 @@ class MapGridView : View {
             }
         })
     }
+    // initiallizes the width and height of the view.
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
 
-    fun setGridSize(width: Int, height: Int) {
-        gridWidth = Width
-        gridHeight = Height
-        invalidate()
-    }
-
-    fun addMarker(marker: GridMarker) {
-        this.markers.add(marker)
-
-        val cellWidth = width.toFloat() / gridWidth
-        val cellHeight = height.toFloat() / gridHeight
-
-        val markerX = marker.x * cellWidth + cellWidth / 2
-        val markerY = marker.y * cellHeight + cellHeight / 2
-
-        matrix.reset()
-        matrix.postTranslate(width / 2f - markerX, height / 2f - markerY)
-
-        invalidate()
-    }
-    fun addMarkers(markers: List<GridMarker>) {
-        this.markers.addAll(markers)
-        invalidate()
+        // Calculate cellWidth and cellHeight based on the view's width and height
+        cellWidth = width.toFloat() / Width
+        cellHeight = height.toFloat() / Height
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        // Update the matrix with the scale factor
         val markerX = width / 2f
         val markerY = height / 2f
 
+        // Updates the matrix with the scale factor
         matrix.reset()
         matrix.postScale(scaleFactor, scaleFactor, markerX, markerY)
 
         // Centers the last marker on the map
-      /*  if (markers.isNotEmpty()) {
+    /*    if (markers.isNotEmpty()) {
             val marker = markers.last()
             val cellWidth = width.toFloat() / gridWidth
             val cellHeight = height.toFloat() / gridHeight
@@ -113,17 +78,12 @@ class MapGridView : View {
 
         if (canvas != null) {
             canvas.save()
-        }
-        if (canvas != null) {
             canvas.concat(matrix)
         }
 
-        val cellWidth = width.toFloat() / gridWidth
-        val cellHeight = height.toFloat() / gridHeight
-
         canvas?.let {
 
-            // markers and lines paint style
+            // Sets markers and lines paint style
             val markerPaint = Paint().apply {
                 style = Paint.Style.FILL
             }
@@ -136,7 +96,7 @@ class MapGridView : View {
 
                 val markerX = marker.x * cellWidth + cellWidth / 2
                 val markerY = marker.y * cellHeight + cellHeight / 2
-                // Draw marker
+                // Draws markers
                 if (index == markers.size - 1){
                     markerPaint.color = Color.BLACK
                     markerRadius = 15f
@@ -147,7 +107,7 @@ class MapGridView : View {
                     it.drawCircle(markerX + offsetX, markerY + offsetY, markerRadius, markerPaint)
                 }
 
-                // Draw line between markers
+                // Draws line between markers
                 if (index > 0) {
                     val prevMarker = markers[index - 1]
                     val prevMarkerX = prevMarker.x * cellWidth + cellWidth / 2
@@ -159,12 +119,12 @@ class MapGridView : View {
                 }
             }
 
-            // Adding collision event markers to the grid
+            // Adds collision event markers to the map
             markers.forEachIndexed { index, marker ->
                 val markerX = marker.x * cellWidth + cellWidth / 2
                 val markerY = marker.y * cellHeight + cellHeight / 2
 
-                // Draw blue circle on top of red marker when collisionEvent is true
+                // Draws blue circle on the map when collisionEvent is true
                 if (marker.collisionEvent) {
                     markerPaint.color = Color.BLUE
                     val innerMarkerRadius = markerRadius * 4
@@ -178,40 +138,28 @@ class MapGridView : View {
         }
     }
 
-    // Checking if the click is inside the marker radius
-    private fun isTouchInsideMarker(touchX: Float, touchY: Float, markerX: Float, markerY: Float, markerRadius: Float): Boolean {
-        val dx = touchX - markerX
-        val dy = touchY - markerY
-        val distance = sqrt(dx * dx + dy * dy)
-        return distance <= markerRadius
-    }
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
 
         when (event.action) {
+            // Pointer touches screen
             MotionEvent.ACTION_DOWN -> {
                 lastTouchX = event.x
                 lastTouchY = event.y
 
-                val touchPoint = floatArrayOf(event.x, event.y)
-                inverseMatrix.set(matrix)
-                inverseMatrix.invert(inverseMatrix)
-                inverseMatrix.mapPoints(touchPoint)
-
-                val touchX = touchPoint[0]
-                val touchY = touchPoint[1]
+                val touchX = event.x
+                val touchY = event.y
 
                 // Calculate the size of each cell
-                val cellWidth = width.toFloat() / gridWidth
-                val cellHeight = height.toFloat() / gridHeight
+                val cellWidth = width.toFloat() / Width
+                val cellHeight = height.toFloat() / Height
 
                 // Loop through the markers and check if the touch event is inside the marker
                 markers.forEach { marker ->
                     if (marker.collisionEvent) {
                         val markerX = marker.x * cellWidth + cellWidth / 2
                         val markerY = marker.y * cellHeight + cellHeight / 2
-                        val markerRadius =
-                            5f * 4  // 5f is the base markerRadius and 4 is the scaling factor
+                        val markerRadius = 5f * 4
 
                         if (isTouchInsideMarker(
                                 touchX,
@@ -231,22 +179,38 @@ class MapGridView : View {
                     }
                 }
             }
+            // Centers the map on the current location of the pointer
             MotionEvent.ACTION_MOVE -> {
-                if (!scaleDetector.isInProgress) {
-                    val dx = event.x - lastTouchX
-                    val dy = event.y - lastTouchY
 
-                    offsetX += dx
-                    offsetY += dy
+                    offsetX += event.x - lastTouchX
+                    offsetY += event.y - lastTouchY
 
                     invalidate()
 
                     lastTouchX = event.x
                     lastTouchY = event.y
-                }
             }
         }
         return true
     }
 
+    // Checks if the pointer is inside the marker radius
+    private fun isTouchInsideMarker(touchX: Float, touchY: Float, markerX: Float, markerY: Float, markerRadius: Float): Boolean {
+        val dx = touchX - markerX
+        val dy = touchY - markerY
+        val distance = sqrt(dx * dx + dy * dy)
+        return distance <= markerRadius
+    }
+
+    // Adds marker to map
+    fun addMarker(marker: GridMarker) {
+        this.markers.add(marker)
+        val markerX = marker.x * cellWidth + cellWidth / 2
+        val markerY = marker.y * cellHeight + cellHeight / 2
+
+        matrix.reset()
+        matrix.postTranslate(width / 2f - markerX, height / 2f - markerY)
+
+        invalidate()
+    }
 }

@@ -29,11 +29,7 @@ class MapsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
             val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
-
-        // update the setGrid to not take any variables
-            mapGridView.setGridSize(100, 150)
 
             // Array of markers. Replace with real time coordinates from the mower team.
             val markers = listOf(
@@ -66,11 +62,11 @@ class MapsFragment : Fragment() {
                 GridMarker(25, 75, Color.RED, false),
             )
 
-            // Simulate adding markers with a delay
+            // Simulate adding markers with a 500ms delay
             CoroutineScope(Dispatchers.Main).launch {
                 markers.forEach { marker ->
                     mapGridView.addMarker(marker)
-                    delay(500) // Add a 500ms delay between adding markers
+                    delay(500)
                 }
             }
 
