@@ -38,7 +38,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
             override fun onScale(detector: ScaleGestureDetector): Boolean {
                 scaleFactor *= detector.scaleFactor
-              //  scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
+                scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
                 invalidate()
                 return true
             }
@@ -157,8 +157,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 // Loop through the markers and check if the touch event is inside the marker
                 markers.forEach { marker ->
                     if (marker.collisionEvent) {
-                        val markerX = (marker.x * cellWidth + cellWidth / 2 + offsetX)
-                        val markerY = (marker.y * cellHeight + cellHeight / 2 + offsetY)
+                        val markerX = marker.x * cellWidth + cellWidth / 2 + offsetX
+                        val markerY = marker.y * cellHeight + cellHeight / 2 + offsetY
                         val markerRadius = 5f * 4
 
                         Log.e("ScaleFactor", scaleFactor.toString())
@@ -182,7 +182,6 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
             // Centers the map on the current location of the pointer
             MotionEvent.ACTION_MOVE -> {
-
                     offsetX += event.x - lastTouchX
                     offsetY += event.y - lastTouchY
 
@@ -209,17 +208,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private fun isTouchInsideMarker(touchX: Float, touchY: Float, markerX: Float, markerY: Float, markerRadius: Float): Boolean {
         val dx = touchX - markerX
         val dy = touchY - markerY
-        Log.e("isTouchInsideMarker", "------------------ Inne i isTouchInsideMarker -----------------------")
-        Log.e("touchX", touchX.toString())
-        Log.e("markerX", markerX.toString())
-        Log.e("dx", dx.toString())
-        Log.e("------------------", "-----------------------------------------------------------------------")
-        Log.e("touchY", touchY.toString())
-        Log.e("markerY", markerY.toString())
-        Log.e("dy", dy.toString())
-        Log.e("markerRadius", markerRadius.toString())
         val distance = sqrt(dx * dx + dy * dy)
-        Log.e("distance", distance.toString())
+
         return distance <= markerRadius
     }
 
