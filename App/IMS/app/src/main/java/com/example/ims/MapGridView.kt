@@ -183,13 +183,50 @@ class MapGridView : View {
         return distance <= markerRadius
     }
     override fun onTouchEvent(event: MotionEvent): Boolean {
-
         scaleDetector.onTouchEvent(event)
 
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 lastTouchX = event.x
                 lastTouchY = event.y
+
+                val touchPoint = floatArrayOf(event.x, event.y)
+                inverseMatrix.set(matrix)
+                inverseMatrix.invert(inverseMatrix)
+                inverseMatrix.mapPoints(touchPoint)
+
+                val touchX = touchPoint[0]
+                val touchY = touchPoint[1]
+
+                // Calculate the size of each cell
+                val cellWidth = width.toFloat() / gridWidth
+                val cellHeight = height.toFloat() / gridHeight
+
+                // Loop through the markers and check if the touch event is inside the marker
+                markers.forEach { marker ->
+                    if (marker.collisionEvent) {
+                        val markerX = marker.x * cellWidth + cellWidth / 2
+                        val markerY = marker.y * cellHeight + cellHeight / 2
+                        val markerRadius =
+                            5f * 4  // 5f is the base markerRadius and 4 is the scaling factor
+
+                        if (isTouchInsideMarker(
+                                touchX,
+                                touchY,
+                                markerX,
+                                markerY,
+                                markerRadius
+                            )
+                        ) {
+                            // Replace the block below with navigation or popup dialog with the Image received from the backend team.
+                            Toast.makeText(
+                                context,
+                                "Collision avoided at (${marker.x}, ${marker.y})",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
             }
             MotionEvent.ACTION_MOVE -> {
                 if (!scaleDetector.isInProgress) {
@@ -201,47 +238,6 @@ class MapGridView : View {
                         invalidate()
                         lastTouchX = event.x
                         lastTouchY = event.y
-                    }
-                }
-            }
-
-            }
-        if (event?.action == MotionEvent.ACTION_DOWN) {
-
-            val touchPoint = floatArrayOf(event.x, event.y)
-            inverseMatrix.set(matrix)
-            inverseMatrix.invert(inverseMatrix)
-            inverseMatrix.mapPoints(touchPoint)
-
-            val touchX = touchPoint[0]
-            val touchY = touchPoint[1]
-
-            // Calculate the size of each cell
-            val cellWidth = width.toFloat() / gridWidth
-            val cellHeight = height.toFloat() / gridHeight
-
-            // Loop through the markers and check if the touch event is inside the marker
-            markers.forEach { marker ->
-                if (marker.collisionEvent) {
-                    val markerX = marker.x * cellWidth + cellWidth / 2
-                    val markerY = marker.y * cellHeight + cellHeight / 2
-                    val markerRadius =
-                        5f * 4  // 5f is the base markerRadius and 4 is the scaling factor
-
-                    if (isTouchInsideMarker(
-                            touchX,
-                            touchY,
-                            markerX,
-                            markerY,
-                            markerRadius
-                        )
-                    ) {
-                        // Replace the block below with navigation or popup dialog with the Image recieved from the backend team.
-                        Toast.makeText(
-                            context,
-                            "Collision avoided at (${marker.x}, ${marker.y})",
-                            Toast.LENGTH_SHORT
-                        ).show()
                     }
                 }
             }
