@@ -33,7 +33,7 @@ class MapsFragment : Fragment() {
             val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
 
         // update the setGrid to not take any variables
-            mapGridView.setGridSize(0, 0)
+            mapGridView.setGridSize(100, 150)
 
             // Array of markers. Replace with real time coordinates from the mower team.
             val markers = listOf(

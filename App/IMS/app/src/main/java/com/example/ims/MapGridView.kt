@@ -48,7 +48,8 @@ class MapGridView : View {
     private var lastTouchX = 0f
     private var lastTouchY = 0f
     private val touchSlop: Int
-
+    private var offsetX = 0f
+    private var offsetY = 0f
 
     init {
         val configuration = ViewConfiguration.get(context)
@@ -98,7 +99,9 @@ class MapGridView : View {
 
         matrix.reset()
         matrix.postScale(scaleFactor, scaleFactor, markerX, markerY)
-        if (markers.isNotEmpty()) {
+
+        // Centers the last marker on the map
+      /*  if (markers.isNotEmpty()) {
             val marker = markers.last()
             val cellWidth = width.toFloat() / gridWidth
             val cellHeight = height.toFloat() / gridHeight
@@ -106,7 +109,7 @@ class MapGridView : View {
             val x = marker.x * cellWidth + cellWidth / 2
             val y = marker.y * cellHeight + cellHeight / 2
             matrix.postTranslate(width / 2f - x * scaleFactor, height / 2f - y * scaleFactor)
-        }
+        }*/
 
         if (canvas != null) {
             canvas.save()
@@ -137,11 +140,11 @@ class MapGridView : View {
                 if (index == markers.size - 1){
                     markerPaint.color = Color.BLACK
                     markerRadius = 15f
-                    it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+                    it.drawCircle(markerX + offsetX, markerY + offsetY, markerRadius, markerPaint)
                     markerRadius = 5f
                 } else {
                     markerPaint.color = marker.color
-                    it.drawCircle(markerX, markerY, markerRadius, markerPaint)
+                    it.drawCircle(markerX + offsetX, markerY + offsetY, markerRadius, markerPaint)
                 }
 
                 // Draw line between markers
@@ -152,7 +155,7 @@ class MapGridView : View {
 
                     linePaint.color = marker.color
                     linePaint.strokeWidth = markerRadius * 2
-                    it.drawLine(prevMarkerX, prevMarkerY, markerX, markerY, linePaint)
+                    it.drawLine(prevMarkerX + offsetX, prevMarkerY + offsetY, markerX + offsetX, markerY + offsetY, linePaint)
                 }
             }
 
@@ -165,7 +168,7 @@ class MapGridView : View {
                 if (marker.collisionEvent) {
                     markerPaint.color = Color.BLUE
                     val innerMarkerRadius = markerRadius * 4
-                    it.drawCircle(markerX, markerY, innerMarkerRadius, markerPaint)
+                    it.drawCircle(markerX + offsetX, markerY + offsetY, innerMarkerRadius, markerPaint)
                 }
             }
 
@@ -233,12 +236,13 @@ class MapGridView : View {
                     val dx = event.x - lastTouchX
                     val dy = event.y - lastTouchY
 
-                    if (abs(dx) >= touchSlop || abs(dy) >= touchSlop) {
-                        matrix.postTranslate(dx, dy)
-                        invalidate()
-                        lastTouchX = event.x
-                        lastTouchY = event.y
-                    }
+                    offsetX += dx
+                    offsetY += dy
+
+                    invalidate()
+
+                    lastTouchX = event.x
+                    lastTouchY = event.y
                 }
             }
         }
