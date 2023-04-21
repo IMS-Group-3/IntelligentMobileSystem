@@ -63,19 +63,19 @@ class MapsFragment : Fragment() {
             GridMarker(2500, 7500, Color.BLUE, false),
         )
 
-
         centerButton.setOnClickListener {
-            if (isStarted) {
-                mapGridView.centerMap()
-            } else {
+            mapGridView.centerMap()
+            if (!isStarted) {
                 centerButton.text = "Center"
                 isStarted = true
+
                 // Simulate adding markers with a 500ms delay
                 CoroutineScope(Dispatchers.Main).launch {
                     markers.forEach { marker ->
                         mapGridView.addMarker(marker)
-                        delay(500)
+                        delay(300)
                     }
+
                     centerButton.text = "Start"
                     isStarted = false
                 }
