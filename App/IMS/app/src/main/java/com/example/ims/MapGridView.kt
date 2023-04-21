@@ -87,41 +87,39 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
             markers.forEachIndexed { index, marker ->
 
-                val markerX = marker.x * cellWidth + cellWidth / 2
-                val markerY = marker.y * cellHeight + cellHeight / 2
+                val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
                 // Draws markers
                 if (index == markers.size - 1){
                     markerPaint.color = Color.BLACK
                     markerRadius = 15f
-                    it.drawCircle(markerX + offsetX, markerY + offsetY, markerRadius, markerPaint)
+                    it.drawCircle(markerCenterX + offsetX, markerCenterY + offsetY, markerRadius, markerPaint)
                     markerRadius = 5f
                 } else {
                     markerPaint.color = marker.color
-                    it.drawCircle(markerX + offsetX, markerY + offsetY, markerRadius, markerPaint)
+                    it.drawCircle(markerCenterX + offsetX, markerCenterY + offsetY, markerRadius, markerPaint)
                 }
 
                 // Draws line between markers
                 if (index > 0) {
                     val prevMarker = markers[index - 1]
-                    val prevMarkerX = prevMarker.x * cellWidth + cellWidth / 2
-                    val prevMarkerY = prevMarker.y * cellHeight + cellHeight / 2
+                    val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
 
                     linePaint.color = marker.color
                     linePaint.strokeWidth = markerRadius * 2
-                    it.drawLine(prevMarkerX + offsetX, prevMarkerY + offsetY, markerX + offsetX, markerY + offsetY, linePaint)
+                    it.drawLine(prevMarkerX + offsetX, prevMarkerY + offsetY, markerCenterX + offsetX, markerCenterY + offsetY, linePaint)
                 }
             }
 
             // Adds collision event markers to the map
             markers.forEachIndexed { index, marker ->
-                val markerX = marker.x * cellWidth + cellWidth / 2
-                val markerY = marker.y * cellHeight + cellHeight / 2
+                // Get the center coordinates of the latest marker
+                val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
                 // Draws blue circle on the map when collisionEvent is true
                 if (marker.collisionEvent) {
                     markerPaint.color = Color.BLUE
                     val innerMarkerRadius = markerRadius * 4
-                    it.drawCircle(markerX + offsetX, markerY + offsetY, innerMarkerRadius, markerPaint)
+                    it.drawCircle(markerCenterX + offsetX, markerCenterY + offsetY, innerMarkerRadius, markerPaint)
                 }
             }
 
@@ -152,15 +150,16 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 // Loop through the markers and check if the touch event is inside the marker
                 markers.forEach { marker ->
                     if (marker.collisionEvent) {
-                        val markerX = marker.x * cellWidth + cellWidth / 2 + offsetX
-                        val markerY = marker.y * cellHeight + cellHeight / 2 + offsetY
+                        val markerCenterX = marker.x * cellWidth + cellWidth / 2 + offsetX
+                        val markerCenterY = marker.y * cellHeight + cellHeight / 2 + offsetY
+
                         val markerRadius = 5f * 4
 
                         if (isTouchInsideMarker(
                                 touchX,
                                 touchY,
-                                markerX,
-                                markerY,
+                                markerCenterX,
+                                markerCenterY,
                                 markerRadius
                             )
                         ) {
@@ -210,20 +209,24 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     // Adds marker to map
     fun addMarker(marker: GridMarker) {
         this.markers.add(marker)
-        val markerX = marker.x * cellWidth + cellWidth / 2
-        val markerY = marker.y * cellHeight + cellHeight / 2
+        val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
         matrix.reset()
-        matrix.postTranslate(width / 2f - markerX, height / 2f - markerY)
+        matrix.postTranslate(width / 2f - markerCenterX, height / 2f - markerCenterY)
 
         invalidate()
     }
+    fun getMarkerCenterCoordinates(marker: GridMarker): Pair<Float, Float> {
+        val markerCenterX = marker.x * cellWidth + cellWidth / 2
+        val markerCenterY = marker.y * cellHeight + cellHeight / 2
+
+        return Pair(markerCenterX, markerCenterY)
+    }
+
     fun centerMap() {
         val marker = markers.last()
         scaleFactor = 1f
-
-        val markerCenterX = marker.x * cellWidth + cellWidth / 2
-        val markerCenterY = marker.y * cellHeight + cellHeight / 2
+        val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
         // Calculate the translation required to center the latest marker
         offsetX = (width / 2f - markerCenterX * scaleFactor)
