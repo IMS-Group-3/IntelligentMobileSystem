@@ -51,11 +51,15 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         // Initialize marker and line paint style
         markerPaint.style = Paint.Style.FILL
         linePaint.style = Paint.Style.STROKE
+
         iconWarning = ContextCompat.getDrawable(context, R.drawable.baseline_warning_24)!!
         iconMower = ContextCompat.getDrawable(context, R.drawable.robotmower2)!!
+
         val backgroundDrawable = ContextCompat.getDrawable(context, R.drawable.grass_ims)
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
+        // Dummy marker to display the mower icon
+        markers.add(GridMarker(5000, 5000, Color.RED, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -143,7 +147,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                         linePaint
                     )
                 }
-                // Draws markers
+                // Draws mower
                 if (index == markers.size - 1) {
                     val iconWidth = iconWarning.intrinsicWidth
                     val iconHeight = iconWarning.intrinsicHeight

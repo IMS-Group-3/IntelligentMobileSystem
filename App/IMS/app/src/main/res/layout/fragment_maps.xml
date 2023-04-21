@@ -14,10 +14,10 @@
         />
 
     <Button
-        android:id="@+id/centerButton"
+        android:id="@+id/startButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Center"
+        android:text="Start"
         android:textColor="@android:color/white"
         android:layout_gravity="bottom|center"
         android:layout_marginBottom="70dp"
