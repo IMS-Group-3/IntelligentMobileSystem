@@ -29,7 +29,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var offsetY = 0f
     private var cellWidth  = 0f
     private var cellHeight = 0f
-    private var centerMower = true
+    private var isMarkerCentered = true
 
     init {
         val configuration = ViewConfiguration.get(context)
@@ -65,7 +65,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         matrix.postScale(scaleFactor, scaleFactor, markerX, markerY)
 
         // Centers the last marker on the map
-        if (centerMower && markers.isNotEmpty()) {
+        if (isMarkerCentered && markers.isNotEmpty()) {
             centerMap()
         }
 
@@ -133,7 +133,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleDetector.onTouchEvent(event)
-        centerMower = false
+        isMarkerCentered = false
         when (event.action) {
             // Pointer touches screen
             MotionEvent.ACTION_DOWN -> {
@@ -193,10 +193,10 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         val invertedMatrix = Matrix()
         matrix.invert(invertedMatrix)
 
-        val touchCoords = floatArrayOf(touchX, touchY)
-        invertedMatrix.mapPoints(touchCoords)
+        val touchCoordinates = floatArrayOf(touchX, touchY)
+        invertedMatrix.mapPoints(touchCoordinates)
 
-        return PointF(touchCoords[0], touchCoords[1])
+        return PointF(touchCoordinates[0], touchCoordinates[1])
     }
     // Checks if the pointer is inside the marker radius
     private fun isTouchInsideMarker(touchX: Float, touchY: Float, markerX: Float, markerY: Float, markerRadius: Float): Boolean {
@@ -222,24 +222,16 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         val marker = markers.last()
         scaleFactor = 1f
 
-        val x = marker.x * cellWidth + cellWidth / 2
-        val y = marker.y * cellHeight + cellHeight / 2
-
-        val pivotX = width / 2f
-        val pivotY = height / 2f
-
-        // Calculate the scaled marker position
-        val scaledX = (x - pivotX) * scaleFactor + pivotX
-        val scaledY = (y - pivotY) * scaleFactor + pivotY
+        val markerCenterX = marker.x * cellWidth + cellWidth / 2
+        val markerCenterY = marker.y * cellHeight + cellHeight / 2
 
         // Calculate the translation required to center the latest marker
-        offsetX = (pivotX - scaledX)
-        offsetY = (pivotY - scaledY)
+        offsetX = (width / 2f - markerCenterX * scaleFactor)
+        offsetY = (height / 2f - markerCenterY * scaleFactor)
 
-        // Redraw the map
         invalidate()
 
-        centerMower = true
+        isMarkerCentered = true
     }
 
 
