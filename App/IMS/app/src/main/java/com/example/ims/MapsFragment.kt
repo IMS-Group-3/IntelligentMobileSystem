@@ -1,5 +1,6 @@
 package com.example.ims
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.fragment.app.Fragment
 
@@ -76,6 +77,7 @@ class MapsFragment : Fragment() {
                 mapGridView.centerMap()
                 centerButton.show()
                 startButton.setText(R.string.stop_button)
+                startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
                 isStarted = true
 
                 // Simulate adding markers with a 500ms delay
@@ -87,7 +89,7 @@ class MapsFragment : Fragment() {
                         }
                     }
                     startButton.setText(R.string.start_button)
-
+                    startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
                     isStopped = true
                     isStarted = false
                 }

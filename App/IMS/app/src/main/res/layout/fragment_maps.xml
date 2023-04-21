@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:text="@string/start_button"
         android:textColor="@android:color/white"
+        android:backgroundTint="#223a1d"
         android:layout_gravity="bottom|center"
         android:layout_margin="70dp"
         />
@@ -27,7 +28,6 @@
         android:id="@+id/centerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/center_button"
         app:tint="@color/white"
         android:backgroundTint="#00285C"
         android:layout_gravity="top|start"
