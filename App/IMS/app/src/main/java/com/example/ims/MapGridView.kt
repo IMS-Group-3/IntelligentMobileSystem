@@ -3,7 +3,6 @@ package com.example.ims
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -16,9 +15,12 @@ import kotlin.math.sqrt
 
 class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    private var Width: Int = 100
-    private var Height: Int = 150
+    private var canvasWidth: Int = 100
+    private var canvasHeight: Int = 150
     private val markers = mutableListOf<GridMarker>()
+    private val markerPaint = Paint()
+    private val linePaint = Paint()
+    private var markerRadius = 5f
     private val matrix = Matrix()
     private var scaleFactor = 1f
     private val scaleDetector: ScaleGestureDetector
@@ -27,7 +29,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var lastTouchY = 0f
     private var offsetX = 0f
     private var offsetY = 0f
-    private var cellWidth  = 0f
+    private var cellWidth = 0f
     private var cellHeight = 0f
     private var isMarkerCentered = true
 
@@ -35,23 +37,29 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         val configuration = ViewConfiguration.get(context)
         touchSlop = configuration.scaledTouchSlop
 
+        // Initialize marker and line paint style
+        markerPaint.style = Paint.Style.FILL
+        linePaint.style = Paint.Style.STROKE
 
-            scaleDetector = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScale(detector: ScaleGestureDetector): Boolean {
-                scaleFactor *= detector.scaleFactor
-                scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
-                invalidate()
-                return true
-            }
-        })
+        scaleDetector = ScaleGestureDetector(
+            context,
+            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    scaleFactor *= detector.scaleFactor
+                    scaleFactor = max(0.1f, min(scaleFactor, 5.0f))
+                    invalidate()
+                    return true
+                }
+            })
     }
+
     // initiallizes the width and height of the view.
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
         // Calculate cellWidth and cellHeight based on the view's width and height
-        cellWidth = width.toFloat() / Width
-        cellHeight = height.toFloat() / Height
+        cellWidth = width.toFloat() / canvasWidth
+        cellHeight = height.toFloat() / canvasHeight
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -76,27 +84,27 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         canvas?.let {
 
-            // Sets markers and lines paint style
-            val markerPaint = Paint().apply {
-                style = Paint.Style.FILL
-            }
-            val linePaint = Paint().apply {
-                style = Paint.Style.STROKE
-            }
-            var markerRadius = 5f
-
             markers.forEachIndexed { index, marker ->
-
                 val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
                 // Draws markers
-                if (index == markers.size - 1){
+                if (index == markers.size - 1) {
                     markerPaint.color = Color.BLACK
                     markerRadius = 15f
-                    it.drawCircle(markerCenterX + offsetX, markerCenterY + offsetY, markerRadius, markerPaint)
+                    it.drawCircle(
+                        markerCenterX + offsetX,
+                        markerCenterY + offsetY,
+                        markerRadius,
+                        markerPaint
+                    )
                     markerRadius = 5f
                 } else {
                     markerPaint.color = marker.color
-                    it.drawCircle(markerCenterX + offsetX, markerCenterY + offsetY, markerRadius, markerPaint)
+                    it.drawCircle(
+                        markerCenterX + offsetX,
+                        markerCenterY + offsetY,
+                        markerRadius,
+                        markerPaint
+                    )
                 }
 
                 // Draws line between markers
@@ -106,7 +114,13 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
                     linePaint.color = marker.color
                     linePaint.strokeWidth = markerRadius * 2
-                    it.drawLine(prevMarkerX + offsetX, prevMarkerY + offsetY, markerCenterX + offsetX, markerCenterY + offsetY, linePaint)
+                    it.drawLine(
+                        prevMarkerX + offsetX,
+                        prevMarkerY + offsetY,
+                        markerCenterX + offsetX,
+                        markerCenterY + offsetY,
+                        linePaint
+                    )
                 }
             }
 
@@ -119,7 +133,12 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 if (marker.collisionEvent) {
                     markerPaint.color = Color.BLUE
                     val innerMarkerRadius = markerRadius * 4
-                    it.drawCircle(markerCenterX + offsetX, markerCenterY + offsetY, innerMarkerRadius, markerPaint)
+                    it.drawCircle(
+                        markerCenterX + offsetX,
+                        markerCenterY + offsetY,
+                        innerMarkerRadius,
+                        markerPaint
+                    )
                 }
             }
 
@@ -144,8 +163,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                 val touchY = transformedTouchPoint.y
 
                 // Calculate the size of each cell
-                val cellWidth = width.toFloat() / Width
-                val cellHeight = height.toFloat() / Height
+                val cellWidth = width.toFloat() / canvasWidth
+                val cellHeight = height.toFloat() / canvasHeight
 
                 // Loop through the markers and check if the touch event is inside the marker
                 markers.forEach { marker ->
@@ -175,13 +194,13 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
             // Centers the map on the current location of the pointer
             MotionEvent.ACTION_MOVE -> {
-                    offsetX += event.x - lastTouchX
-                    offsetY += event.y - lastTouchY
+                offsetX += event.x - lastTouchX
+                offsetY += event.y - lastTouchY
 
-                    invalidate()
+                invalidate()
 
-                    lastTouchX = event.x
-                    lastTouchY = event.y
+                lastTouchX = event.x
+                lastTouchY = event.y
             }
         }
         return true
@@ -197,8 +216,15 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         return PointF(touchCoordinates[0], touchCoordinates[1])
     }
+
     // Checks if the pointer is inside the marker radius
-    private fun isTouchInsideMarker(touchX: Float, touchY: Float, markerX: Float, markerY: Float, markerRadius: Float): Boolean {
+    private fun isTouchInsideMarker(
+        touchX: Float,
+        touchY: Float,
+        markerX: Float,
+        markerY: Float,
+        markerRadius: Float
+    ): Boolean {
         val dx = touchX - markerX
         val dy = touchY - markerY
         val distance = sqrt(dx * dx + dy * dy)
@@ -216,6 +242,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         invalidate()
     }
+
     fun getMarkerCenterCoordinates(marker: GridMarker): Pair<Float, Float> {
         val markerCenterX = marker.x * cellWidth + cellWidth / 2
         val markerCenterY = marker.y * cellHeight + cellHeight / 2
