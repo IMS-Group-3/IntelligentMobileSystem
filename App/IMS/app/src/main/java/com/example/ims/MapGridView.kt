@@ -100,16 +100,18 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         canvas?.save()
         canvas?.concat(matrix)
 
-        // Draw the tiled background
+        // Draws the tiled background
         val bgWidth = backgroundBitmap.width
         val bgHeight = backgroundBitmap.height
 
+        // Calculates the number of columns and rows of background images needed
         val numCols = ceil((width / scaleFactor / bgWidth.toFloat()) * 2).toInt()
         val numRows = ceil((height / scaleFactor / bgHeight.toFloat()) * 2).toInt()
 
         val offsetXInt = (-offsetX).toInt() % bgWidth
         val offsetYInt = (-offsetY).toInt() % bgHeight
 
+        // Loops through the columns and rows and draws additional backgrounds
         for (i in -numCols..numCols) {
             for (j in -numRows..numRows) {
                 canvas?.drawBitmap(
