@@ -13,12 +13,17 @@ import androidx.core.content.ContextCompat
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import kotlin.math.ceil
 
 
 class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private var canvasWidth: Int = 10000
     private var canvasHeight: Int = 15000
+    private var viewWidth: Int = 0
+    private var viewHeight: Int = 0
     private val markers = mutableListOf<GridMarker>()
     private val markerPaint = Paint()
     private val linePaint = Paint()
@@ -35,6 +40,9 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var cellHeight = 0f
     private var isMarkerCentered = true
     private val iconWarning: Drawable
+    private val iconMower: Drawable
+    private val backgroundBitmap: Bitmap
+
 
     init {
         val configuration = ViewConfiguration.get(context)
@@ -44,6 +52,10 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         markerPaint.style = Paint.Style.FILL
         linePaint.style = Paint.Style.STROKE
         iconWarning = ContextCompat.getDrawable(context, R.drawable.baseline_warning_24)!!
+        iconMower = ContextCompat.getDrawable(context, R.drawable.robotmower2)!!
+        val backgroundDrawable = ContextCompat.getDrawable(context, R.drawable.grass_ims)
+        backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
+
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -61,10 +73,14 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
+        viewWidth = w
+        viewHeight = h
+
         // Calculate cellWidth and cellHeight based on the view's width and height
         cellWidth = width.toFloat() / canvasWidth
         cellHeight = height.toFloat() / canvasHeight
     }
+
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -81,35 +97,34 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             centerMap()
         }
 
-        if (canvas != null) {
-            canvas.save()
-            canvas.concat(matrix)
+        canvas?.save()
+        canvas?.concat(matrix)
+
+        // Draw the tiled background
+        val bgWidth = backgroundBitmap.width
+        val bgHeight = backgroundBitmap.height
+
+        val numCols = ceil((width / scaleFactor / bgWidth.toFloat()) * 2).toInt()
+        val numRows = ceil((height / scaleFactor / bgHeight.toFloat()) * 2).toInt()
+
+        val offsetXInt = (-offsetX).toInt() % bgWidth
+        val offsetYInt = (-offsetY).toInt() % bgHeight
+
+        for (i in -numCols..numCols) {
+            for (j in -numRows..numRows) {
+                canvas?.drawBitmap(
+                    backgroundBitmap,
+                    (i * bgWidth - offsetXInt).toFloat(),
+                    (j * bgHeight - offsetYInt).toFloat(),
+                    null
+                )
+            }
         }
 
         canvas?.let {
 
             markers.forEachIndexed { index, marker ->
                 val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
-                // Draws markers
-                if (index == markers.size - 1) {
-                    markerPaint.color = Color.BLACK
-                    markerRadius = 15f
-                    it.drawCircle(
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        markerRadius,
-                        markerPaint
-                    )
-                    markerRadius = 5f
-                } else {
-                    markerPaint.color = marker.color
-                    it.drawCircle(
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        markerRadius,
-                        markerPaint
-                    )
-                }
 
                 // Draws line between markers
                 if (index > 0) {
@@ -126,6 +141,32 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                         linePaint
                     )
                 }
+                // Draws markers
+                if (index == markers.size - 1) {
+                    val iconWidth = iconWarning.intrinsicWidth
+                    val iconHeight = iconWarning.intrinsicHeight
+                    val halfIconWidth = iconWidth
+                    val halfIconHeight = iconHeight
+
+                    val left = (markerCenterX + offsetX - halfIconWidth).toInt()
+                    val top = (markerCenterY + offsetY - halfIconHeight).toInt()
+                    val right = (markerCenterX + offsetX + halfIconWidth).toInt()
+                    val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
+
+                    iconMower.setBounds(left, top, right, bottom)
+                    iconMower.draw(it)
+
+                } else {
+                    markerPaint.color = marker.color
+                    it.drawCircle(
+                        markerCenterX + offsetX,
+                        markerCenterY + offsetY,
+                        markerRadius,
+                        markerPaint
+                    )
+                }
+
+
             }
 
             // Adds collision event markers to the map

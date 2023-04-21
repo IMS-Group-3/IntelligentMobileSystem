@@ -6,7 +6,7 @@
 
     <!-- Black background triangle -->
     <path
-        android:pathData="M0,21.5h24L12,1 0,22z"
+        android:pathData="M0,21.5h24L12,1 0.3,21z"
         android:fillColor="@android:color/black" />
 
     <!-- Yellow triangle on top -->
