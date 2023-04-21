@@ -15,8 +15,8 @@ import kotlin.math.sqrt
 
 class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
-    private var canvasWidth: Int = 100
-    private var canvasHeight: Int = 150
+    private var canvasWidth: Int = 10000
+    private var canvasHeight: Int = 15000
     private val markers = mutableListOf<GridMarker>()
     private val markerPaint = Paint()
     private val linePaint = Paint()
