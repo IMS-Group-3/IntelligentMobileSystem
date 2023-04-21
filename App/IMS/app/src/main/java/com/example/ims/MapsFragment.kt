@@ -7,8 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
+import android.widget.Button
 
 // For simulating the array coordinates from a socket
 import kotlinx.coroutines.CoroutineScope
@@ -29,48 +28,49 @@ class MapsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
             val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
+            val centerButton = view.findViewById<Button>(R.id.centerButton)
 
-        // update the setGrid to not take any variables
-            mapGridView.setGridSize(0, 0)
+        centerButton.setOnClickListener {
+            mapGridView.centerMap()
+        }
 
             // Array of markers. Replace with real time coordinates from the mower team.
             val markers = listOf(
-                GridMarker(50, 50, Color.RED, false),
-                GridMarker(51, 51, Color.RED, false),
-                GridMarker(52, 52, Color.RED, false),
-                GridMarker(51, 53, Color.RED, false),
-                GridMarker(50, 54, Color.RED, false),
-                GridMarker(49, 50, Color.RED, false),
-                GridMarker(48, 51, Color.RED, false),
-                GridMarker(47, 52, Color.RED, true),
-                GridMarker(46, 53, Color.RED, false),
-                GridMarker(45, 54, Color.RED, false),
-                GridMarker(44, 100, Color.RED, false),
-                GridMarker(44, 105, Color.RED, false),
-                GridMarker(44, 107, Color.RED, true),
-                GridMarker(44, 110, Color.RED, true),
-                GridMarker(44, 135, Color.RED, true),
-                GridMarker(20, 135, Color.RED, false),
-                GridMarker(25, 125, Color.RED, false),
-                GridMarker(25, 120, Color.RED, false),
-                GridMarker(25, 115, Color.RED, false),
-                GridMarker(25, 110, Color.RED, false),
-                GridMarker(25, 105, Color.RED, false),
-                GridMarker(25, 100, Color.RED, false),
-                GridMarker(25, 95, Color.RED, true),
-                GridMarker(25, 90, Color.RED, false),
-                GridMarker(25, 85, Color.RED, false),
-                GridMarker(25, 80, Color.RED, false),
-                GridMarker(25, 75, Color.RED, false),
+                GridMarker(5000, 5000, Color.BLUE, true),
+                GridMarker(5100, 5100, Color.BLUE, false),
+                GridMarker(5200, 5200, Color.BLUE, false),
+                GridMarker(5100, 5300, Color.BLUE, false),
+                GridMarker(5000, 5400, Color.BLUE, false),
+                GridMarker(4900, 5000, Color.BLUE, false),
+                GridMarker(4800, 5100, Color.BLUE, false),
+                GridMarker(4700, 5200, Color.BLUE, true),
+                GridMarker(4600, 5300, Color.BLUE, false),
+                GridMarker(4500, 5400, Color.BLUE, false),
+                GridMarker(4400, 10000, Color.BLUE, false),
+                GridMarker(4400, 10500, Color.BLUE, false),
+                GridMarker(4400, 10700, Color.BLUE, true),
+                GridMarker(4400, 11000, Color.BLUE, true),
+                GridMarker(4400, 13500, Color.BLUE, true),
+                GridMarker(2000, 13500, Color.BLUE, false),
+                GridMarker(2500, 12500, Color.BLUE, false),
+                GridMarker(2500, 12000, Color.BLUE, false),
+                GridMarker(2500, 11500, Color.BLUE, false),
+                GridMarker(2500, 11000, Color.BLUE, false),
+                GridMarker(2500, 10500, Color.BLUE, false),
+                GridMarker(2500, 10000, Color.BLUE, false),
+                GridMarker(2500, 9500, Color.BLUE, true),
+                GridMarker(2500, 9000, Color.BLUE, false),
+                GridMarker(2500, 8500, Color.BLUE, false),
+                GridMarker(2500, 8000, Color.BLUE, false),
+                GridMarker(2500, 7500, Color.BLUE, false),
             )
 
-            // Simulate adding markers with a delay
+            // Simulate adding markers with a 500ms delay
             CoroutineScope(Dispatchers.Main).launch {
                 markers.forEach { marker ->
                     mapGridView.addMarker(marker)
-                    delay(500) // Add a 500ms delay between adding markers
+                    delay(500)
                 }
             }
 
