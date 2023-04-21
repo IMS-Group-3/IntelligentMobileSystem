@@ -2,12 +2,14 @@ package com.example.ims
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -32,6 +34,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var cellWidth = 0f
     private var cellHeight = 0f
     private var isMarkerCentered = true
+    private val iconWarning: Drawable
 
     init {
         val configuration = ViewConfiguration.get(context)
@@ -40,6 +43,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         // Initialize marker and line paint style
         markerPaint.style = Paint.Style.FILL
         linePaint.style = Paint.Style.STROKE
+        iconWarning = ContextCompat.getDrawable(context, R.drawable.baseline_warning_24)!!
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -131,14 +135,18 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
                 // Draws blue circle on the map when collisionEvent is true
                 if (marker.collisionEvent) {
-                    markerPaint.color = Color.BLUE
-                    val innerMarkerRadius = markerRadius * 4
-                    it.drawCircle(
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        innerMarkerRadius,
-                        markerPaint
-                    )
+                    val iconWidth = iconWarning.intrinsicWidth
+                    val iconHeight = iconWarning.intrinsicHeight
+                    val halfIconWidth = iconWidth / 2
+                    val halfIconHeight = iconHeight / 2
+
+                    val left = (markerCenterX + offsetX - halfIconWidth).toInt()
+                    val top = (markerCenterY + offsetY - halfIconHeight).toInt()
+                    val right = (markerCenterX + offsetX + halfIconWidth).toInt()
+                    val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
+
+                    iconWarning.setBounds(left, top, right, bottom)
+                    iconWarning.draw(it)
                 }
             }
 
@@ -243,6 +251,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         invalidate()
     }
 
+    // Returns the X and Y coordinates of the marker in the view
     fun getMarkerCenterCoordinates(marker: GridMarker): Pair<Float, Float> {
         val markerCenterX = marker.x * cellWidth + cellWidth / 2
         val markerCenterY = marker.y * cellHeight + cellHeight / 2
@@ -263,6 +272,5 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         isMarkerCentered = true
     }
-
 
 }
