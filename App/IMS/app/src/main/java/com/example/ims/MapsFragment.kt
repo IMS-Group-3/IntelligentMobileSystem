@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // For simulating the array coordinates from a socket
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +19,9 @@ import kotlinx.coroutines.launch
 
 class MapsFragment : Fragment() {
     private var isStarted = false
+    private var isStopped = true
+
+    // private var isStopVisible = false
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -30,7 +34,9 @@ class MapsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
-        val centerButton = view.findViewById<Button>(R.id.startButton)
+        val startButton = view.findViewById<Button>(R.id.startButton)
+        val centerButton = view.findViewById<FloatingActionButton>(R.id.centerButton)
+        centerButton.hide()
 
         // Array of markers. Replace with real time coordinates from the mower team.
         val markers = listOf(
@@ -63,24 +69,37 @@ class MapsFragment : Fragment() {
             GridMarker(2500, 7500, Color.BLUE, false),
         )
 
-        centerButton.setOnClickListener {
-            mapGridView.centerMap()
+        startButton.setOnClickListener {
+            isStopped = false
+
             if (!isStarted) {
-                centerButton.text = "Center"
+                mapGridView.centerMap()
+                centerButton.show()
+                startButton.setText(R.string.stop_button)
                 isStarted = true
 
                 // Simulate adding markers with a 500ms delay
                 CoroutineScope(Dispatchers.Main).launch {
                     markers.forEach { marker ->
-                        mapGridView.addMarker(marker)
-                        delay(300)
+                        if (!isStopped) {
+                            mapGridView.addMarker(marker)
+                            delay(300)
+                        }
                     }
+                    startButton.setText(R.string.start_button)
 
-                    centerButton.text = "Start"
+                    isStopped = true
                     isStarted = false
                 }
+            } else {
+                centerButton.hide()
+                isStopped = true
             }
 
+        }
+
+        centerButton.setOnClickListener {
+            mapGridView.centerMap()
         }
 
     }

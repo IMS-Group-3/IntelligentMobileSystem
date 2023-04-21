@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
-import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import kotlin.math.ceil
 
