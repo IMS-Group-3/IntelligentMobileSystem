@@ -2,10 +2,24 @@
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
-    android:viewportHeight="24"
-    android:tint="#EED202">
+    android:viewportHeight="24">
+
+    <!-- Black background triangle -->
     <path
-        android:pathData="M1,21h22L12,2 1,21zM13,18h-2v-2h2v2zM13,14h-2v-4h2v4z"
+        android:pathData="M0,21.5h24L12,1 0,22z"
+        android:fillColor="@android:color/black" />
+
+    <!-- Yellow triangle on top -->
+    <path
+        android:pathData="M1,21h22L12,2 1,21z"
+        android:fillColor="#EED202" />
+
+    <!-- Other white elements -->
+    <path
+        android:pathData="M13,18h-2v-2h2v2zM13,14h-2v-4h2v4z"
         android:fillColor="@android:color/black" />
 </vector>
+
+
+
 
