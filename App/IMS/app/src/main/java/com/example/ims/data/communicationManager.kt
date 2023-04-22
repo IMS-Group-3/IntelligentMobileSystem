@@ -13,5 +13,7 @@ interface communicationManager {
 
     fun startReceiving()
 
+    fun startSending()
+
     fun closeConnection()
 }
