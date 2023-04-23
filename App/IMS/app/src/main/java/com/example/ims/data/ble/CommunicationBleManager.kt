@@ -10,7 +10,7 @@ import android.os.Build
 import android.util.Log
 import com.example.ims.data.ConnectionState
 import com.example.ims.data.LocationResult
-import com.example.ims.data.communicationManager
+import com.example.ims.data.CommunicationManager
 import com.example.ims.util.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +21,10 @@ import javax.inject.Inject
 
 @SuppressLint("MissingPermission")
 
-class communicationBleManager @Inject constructor(
+class CommunicationBleManager @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val context: Context
-    ) : communicationManager {
+    ) : CommunicationManager {
 //00001801-0000-1000-8000-00805f9b34fb
         private val DEVICE_NAME = "Arduino..."
         private val LOCATIN_SERVICE_UIID = "00001801-0000-1000-8000-00805f9b34fb"
@@ -75,7 +75,7 @@ class communicationBleManager @Inject constructor(
                             data.emit(Resource.Loading(message = "Discovering Services..."))
                         }
                         gatt.discoverServices()
-                        this@communicationBleManager.gatt = gatt
+                        this@CommunicationBleManager.gatt = gatt
                     } else if(newState == BluetoothProfile.STATE_DISCONNECTED){
                         coroutineScope.launch {
                             data.emit(Resource.Success(data = LocationResult(0,0,false,ConnectionState.Disconnected)))
