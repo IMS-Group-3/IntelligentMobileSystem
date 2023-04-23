@@ -13,7 +13,7 @@ module.exports = function (
     app.use('/image', image);
 
     app.get('/', function (req, res) { 
-        res.status(200).json({name: "alaa"})
+        res.send('HOME PAGE!')
     })
 
     app.get('/position', function (req, res) { 
