@@ -29,7 +29,7 @@ module.exports = function ({
             )
         },
 
-        fetchImage(callback) {
+        fetchImages(callback) {
             db.all(
                 `select * from image`,
                 function (err, images) {
