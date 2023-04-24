@@ -132,9 +132,9 @@ class CommunicationBleManager @Inject constructor(
                     when(uuid){
                         UUID.fromString(LOCATION_CHARACTERISTICS_UUID) -> {
                             //XX XX XX XX XX XX
-                            val x = value[1].toInt() + value[2].toInt()
-                            val y = value[4].toInt() + value[5].toInt()
-                            val collisionAvoidance = value[7].toInt() != 0
+                            val x = value[1].toInt() //+ value[2].toInt()
+                            val y = value[2].toInt() //+ value[5].toInt()
+                            val collisionAvoidance = value[3].toInt() != 0
                             val locationResult = LocationResult(
                                 x,
                                 y,
