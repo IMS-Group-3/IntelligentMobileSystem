@@ -11,6 +11,7 @@ import android.util.Log
 import com.example.ims.data.ConnectionState
 import com.example.ims.data.LocationResult
 import com.example.ims.data.CommunicationManager
+import com.example.ims.data.ControlCommand
 import com.example.ims.util.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +94,7 @@ class CommunicationBleManager @Inject constructor(
                         )
                     }
                     if(currentConnectionAttempt<=MAXIMUM_CONNECTION_ATTEMPTS){
-                        startReceiving()
+                        startScaning()
                     }else{
                         coroutineScope.launch {
                             data.emit(Resource.Error(errorMessage = "Could not connect to ble device"))
@@ -194,16 +195,23 @@ class CommunicationBleManager @Inject constructor(
             }
         }
 
-        override fun startReceiving() {
+        override fun startScaning() {
             coroutineScope.launch {
                 data.emit(Resource.Loading(message = "Scanning Ble devices..."))
             }
             isScanning = true
             bleScanner.startScan(null,scanSettings,scanCallback)
         }
-
-    override fun startSending() {
-        TODO("Not yet implemented")
+    override fun startSending(data: ControlCommand) {
+        val characteristic = findCharacteristics(DRIVE_SERVICE_UUID, DRIVE_CHARACTERISTICS_UUID)
+        val driveCommand = byteArrayOf(data.angle.toByte(), data.strength.toByte())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            gatt?.writeCharacteristic(characteristic!!,driveCommand,BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
+        }else{
+            characteristic?.value = driveCommand
+            gatt?.writeCharacteristic(characteristic)
+        }
+        gatt?.disconnect()
     }
 
     override fun reconnect() {

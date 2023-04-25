@@ -4,6 +4,8 @@ package com.example.ims.di
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import com.example.ims.data.CommunicationManager
+import com.example.ims.data.ble.CommunicationBleManager
 //import com.example.bletutorial.data.TemperatureAndHumidityReceiveManager
 //import com.example.bletutorial.data.ble.TemperatureAndHumidityBLEReceiveManager
 import dagger.Module
@@ -24,5 +26,13 @@ object AppModule {
         return manager.adapter
     }
 
+    @Provides
+    @Singleton
+    fun provideCommunicationManager(
+        @ApplicationContext context: Context,
+        bluetoothAdapter: BluetoothAdapter
+    ):CommunicationManager{
+        return CommunicationBleManager(bluetoothAdapter,context)
+    }
 
 }

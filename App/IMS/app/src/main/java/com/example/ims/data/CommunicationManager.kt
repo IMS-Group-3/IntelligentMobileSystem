@@ -11,9 +11,9 @@ interface CommunicationManager {
 
     fun disconnect()
 
-    fun startReceiving()
+    fun startScaning()
 
-    fun startSending()
+    fun startSending(data: ControlCommand)
 
     fun closeConnection()
 }
