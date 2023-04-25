@@ -8,9 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.ims.data.ConnectionState
 import com.example.ims.data.CommunicationManager
 import com.example.ims.data.ControlCommand
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+@HiltViewModel
 class ControlViewModel @Inject constructor(
     private val communicationManager: CommunicationManager
 ) : ViewModel(){

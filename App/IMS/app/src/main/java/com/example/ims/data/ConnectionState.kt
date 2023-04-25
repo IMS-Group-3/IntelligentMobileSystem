@@ -5,4 +5,6 @@ sealed interface ConnectionState{
     object Disconnected: ConnectionState
     object Uninitialized: ConnectionState
     object CurrentlyInitializing: ConnectionState
+    object Failed: ConnectionState
+
 }

@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        showBluetoothDialog()
+       // showBluetoothDialog()
 
     }
     /*override fun onRequestPermissionsResult(

@@ -52,6 +52,7 @@ class CommunicationBleManager @Inject constructor(
         private val scanCallback = object : ScanCallback(){
 
             override fun onScanResult(callbackType: Int, result: ScanResult) {
+               // Log.i("scan result ",result.device.name.toString() )
                 if(result.device.name == DEVICE_NAME){
                     coroutineScope.launch {
                         data.emit(Resource.Loading(message = "Connecting to device..."))
@@ -61,6 +62,14 @@ class CommunicationBleManager @Inject constructor(
                         isScanning = false
                         bleScanner.stopScan(this)
                     }
+                }
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+                super.onScanFailed(errorCode)
+                coroutineScope.launch {
+                    data.emit(Resource.Error(errorMessage = "No device was found"))
+                    isScanning = false
                 }
             }
         }

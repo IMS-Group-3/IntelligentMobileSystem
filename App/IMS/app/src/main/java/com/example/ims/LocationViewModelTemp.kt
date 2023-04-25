@@ -8,10 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.ims.data.ConnectionState
 import com.example.ims.data.CommunicationManager
 import com.example.ims.util.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class LocationViewModelTemp @Inject constructor(
+@HiltViewModel
+class LocationViewModelTemp  @Inject constructor (
     private val communicationManager: CommunicationManager
 ) : ViewModel(){
 
@@ -50,7 +52,7 @@ class LocationViewModelTemp @Inject constructor(
 
                     is Resource.Error -> {
                         errorMessage = result.errorMessage
-                        connectionState = ConnectionState.Uninitialized
+                        connectionState = ConnectionState.Failed
                     }
                 }
             }

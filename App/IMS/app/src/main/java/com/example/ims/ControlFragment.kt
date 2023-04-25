@@ -19,7 +19,7 @@ import io.github.controlwear.virtual.joystick.android.JoystickView
 
 class ControlFragment : Fragment() {
 
-    private val controlViewModel: ControlViewModel by viewModels()
+    private val controlViewModel: ControlViewModel by activityViewModels()
     var bleConnectionState: ConnectionState? = null
 
     private var mTextViewAngle: TextView? = null

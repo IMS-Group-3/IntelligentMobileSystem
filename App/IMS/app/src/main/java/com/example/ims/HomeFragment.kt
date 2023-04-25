@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import com.example.ims.data.ConnectionState
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.activityViewModels
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -38,7 +40,7 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private val locationViewModelTemp: LocationViewModelTemp by viewModels()
+    private val locationViewModelTemp: LocationViewModelTemp by activityViewModels()
     var bleConnectionState: ConnectionState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,9 +62,14 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        bleConnectionState = locationViewModelTemp.connectionState
+
         if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
             locationViewModelTemp.initializeConnection()
         }
+        Log.i("fdghjklöjkhgfdsdhjgkjhlkjlölyitukyjdghc",bleConnectionState.toString() )
         val x = view.findViewById<TextView>(R.id.textView_x_coordinate)
         val y = view.findViewById<TextView>(R.id.textView_y_coordinate)
         val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
@@ -73,9 +80,9 @@ class HomeFragment : Fragment() {
             collisionAvoidance.text = ""
             connectionState.text = ""
 
-                if(locationViewModelTemp.initializingMessage != null){
-                    connectionState.text = locationViewModelTemp.initializingMessage!!
-                }
+            if(locationViewModelTemp.initializingMessage != null){
+                connectionState.text = locationViewModelTemp.initializingMessage!!
+            }
 
         }else if(!allPermissionsGranted()){
                 connectionState.text = "Go to the app setting and allow the missing permissions."
@@ -94,6 +101,9 @@ class HomeFragment : Fragment() {
         }else if(bleConnectionState == ConnectionState.Disconnected){
             locationViewModelTemp.initializeConnection()
             connectionState.text = "Initialize again"
+
+        }else {
+            connectionState.text = "No device was found"
 
         }
 
