@@ -8,7 +8,9 @@ module.exports = function (
 ) { 
 
     const app = express(); 
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({
+        limit: "50000kb"
+    }));
 
     app.use('/image', image);
 

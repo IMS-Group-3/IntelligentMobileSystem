@@ -32,6 +32,7 @@ module.exports = function ({
     router.post('/', function (request, response){
         const encodedImage = request.body.encodedImage
         db.storeImage(encodedImage, function (err, imageId){
+            console.log(err)
             if (err) { 
                 response.status(500)
             } else { 
