@@ -3,6 +3,7 @@ const container = awilix.createContainer();
 
 container.register({
     image: awilix.asFunction(require('./endpoints/image.js')),
+    position: awilix.asFunction(require('endpoints/position.js')),
     app : awilix.asFunction(require('./app.js'))
 });
 

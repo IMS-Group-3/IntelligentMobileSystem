@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 module.exports = function (
     {
-        image
+        image,
     }
 ) { 
 
