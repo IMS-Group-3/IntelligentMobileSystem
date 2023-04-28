@@ -6,6 +6,6 @@ container.register({
     app : awilix.asFunction(require('./app.js'))
 });
 
-container.resolve('app').listen(8000, function () {
+container.resolve('app').listen(5000, function () {
     console.log('Running!')
 });
