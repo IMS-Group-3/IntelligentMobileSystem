@@ -27,11 +27,12 @@ class CommunicationBleManager @Inject constructor(
     private val context: Context
     ) : CommunicationManager {
 //00001801-0000-1000-8000-00805f9b34fb
-        private val DEVICE_NAME = "Arduino..."
+
+        private val DEVICE_NAME = "RaspberryPiZero"
         private val LOCATIN_SERVICE_UIID = "00001801-0000-1000-8000-00805f9b34fb"
         private val LOCATION_CHARACTERISTICS_UUID = "00002AF9-0000-1000-8000-00805f9b34fb"
-        private val DRIVE_SERVICE_UUID = "00001801-0000-1000-8000-00805f9b34fb"
-        private val DRIVE_CHARACTERISTICS_UUID = "00002AF9-0000-1000-8000-00805f9b34fb"
+        private val DRIVE_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
+        private val DRIVE_CHARACTERISTICS_UUID = "12345678-1234-5678-1234-56789abcdef1"
 
         override val data: MutableSharedFlow<Resource<LocationResult>> = MutableSharedFlow()
 
