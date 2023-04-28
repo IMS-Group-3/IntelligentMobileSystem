@@ -17,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 class MapsFragment : Fragment() {
     private var isStarted = false
     private var isStopped = true
@@ -103,6 +102,5 @@ class MapsFragment : Fragment() {
         centerButton.setOnClickListener {
             mapGridView.centerMap()
         }
-
     }
 }

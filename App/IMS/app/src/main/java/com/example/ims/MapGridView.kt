@@ -2,6 +2,7 @@ package com.example.ims
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
@@ -238,13 +239,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                                 markerRadius
                             )
                         ) {
-                            // Replace the block below with navigation or popup dialog with the Image received from the backend team.
-                           /* Toast.makeText(
-                                context,
-                                "Collision avoided at (${marker.x}, ${marker.y})",
-                                Toast.LENGTH_SHORT
-                            ).show()*/
-                            popupWindow()
+                            val intent = Intent(context, ImagePopUpActivity::class.java)
+                            context.startActivity(intent)
                         }
                     }
                 }
@@ -261,17 +257,6 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
         }
         return true
-    }
-    private fun popupWindow() {
-        val dialogBuilder = AlertDialog.Builder(context)
-       // val imageView = view.findViewById<ImageView>(R.id.popup_collision_image)
-       // imageView.setImageResource(R.drawable.image_chill_cat)
-        val dialogView = R.layout.fragment_history
-
-        dialogBuilder.setView(dialogView)
-        val dialog = dialogBuilder.create()
-        dialog.show()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
     }
 
     // Transforms coordinates from the touch points to be in the same coordinate system as the markers

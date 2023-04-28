@@ -8,4 +8,7 @@
     <string name="stop_button">Stop</string>
     <string name="home">Home</string>
     <string name="control_view">Controls</string>
+    <string name="collision_avoided">Collision avoided</string>
+    <string name="close_icon">close_icon</string>
+    <string name="image" />
 </resources>
