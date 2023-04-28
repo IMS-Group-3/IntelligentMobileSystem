@@ -17,7 +17,6 @@
             android:text="@string/startscreen_title"
             android:textAlignment="center"
             android:textSize="30sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -30,10 +29,54 @@
             android:text="@string/startscreen_subTitle"
             android:textAlignment="center"
             android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_title"
+            app:layout_constraintVertical_bias="0.038" />
+
+        <TextView
+            android:id="@+id/textView_x_coordinate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_subTitle"
+            app:layout_constraintVertical_bias="0.038" />
+        <TextView
+            android:id="@+id/textView_y_coordinate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_x_coordinate"
+            app:layout_constraintVertical_bias="0.038" />
+        <TextView
+            android:id="@+id/textView_collision_avoidance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_y_coordinate"
+            app:layout_constraintVertical_bias="0.038" />
+        <TextView
+            android:id="@+id/textView_connection_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_collision_avoidance"
             app:layout_constraintVertical_bias="0.038" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
