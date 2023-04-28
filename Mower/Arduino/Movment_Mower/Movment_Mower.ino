@@ -9,10 +9,6 @@ bool LIGHT_DEBUG = true;
 //State Enum decleration
 enum Mode{INSIDE, OUTSIDE, MANUAL}mode;
 
-//Creating Serial Reciving Arrays
-char PWMRightIn[4];
-char PWMLeftIn[4];
-
 //Empty Loop used by _delay. Danger! Busy Waiting
 void _loop(){}
 
@@ -128,6 +124,9 @@ void setup(){   // put your setup code here, to run once:
   // Set up leds
   rgbled_0.setpin(44);
   rgbled_0.fillPixelsBak(0, 2, 1);
+  
+  //Set Mode To Manual
+  mode = MANUAL;
 
   //Set PWM 8KHz
   TCCR1A = _BV(WGM10);
@@ -139,87 +138,96 @@ void setup(){   // put your setup code here, to run once:
 
 void loop(){    // put your main code here, to run repeatedly:
 
-if (Serial.available() == 1){
-  mode = MANUAL;//serial.Read();
-}
-
-switch(mode){
-  case INSIDE:
-    if(ultraSensor.distanceCm()> 20){ //Check if Distance forward is grater then 10 cm
-      if(LIGHT_DEBUG){
-        RGBLightBlink(0.5,0,0,128);//Blink Color Blue
-      }
-
-      //Drive Forward
-      SetEnginenPWM(-255,255);
-      RunEncoderLoops();
-      _delay(1);
-    }
-    else{ //Distance Less Then 10 cm
-      if(LIGHT_DEBUG){
-        RGBLight(255,0,0);//Set Color Red
-      }
-      
-      Avoid();//Avoidens rutine
-    }
-
-    //Ultra Sonic Sensor Minimum Delay of 100 Millisec
-    delay(100);
-  break;
-
-  case OUTSIDE:
-    SetEnginenPWM(128,-128);
-    RunEncoderLoops();
-  break;
-
-  case MANUAL:
-    if(Serial.available()){  //Checks if The Serial recive Buffer contains data
-      //start population of reciving arrays
-      for(int i = 0; i < 7; i++){
-        char charIn = Serial.read();//Read in byte from the Recive Buffer
-
-        if(i < 4){  // if first 4 caracters
-          if(charIn == ',') {  //if End Of first message add \0
-            PWMRightIn[i] = '\0';
-          }
-          else{   //Else add to first message
-            PWMRightIn[i] = charIn;
-          }
+  switch(mode){
+    case INSIDE:
+      if(ultraSensor.distanceCm()> 20){ //Check if Distance forward is grater then 20 cm
+        if(LIGHT_DEBUG){
+          RGBLightBlink(0.5,0,0,128);//Blink Color Blue
         }
-        else{    //else 4 last caracters
-          PWMLeftIn[i-4] = charIn;
+
+        //Drive Forward
+        SetEnginenPWM(-255,255);
+        RunEncoderLoops();
+        _delay(1);
+      }
+      else{ //Distance Less Then 20 cm
+        if(LIGHT_DEBUG){
+          RGBLight(255,0,0);//Set Color Red
         }
-      }
-      
-      //Convert Recived data To signed ints
-      signed int pwmRight = atoi(PWMRightIn);
-      signed int pwmLeft = atoi(PWMLeftIn);
-      
-      //Checks if pwmRight are in allowed span
-      if(pwmRight>510){
-        pwmRight = 510;
-      }else if(pwmRight<0){
-        pwmRight = 0;
-      }
-      //Checks if pwmLeft are in allowed span
-      if(pwmLeft > 510){
-        pwmLeft = 510;
-      }else if(pwmLeft < 0){
-        pwmLeft = 0;
+        
+        Avoid();//Avoidens rutine
       }
 
-      //Convert To allowed value Span of (-255) - (255)
-      pwmRight = pwmRight - 255;
-      pwmLeft = pwmLeft - 255;
-    
-      //Execute Recived Movment Command
-      SetEnginenPWM(pwmRight,pwmLeft);
+      //Ultra Sonic Sensor Minimum Delay of 100 Millisec
+      delay(100);
+    break;
+
+    case OUTSIDE:
+      SetEnginenPWM(128,-128);
       RunEncoderLoops();
+    break;
+
+    case MANUAL:
+      if(LIGHT_DEBUG){
+        RGBLightBlink(0.5,128,0,128);//Blink Color purpule
+      }
+      if(Serial.available()){  //Checks if The Serial recive Buffer contains data
+        
+        if(LIGHT_DEBUG){
+          RGBLightBlink(0.5,0,128,128);//Blink Color turquse
+        }
+
+        //Convert Recived data To signed ints
+        signed int pwmRight = Serial.parseInt();//Read in a Int from the Recive Buffer
+        signed int pwmLeft = Serial.parseInt();//Read in a Int from the Recive Buffer
+        
+        Serial.print("pwmRight : ");
+        Serial.println(pwmRight);
+        Serial.print("pwmLeft : ");
+        Serial.println(pwmLeft);
+        
+        //Checks if pwmRight are in allowed span
+        if(pwmRight>510){
+          pwmRight = 510;
+        }else if(pwmRight<0){
+          pwmRight = 0;
+        }
+        //Checks if pwmLeft are in allowed span
+        if(pwmLeft > 510){
+          pwmLeft = 510;
+        }else if(pwmLeft < 0){
+          pwmLeft = 0;
+        }
+        
+        Serial.print("pwmRight : ");
+        Serial.println(pwmRight);
+        Serial.print("pwmLeft : ");
+        Serial.println(pwmLeft);
+        
+        //Convert To allowed value Span of (-255) - (255)
+        pwmRight = pwmRight - 255;
+        pwmLeft = pwmLeft - 255;
+        
+        Serial.print("pwmRight : ");
+        Serial.println(pwmRight);
+        Serial.print("pwmLeft : ");
+        Serial.println(pwmLeft);
+
+        //Execute Recived Movment Command
+        SetEnginenPWM(pwmRight,pwmLeft);
+        RunEncoderLoops();
+
+        if(LIGHT_DEBUG){
+          RGBLightBlink(0.5,128,128,128);//Blink Color white
+        }
+      }
+    break;
+
+    default:
+    if(LIGHT_DEBUG){
+    RGBLightBlink(0.5,128,128,0);//Blink Color yellow
     }
-  break;
-  
-  default:
-  break;
-}
+    break;
+  }
   
 }
