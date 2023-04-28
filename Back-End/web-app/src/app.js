@@ -8,12 +8,18 @@ module.exports = function (
 ) { 
 
     const app = express(); 
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({
+        limit: "50000kb"
+    }));
 
     app.use('/image', image);
 
     app.get('/', function (req, res) { 
-        res.status(200).json({name: "alaa"})
+        res.send('HOME PAGE!')
+    })
+
+    app.get('/position', function (req, res) { 
+        res.send('HELLO THERE')
     })
     return app; 
 

@@ -1,5 +1,6 @@
 package com.example.ims
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.fragment.app.Fragment
 
@@ -7,8 +8,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
+import android.widget.Button
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // For simulating the array coordinates from a socket
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +19,10 @@ import kotlinx.coroutines.launch
 
 
 class MapsFragment : Fragment() {
+    private var isStarted = false
+    private var isStopped = true
+
+    // private var isStopVisible = false
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,77 +34,75 @@ class MapsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val dialogBuilder = AlertDialog.Builder(requireContext())
+        val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
+        val startButton = view.findViewById<Button>(R.id.startButton)
+        val centerButton = view.findViewById<FloatingActionButton>(R.id.centerButton)
+        centerButton.hide()
 
-        val dialogView = layoutInflater.inflate(R.layout.mower_area_dialogbox, null)
-        dialogBuilder.setView(dialogView)
+        // Array of markers. Replace with real time coordinates from the mower team.
+        val markers = listOf(
+            GridMarker(5000, 5000, Color.BLUE, true),
+            GridMarker(5100, 5100, Color.BLUE, false),
+            GridMarker(5200, 5200, Color.BLUE, false),
+            GridMarker(5100, 5300, Color.BLUE, false),
+            GridMarker(5000, 5400, Color.BLUE, false),
+            GridMarker(4900, 5000, Color.BLUE, false),
+            GridMarker(4800, 5100, Color.BLUE, false),
+            GridMarker(4700, 5200, Color.BLUE, true),
+            GridMarker(4600, 5300, Color.BLUE, false),
+            GridMarker(4500, 5400, Color.BLUE, false),
+            GridMarker(4400, 10000, Color.BLUE, false),
+            GridMarker(4400, 10500, Color.BLUE, false),
+            GridMarker(4400, 10700, Color.BLUE, true),
+            GridMarker(4400, 11000, Color.BLUE, true),
+            GridMarker(4400, 13500, Color.BLUE, true),
+            GridMarker(2000, 13500, Color.BLUE, false),
+            GridMarker(2500, 12500, Color.BLUE, false),
+            GridMarker(2500, 12000, Color.BLUE, false),
+            GridMarker(2500, 11500, Color.BLUE, false),
+            GridMarker(2500, 11000, Color.BLUE, false),
+            GridMarker(2500, 10500, Color.BLUE, false),
+            GridMarker(2500, 10000, Color.BLUE, false),
+            GridMarker(2500, 9500, Color.BLUE, true),
+            GridMarker(2500, 9000, Color.BLUE, false),
+            GridMarker(2500, 8500, Color.BLUE, false),
+            GridMarker(2500, 8000, Color.BLUE, false),
+            GridMarker(2500, 7500, Color.BLUE, false),
+        )
 
-        // Dialogbox for the mower area input
-        dialogBuilder.setPositiveButton("Submit") { dialog, which ->
-            val editTextWidth = dialogView.findViewById<EditText>(R.id.editTextWidth)
-            val editTextHeight = dialogView.findViewById<EditText>(R.id.editTextHeight)
+        startButton.setOnClickListener {
+            isStopped = false
 
-            // Setting the width and height to 0 if the string in the EditText widget is empty
-            val width = if (editTextWidth.text.toString().isNotEmpty()) {
-                editTextWidth.text.toString().toInt()
-            } else {
-                0
-            }
-            val height = if (editTextHeight.text.toString().isNotEmpty()) {
-                editTextHeight.text.toString().toInt()
-            } else {
-                0
-            }
-            val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
-            mapGridView.setGridSize(width, height)
+            if (!isStarted) {
+                mapGridView.centerMap()
+                centerButton.show()
+                startButton.setText(R.string.stop_button)
+                startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
+                isStarted = true
 
-            // Array of markers. Replace with real time coordinates from the mower team.
-            val markers = listOf(
-                GridMarker(50, 50, Color.RED, false),
-                GridMarker(51, 51, Color.RED, false),
-                GridMarker(52, 52, Color.RED, false),
-                GridMarker(51, 53, Color.RED, false),
-                GridMarker(50, 54, Color.RED, false),
-                GridMarker(49, 50, Color.RED, false),
-                GridMarker(48, 51, Color.RED, false),
-                GridMarker(47, 52, Color.RED, true),
-                GridMarker(46, 53, Color.RED, false),
-                GridMarker(45, 54, Color.RED, false),
-                GridMarker(44, 100, Color.RED, false),
-                GridMarker(44, 105, Color.RED, false),
-                GridMarker(44, 107, Color.RED, true),
-                GridMarker(44, 110, Color.RED, true),
-                GridMarker(44, 135, Color.RED, true),
-                GridMarker(20, 135, Color.RED, false),
-                GridMarker(25, 125, Color.RED, false),
-                GridMarker(25, 120, Color.RED, false),
-                GridMarker(25, 115, Color.RED, false),
-                GridMarker(25, 110, Color.RED, false),
-                GridMarker(25, 105, Color.RED, false),
-                GridMarker(25, 100, Color.RED, false),
-                GridMarker(25, 95, Color.RED, true),
-                GridMarker(25, 90, Color.RED, false),
-                GridMarker(25, 85, Color.RED, false),
-                GridMarker(25, 80, Color.RED, false),
-                GridMarker(25, 75, Color.RED, false),
-            )
-
-            // Simulate adding markers with a delay
-            CoroutineScope(Dispatchers.Main).launch {
-                markers.forEach { marker ->
-                    mapGridView.addMarker(marker)
-                    delay(500) // Add a 500ms delay between adding markers
+                // Simulate adding markers with a 500ms delay
+                CoroutineScope(Dispatchers.Main).launch {
+                    markers.forEach { marker ->
+                        if (!isStopped) {
+                            mapGridView.addMarker(marker)
+                            delay(300)
+                        }
+                    }
+                    startButton.setText(R.string.start_button)
+                    startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
+                    isStopped = true
+                    isStarted = false
                 }
+            } else {
+                centerButton.hide()
+                isStopped = true
             }
 
-            dialog.dismiss()
         }
 
-        dialogBuilder.setNegativeButton("Cancel") { dialog, which ->
-            dialog.dismiss()
+        centerButton.setOnClickListener {
+            mapGridView.centerMap()
         }
 
-        val dialog = dialogBuilder.create()
-        dialog.show()
     }
 }
