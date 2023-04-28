@@ -25,10 +25,11 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var canvasHeight: Int = 15000
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
-    private val markers = mutableListOf<GridMarker>()
+    private val markers = mutableListOf<LocationMarker>()
     private val markerPaint = Paint()
     private val linePaint = Paint()
     private var markerRadius = 5f
+    private val markerColor = Color.BLUE
     private val matrix = Matrix()
     private var scaleFactor = 1f
     private val scaleDetector: ScaleGestureDetector
@@ -60,7 +61,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
         // Dummy marker to display the mower icon
-        markers.add(GridMarker(5000, 5000, Color.RED, false))
+        markers.add(LocationMarker(5000, 5000, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -138,7 +139,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                     val prevMarker = markers[index - 1]
                     val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
 
-                    linePaint.color = marker.color
+                    linePaint.color = markerColor
                     linePaint.strokeWidth = markerRadius * 2
                     it.drawLine(
                         prevMarkerX + offsetX,
@@ -164,7 +165,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                     iconMower.draw(it)
 
                 } else {
-                    markerPaint.color = marker.color
+                    markerPaint.color = markerColor
                     it.drawCircle(
                         markerCenterX + offsetX,
                         markerCenterY + offsetY,
@@ -301,7 +302,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     }
 
     // Adds marker to map
-    fun addMarker(marker: GridMarker) {
+    fun addMarker(marker: LocationMarker) {
         this.markers.add(marker)
         val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
@@ -312,7 +313,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     }
 
     // Returns the X and Y coordinates of the marker in the view
-    fun getMarkerCenterCoordinates(marker: GridMarker): Pair<Float, Float> {
+    fun getMarkerCenterCoordinates(marker: LocationMarker): Pair<Float, Float> {
         val markerCenterX = marker.x * cellWidth + cellWidth / 2
         val markerCenterY = marker.y * cellHeight + cellHeight / 2
 
