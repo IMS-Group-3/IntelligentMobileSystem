@@ -251,7 +251,6 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                                     val imageByteArray = result.getOrNull()
                                     Log.e("isSuccess", "The images is successfully retrieved")
 
-
                                     intent.putExtra("bitmap", imageByteArray)
                                     context.startActivity(intent)
                                 } else if (result.isFailure) {
