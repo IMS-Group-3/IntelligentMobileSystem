@@ -3,6 +3,7 @@ package com.example.ims
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
@@ -17,6 +18,9 @@ class ImagePopUpActivity : AppCompatActivity() {
 
         //clickListener to close dialog
         closeDialog()
+
+        //Set title for popup
+        setPopupTitle()
     }
 
     private fun popupWindow() {
@@ -47,5 +51,13 @@ class ImagePopUpActivity : AppCompatActivity() {
         closeButton?.setOnClickListener {
             finish()
         }
+    }
+
+    private fun setPopupTitle() {
+        //change "Cat" to the text we get from backend of the avoided collision
+        val text = "Cat"
+
+        val textView = findViewById<TextView>(R.id.popup_window_title)
+        textView.text = text
     }
 }

@@ -239,6 +239,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                                 markerRadius
                             )
                         ) {
+                            //starts popupActivity in this activity
                             val intent = Intent(context, ImagePopUpActivity::class.java)
                             context.startActivity(intent)
                         }

@@ -37,9 +37,10 @@
                 android:layout_width="231dp"
                 android:layout_height="54dp"
                 android:background="#2832C2"
-                android:gravity="center"
+                android:gravity="fill"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
                 android:text="@string/collision_avoided"
-                android:textAlignment="center"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 app:autoSizeMaxTextSize="24dp"
@@ -49,14 +50,13 @@
 
             <ImageButton
                 android:id="@+id/popup_close_icon"
-                android:layout_width="51dp"
+                android:layout_width="53dp"
                 android:layout_height="54dp"
                 android:layout_weight="1"
                 android:background="#2832C2"
                 android:contentDescription="@string/close_icon"
                 android:src="@drawable/icon_close"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/popup_window_title"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
