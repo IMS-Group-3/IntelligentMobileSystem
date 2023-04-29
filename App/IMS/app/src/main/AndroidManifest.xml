@@ -24,6 +24,11 @@
         tools:targetApi="33">
 
         <activity
+            android:name=".ImagePopUpActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@style/Theme.popup"/>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -34,8 +39,8 @@
         </activity>
         <activity
             android:name=".ControlActivity"
-            android:exported="false">
-        </activity>
+            android:exported="false"></activity>
+
     </application>
 
 </manifest>
