@@ -19,6 +19,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.widget.ImageView
 import com.example.ims.services.ImageApi
+import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
 
 
@@ -244,15 +245,25 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                             )
                         ) {
                             //starts popupActivity in this activity
-                            val intent = Intent(context, ImagePopUpActivity::class.java)
-                            context.startActivity(intent)
+                           val intent = Intent(context, ImagePopUpActivity::class.java)
 
-                            val imageId = 26
+
+                         //   val imagePopUpActivity = ImagePopUpActivity()
+                            // Should be exchanged with the ID of the mapMarker where collisionEvent == true
+                            val imageId = 1
                             imageApi.getImageById(imageId) { result ->
                                 if (result.isSuccess) {
                                     // Set imageView in the dialogbox with the bitmap result
                                     val bitmap = result.getOrNull()
                                     Log.e("isSuccess", "The images is successfully retrieved")
+                                    // Convert the Bitmap to a ByteArray
+                                    val byteArrayOutputStream = ByteArrayOutputStream()
+                                    bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
+                                    val byteArray = byteArrayOutputStream.toByteArray()
+
+                                    intent.putExtra("bitmap", byteArray)
+                                    context.startActivity(intent)
+                            //       imagePopUpActivity.loadImageFromBitMap(bitmap)
                                 } else if (result.isFailure) {
                                     val exception = result.exceptionOrNull()
                                     Log.e("isFailure", "isFailure")

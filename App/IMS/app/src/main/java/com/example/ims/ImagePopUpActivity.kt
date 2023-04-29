@@ -1,5 +1,7 @@
 package com.example.ims
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -13,8 +15,12 @@ class ImagePopUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_pop_up)
 
+        // Get the ByteArray from the Intent and convert it to a Bitmap
+        val byteArray = intent.getByteArrayExtra("bitmap")
+        val bitmap = byteArray?.let { BitmapFactory.decodeByteArray(byteArray, 0, it.size) }
+
         //create AlertDialog with image
-        popupWindow()
+        popupWindow(bitmap!!)
 
         //clickListener to close dialog
         closeDialog()
@@ -23,23 +29,22 @@ class ImagePopUpActivity : AppCompatActivity() {
         setPopupTitle()
     }
 
-    private fun popupWindow() {
+    private fun popupWindow(bitmap: Bitmap) {
         val dialogBuilder = AlertDialog.Builder(this)
         val dialog = dialogBuilder.create()
 
-        //load image from loadImage() function
-        loadImage()
+        // Load image from the provided Bitmap
+        loadImage(bitmap)
 
         dialog.show()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
     }
 
-    private fun loadImage() {
-        //get ImageView from activity_image_pop_up.xml
+   private fun loadImage(bitmap: Bitmap) {
+        // Get ImageView from activity_image_pop_up.xml
         val imageView = findViewById<ImageView>(R.id.popup_collision_image)
-        //sets image from drawable to imageview
-        //replace when we can access image from backend
-        imageView.setImageResource(R.drawable.image_chill_cat)
+        // Set the provided Bitmap to the ImageView
+        imageView.setImageBitmap(bitmap)
     }
 
     private fun closeDialog() {
