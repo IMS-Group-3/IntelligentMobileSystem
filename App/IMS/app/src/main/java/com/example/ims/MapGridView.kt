@@ -15,7 +15,9 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import android.widget.ImageView
+import com.example.ims.services.ImageApi
 import kotlin.math.ceil
 
 
@@ -44,6 +46,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private val iconWarning: Drawable
     private val iconMower: Drawable
     private val backgroundBitmap: Bitmap
+    private val imageApi = ImageApi()
 
 
     init {
@@ -240,12 +243,26 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                             )
                         ) {
                             // Replace the block below with navigation or popup dialog with the Image received from the backend team.
-                           /* Toast.makeText(
+                         /*   Toast.makeText(
                                 context,
                                 "Collision avoided at (${marker.x}, ${marker.y})",
                                 Toast.LENGTH_SHORT
                             ).show()*/
-                            popupWindow()
+                           // popupWindow()
+
+                            val imageId = 26
+                            imageApi.getImageById(imageId) { result ->
+                                if (result.isSuccess) {
+                                    // Set imageView in the dialogbox with the bitmap result
+                                    val bitmap = result.getOrNull()
+                                    Log.e("isSuccess", "The images is successfully retrieved")
+                                } else if (result.isFailure) {
+                                    val exception = result.exceptionOrNull()
+                                    Log.e("isFailure", "isFailure")
+                                }
+                            }
+
+
                         }
                     }
                 }
