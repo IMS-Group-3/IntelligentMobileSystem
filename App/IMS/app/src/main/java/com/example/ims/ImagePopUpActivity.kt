@@ -15,7 +15,7 @@ class ImagePopUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_pop_up)
 
-        // Get the ByteArray from the Intent and convert it to a Bitmap
+        // Gets the ByteArray from the Intent and converts it back to Bitmap
         val byteArray = intent.getByteArrayExtra("bitmap")
         val bitmap = byteArray?.let { BitmapFactory.decodeByteArray(byteArray, 0, it.size) }
 
@@ -33,7 +33,7 @@ class ImagePopUpActivity : AppCompatActivity() {
         val dialogBuilder = AlertDialog.Builder(this)
         val dialog = dialogBuilder.create()
 
-        // Load image from the provided Bitmap
+        // Load image from the Bitmap
         loadImage(bitmap)
 
         dialog.show()
@@ -43,7 +43,6 @@ class ImagePopUpActivity : AppCompatActivity() {
    private fun loadImage(bitmap: Bitmap) {
         // Get ImageView from activity_image_pop_up.xml
         val imageView = findViewById<ImageView>(R.id.popup_collision_image)
-        // Set the provided Bitmap to the ImageView
         imageView.setImageBitmap(bitmap)
     }
 

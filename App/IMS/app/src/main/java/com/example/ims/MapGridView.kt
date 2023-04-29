@@ -1,6 +1,5 @@
 package com.example.ims
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
@@ -10,18 +9,14 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewConfiguration
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
-import android.widget.ImageView
 import com.example.ims.services.ImageApi
-import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
-
 
 class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
@@ -247,23 +242,18 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                             //starts popupActivity in this activity
                            val intent = Intent(context, ImagePopUpActivity::class.java)
 
-
-                         //   val imagePopUpActivity = ImagePopUpActivity()
-                            // Should be exchanged with the ID of the mapMarker where collisionEvent == true
+                            // Exchange with the ID of the mapMarker where collisionEvent == true
                             val imageId = 1
                             imageApi.getImageById(imageId) { result ->
                                 if (result.isSuccess) {
-                                    // Set imageView in the dialogbox with the bitmap result
-                                    val bitmap = result.getOrNull()
-                                    Log.e("isSuccess", "The images is successfully retrieved")
-                                    // Convert the Bitmap to a ByteArray
-                                    val byteArrayOutputStream = ByteArrayOutputStream()
-                                    bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
-                                    val byteArray = byteArrayOutputStream.toByteArray()
 
-                                    intent.putExtra("bitmap", byteArray)
+                                    // Set imageView in the dialogbox with the bitmap result
+                                    val imageByteArray = result.getOrNull()
+                                    Log.e("isSuccess", "The images is successfully retrieved")
+
+
+                                    intent.putExtra("bitmap", imageByteArray)
                                     context.startActivity(intent)
-                            //       imagePopUpActivity.loadImageFromBitMap(bitmap)
                                 } else if (result.isFailure) {
                                     val exception = result.exceptionOrNull()
                                     Log.e("isFailure", "isFailure")
