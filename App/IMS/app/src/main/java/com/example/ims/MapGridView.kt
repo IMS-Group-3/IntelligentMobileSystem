@@ -132,67 +132,24 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         }
 
         canvas?.let {
-
             markers.forEachIndexed { index, marker ->
-                val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
-                // Draws line between markers
-                if (index > 0) {
-                    val prevMarker = markers[index - 1]
-                    val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
+                    drawLineBetweenMarkers(index, offsetX, offsetY, marker, it)
 
-                    linePaint.color = markerColor
-                    linePaint.strokeWidth = markerRadius * 2
-                    it.drawLine(
-                        prevMarkerX + offsetX,
-                        prevMarkerY + offsetY,
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        linePaint
-                    )
-
-                }
-                // Draws mower
-                if (index == markers.size - 1 && index > 0) {
-                    val iconWidth = iconWarning.intrinsicWidth
-                    val iconHeight = iconWarning.intrinsicHeight
-                    val halfIconWidth = iconWidth
-                    val halfIconHeight = iconHeight
-
-                    val left = (markerCenterX + offsetX - halfIconWidth).toInt()
-                    val top = (markerCenterY + offsetY - halfIconHeight).toInt()
-                    val right = (markerCenterX + offsetX + halfIconWidth).toInt()
-                    val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
-                    val prevMarker = markers[index - 1]
-                    val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
-                    // Draws the mower facing the direction of the movement
-                   if(prevMarkerX >= markerCenterX){
-                        iconMowerLeft.setBounds(left, top, right, bottom)
-                        iconMowerLeft.draw(it)
+                    if (index == markers.size - 1) {
+                        drawMower(index, offsetX, offsetY, marker, it)
                     } else {
-                        iconMowerRight.setBounds(left, top, right, bottom)
-                        iconMowerRight.draw(it)
+                        drawMarker(marker, offsetX, offsetY, it)
                     }
-
-                } else {
-                    markerPaint.color = markerColor
-                    it.drawCircle(
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        markerRadius,
-                        markerPaint
-                    )
-                }
-
-
             }
+
 
             // Adds collision event markers to the map
             markers.forEachIndexed { index, marker ->
                 // Get the center coordinates of the latest marker
                 val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
-                // Draws blue circle on the map when collisionEvent is true
+                // Draws warning icon on the map when collisionEvent is true
                 if (marker.collisionEvent) {
                     val iconWidth = iconWarning.intrinsicWidth
                     val iconHeight = iconWarning.intrinsicHeight
@@ -284,6 +241,60 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
         }
         return true
+    }
+
+    private fun drawLineBetweenMarkers(index: Int, offsetX: Float, offsetY: Float, marker: LocationMarker, it: Canvas) {
+        if (index > 0) {
+            val prevMarker = markers[index - 1]
+            val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
+            val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+            linePaint.color = markerColor
+            linePaint.strokeWidth = markerRadius * 2
+            it.drawLine(
+                prevMarkerX + offsetX,
+                prevMarkerY + offsetY,
+                markerCenterX + offsetX,
+                markerCenterY + offsetY,
+                linePaint
+            )
+        }
+    }
+
+    private fun drawMower(index: Int, offsetX: Float, offsetY: Float, marker: LocationMarker, it: Canvas) {
+        val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+        val iconWidth = iconWarning.intrinsicWidth
+        val iconHeight = iconWarning.intrinsicHeight
+        val halfIconWidth = iconWidth
+        val halfIconHeight = iconHeight
+
+        val left = (markerCenterX + offsetX - halfIconWidth).toInt()
+        val top = (markerCenterY + offsetY - halfIconHeight).toInt()
+        val right = (markerCenterX + offsetX + halfIconWidth).toInt()
+        val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
+
+        // Draws the mower facing the direction of the movement
+        val iconMower = if (index > 0 && markers[index - 1].x >= marker.x) {
+            iconMowerLeft
+        } else {
+            iconMowerRight
+        }
+
+        iconMower.setBounds(left, top, right, bottom)
+        iconMower.draw(it)
+    }
+
+    private fun drawMarker(marker: LocationMarker, offsetX: Float, offsetY: Float, it: Canvas) {
+        val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+        markerPaint.color = markerColor
+        it.drawCircle(
+            markerCenterX + offsetX,
+            markerCenterY + offsetY,
+            markerRadius,
+            markerPaint
+        )
     }
 
     // Transforms coordinates from the touch points to be in the same coordinate system as the markers

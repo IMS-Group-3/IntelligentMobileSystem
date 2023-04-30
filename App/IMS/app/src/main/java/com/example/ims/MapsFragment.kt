@@ -89,8 +89,6 @@ class MapsFragment : Fragment() {
             LocationMarker(5000, 5000, false),
         )
 
-
-
         startButton.setOnClickListener {
             isStopped = false
 
@@ -109,6 +107,7 @@ class MapsFragment : Fragment() {
                             delay(300)
                         }
                     }
+                    centerButton.hide()
                     startButton.setText(R.string.start_button)
                     startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
                     isStopped = true
