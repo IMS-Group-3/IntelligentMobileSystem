@@ -41,7 +41,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var cellHeight = 0f
     private var isMarkerCentered = true
     private val iconWarning: Drawable
-    private val iconMower: Drawable
+    private val iconMowerRight: Drawable
+    private val iconMowerLeft: Drawable
     private val backgroundBitmap: Bitmap
     private val imageApi = ImageApi()
 
@@ -55,7 +56,8 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         linePaint.style = Paint.Style.STROKE
 
         iconWarning = ContextCompat.getDrawable(context, R.drawable.baseline_warning_24)!!
-        iconMower = ContextCompat.getDrawable(context, R.drawable.robotmower2)!!
+        iconMowerRight = ContextCompat.getDrawable(context, R.drawable.robotmower_right)!!
+        iconMowerLeft = ContextCompat.getDrawable(context, R.drawable.robotmower_left)!!
 
         val backgroundDrawable = ContextCompat.getDrawable(context, R.drawable.grass_ims)
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
@@ -148,9 +150,10 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                         markerCenterY + offsetY,
                         linePaint
                     )
+
                 }
                 // Draws mower
-                if (index == markers.size - 1) {
+                if (index == markers.size - 1 && index > 0) {
                     val iconWidth = iconWarning.intrinsicWidth
                     val iconHeight = iconWarning.intrinsicHeight
                     val halfIconWidth = iconWidth
@@ -160,9 +163,16 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                     val top = (markerCenterY + offsetY - halfIconHeight).toInt()
                     val right = (markerCenterX + offsetX + halfIconWidth).toInt()
                     val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
-
-                    iconMower.setBounds(left, top, right, bottom)
-                    iconMower.draw(it)
+                    val prevMarker = markers[index - 1]
+                    val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
+                    // Draws the mower facing the direction of the movement
+                   if(prevMarkerX >= markerCenterX){
+                        iconMowerLeft.setBounds(left, top, right, bottom)
+                        iconMowerLeft.draw(it)
+                    } else {
+                        iconMowerRight.setBounds(left, top, right, bottom)
+                        iconMowerRight.draw(it)
+                    }
 
                 } else {
                     markerPaint.color = markerColor
