@@ -5,16 +5,15 @@ import android.content.Intent
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
-import android.view.View
-import android.view.ViewConfiguration
 import androidx.core.content.ContextCompat
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
+import android.view.*
+import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import com.example.ims.services.ImageApi
 import kotlin.math.ceil
 
@@ -240,7 +239,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                             )
                         ) {
                             //starts popupActivity in this activity
-                           val intent = Intent(context, ImagePopUpActivity::class.java)
+                            val intent = Intent(context, ImagePopUpActivity::class.java)
 
                             // Exchange with the ID of the mapMarker where collisionEvent == true
                             val imageId = 1
