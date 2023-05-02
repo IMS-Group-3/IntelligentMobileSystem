@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/monthTitlesContainer"
+    android:layout_height="wrap_content"
+    android:weightSum="12"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <include layout="@layout/calendar_month_title" />
+
+
+
+</LinearLayout>
