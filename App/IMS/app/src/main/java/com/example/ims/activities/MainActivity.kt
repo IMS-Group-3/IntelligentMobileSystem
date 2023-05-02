@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.activities
 
 import android.Manifest
 import android.app.Activity
@@ -8,16 +8,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.ims.*
 import com.example.ims.databinding.ActivityMainBinding
+import com.example.ims.fragments.MapsFragment
 import createNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
-import sendCollisionNotification
 import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(){

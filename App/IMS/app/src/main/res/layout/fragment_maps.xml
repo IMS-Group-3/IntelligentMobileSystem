@@ -5,9 +5,9 @@
     android:id="@+id/mapContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsFragment">
+    tools:context=".fragments.MapsFragment">
 
-    <com.example.ims.MapGridView
+    <com.example.ims.views.MapView
         android:id="@+id/mapGridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

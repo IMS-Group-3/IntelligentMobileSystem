@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.activities
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.ims.R
 
 
 class ImagePopUpActivity : AppCompatActivity() {

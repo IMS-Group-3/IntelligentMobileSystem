@@ -6,7 +6,7 @@
     android:id="@+id/popup_window_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ImagePopUpActivity">
+    tools:context=".activities.ImagePopUpActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/popup_window_view"

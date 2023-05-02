@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.views
 
 import android.content.Context
 import android.content.Intent
@@ -15,10 +15,13 @@ import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
+import com.example.ims.R
+import com.example.ims.activities.ImagePopUpActivity
+import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
 import kotlin.math.ceil
 
-class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     var onCollisionListener: OnCollisionListener? = null
     private var canvasWidth: Int = 10000
     private var canvasHeight: Int = 15000

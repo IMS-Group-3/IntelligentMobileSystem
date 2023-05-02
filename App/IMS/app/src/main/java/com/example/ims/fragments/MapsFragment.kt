@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.fragments
 
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -10,6 +10,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import com.example.ims.views.MapView
+import com.example.ims.R
+import com.example.ims.activities.MainActivity
+import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import sendCollisionNotification
@@ -21,10 +25,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class MapsFragment : Fragment(), MapGridView.OnCollisionListener {
+class MapsFragment : Fragment(), MapView.OnCollisionListener {
     private var isStarted = false
     private var isStopped = true
-    private lateinit var mapGridView: MapGridView
+    private lateinit var mapGridView: MapView
     // private var isStopVisible = false
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,7 +47,7 @@ class MapsFragment : Fragment(), MapGridView.OnCollisionListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
+        val mapGridView = view.findViewById<MapView>(R.id.mapGridView)
         val startButton = view.findViewById<Button>(R.id.startButton)
         val centerButton = view.findViewById<FloatingActionButton>(R.id.centerButton)
         centerButton.hide()

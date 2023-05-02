@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.activities
 
 import android.os.Bundle
 import android.widget.TextView

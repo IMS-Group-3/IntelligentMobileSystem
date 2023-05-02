@@ -87,4 +87,7 @@ dependencies {
 
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:0.21.1-beta"
+
+    //Calendar
+    implementation 'com.kizitonwose.calendar:view:2.3.0'
 }
