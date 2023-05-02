@@ -5,18 +5,21 @@ import android.graphics.Color
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import com.example.ims.services.ImageApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import sendCollisionNotification
 
 // For simulating the array coordinates from a socket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import sendCollisionNotification
+
 
 class MapsFragment : Fragment(), MapGridView.OnCollisionListener {
     private var isStarted = false
@@ -131,10 +134,20 @@ class MapsFragment : Fragment(), MapGridView.OnCollisionListener {
             mapGridView.centerMap()
         }
     }
-    override fun onCollision() {
-        // Handle the collision event
+
+    // Sends collision notification
+    override fun onCollision(imageId: Int) {
+
         (activity as? MainActivity)?.let { mainActivity ->
-            sendCollisionNotification(mainActivity)
+            ImageApi().getImageBitmapByID(
+                imageId,
+                onSuccess = { bitmap ->
+                    sendCollisionNotification(mainActivity, bitmap)
+                },
+                onFailure = {
+                    Log.e("Notification", "Failed to load image for notification")
+                }
+            )
         }
     }
 }

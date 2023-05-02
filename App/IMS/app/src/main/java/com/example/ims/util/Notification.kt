@@ -3,11 +3,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
+import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.ims.R
+import com.example.ims.services.ImageApi
 
 private const val CHANNEL_ID = "collision_channel"
 
@@ -26,12 +30,23 @@ fun createNotificationChannel(context: Context) {
     }
 }
 
-fun sendCollisionNotification(context: Context) {
+fun sendCollisionNotification(context: Context, bitmap: Bitmap) {
+
+    val notificationView = RemoteViews(context.packageName, R.layout.notification_image_layout)
+    notificationView.setImageViewBitmap(R.id.notification_imageView, bitmap)
+
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
         .setSmallIcon(R.drawable.baseline_notifications_24)
         .setContentTitle("A collision has been avoided!")
-        .setContentText("Click to see why")
+        .setContentText("Expand to see why")
+        .setStyle(
+            NotificationCompat.BigPictureStyle()
+                .bigPicture(bitmap)
+                .setBigContentTitle("A collision has been avoided!")
+                .setSummaryText("It was your neighboors cat..")
+        )
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
 
     with(NotificationManagerCompat.from(context)) {
         if (ActivityCompat.checkSelfPermission(
@@ -39,15 +54,9 @@ fun sendCollisionNotification(context: Context) {
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return
         }
         notify(1, builder.build())
     }
 }
+

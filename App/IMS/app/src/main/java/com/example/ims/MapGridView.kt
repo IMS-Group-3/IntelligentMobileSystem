@@ -47,7 +47,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private val imageApi = ImageApi()
 
     interface OnCollisionListener {
-        fun onCollision()
+        fun onCollision(imageId:Int)
     }
     init {
         val configuration = ViewConfiguration.get(context)
@@ -209,9 +209,6 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                                 markerRadius
                             )
                         ) {
-                            //starts popupActivity in this activity
-                           val intent = Intent(context, ImagePopUpActivity::class.java)
-
                             // Exchange with the ID of the mapMarker where collisionEvent == true
                             val imageId = 1
                             startImagePopUpActivity(imageId)
@@ -236,7 +233,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private fun startImagePopUpActivity(imageId: Int) {
         val intent = Intent(context, ImagePopUpActivity::class.java)
 
-        imageApi.getImageById(imageId) { result ->
+        imageApi.getImageByteArrayById(imageId) { result ->
             if (result.isSuccess) {
                 // Sets imageView in the dialogbox with the bitmap result
                 val imageByteArray = result.getOrNull()
@@ -268,7 +265,6 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             )
         }
     }
-
     private fun drawMower(index: Int, offsetX: Float, offsetY: Float, marker: LocationMarker, it: Canvas) {
         val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
@@ -339,7 +335,9 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
         // Handles collision event
         if (marker.collisionEvent) {
-            onCollisionListener?.onCollision()
+            // Replace with marker ID when endpoint is finished
+            val markerId = 1
+            onCollisionListener?.onCollision(markerId)
         }
 
         matrix.reset()
