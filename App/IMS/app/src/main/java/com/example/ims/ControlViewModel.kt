@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ims.data.ConnectionState
 import com.example.ims.data.CommunicationManager
 import com.example.ims.data.ControlCommand
+import com.example.ims.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,13 +39,14 @@ class ControlViewModel @Inject constructor(
             )
             communicationManager. startSending(controlComand)
 
-            /*collect{ result ->
+            /**/
+        }
+    }
+    private fun subscribeToChanges(){
+        viewModelScope.launch {
+            communicationManager.data.collect{ result ->
                 when(result){
-                    is Resource.Success -> {
-                        connectionState = result.data.connectionState
-                        angle = result.data.x
-                        strength = result.data.y
-                    }
+                    is Resource.Success -> {}
 
                     is Resource.Loading -> {
                         initializingMessage = result.message
@@ -56,10 +58,9 @@ class ControlViewModel @Inject constructor(
                         connectionState = ConnectionState.Uninitialized
                     }
                 }
-            }*/
+            }
         }
     }
-
     fun disconnect(){
         communicationManager.disconnect()
     }
@@ -70,6 +71,7 @@ class ControlViewModel @Inject constructor(
 
     fun initializeConnection(){
         errorMessage = null
+        subscribeToChanges()
         communicationManager.startScaning()
     }
 

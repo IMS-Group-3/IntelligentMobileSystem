@@ -43,12 +43,16 @@ class HomeFragment : Fragment() {
     private val locationViewModelTemp: LocationViewModelTemp by activityViewModels()
     var bleConnectionState: ConnectionState? = null
 
+    val x : TextView? = null
+    val y : TextView? = null
+    val collisionAvoidance : TextView? = null
+    val connectionState : TextView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
-            bleConnectionState = locationViewModelTemp.connectionState
+            bleConnectionState = locationViewModelTemp.connectionState.value
         }
     }
 
@@ -64,7 +68,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        bleConnectionState = locationViewModelTemp.connectionState
+        bleConnectionState = locationViewModelTemp.connectionState.value
 
         if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
             locationViewModelTemp.initializeConnection()
@@ -107,6 +111,19 @@ class HomeFragment : Fragment() {
 
         }
 
+        locationViewModelTemp.run {
+            this.connectionState.observe(viewLifecycleOwner){
+                if(allPermissionsGranted()){
+                    if (locationViewModelTemp.connectionState.value == ConnectionState.Uninitialized){
+                        locationViewModelTemp.initializeConnection()
+                    }
+                    updateFragment(it)
+
+                }
+
+            }
+        }
+
     }
 
     override fun onStart() {
@@ -114,6 +131,7 @@ class HomeFragment : Fragment() {
         if(allPermissionsGranted() && bleConnectionState == ConnectionState.Disconnected){
             locationViewModelTemp.reconnect()
         }
+
     }
 
     override fun onStop() {
@@ -156,5 +174,36 @@ class HomeFragment : Fragment() {
         if (accessFineLocationPermission != PackageManager.PERMISSION_GRANTED){ return false  }
         if (accessCoarseLocationPermission != PackageManager.PERMISSION_GRANTED){ return false  }
         return true
+    }
+    private fun updateFragment (bleConnectionState: ConnectionState){
+        if(bleConnectionState == ConnectionState.CurrentlyInitializing){
+            x?.text = ""
+            y?.text = ""
+            collisionAvoidance?.text = ""
+            connectionState?.text = ""
+
+            if(locationViewModelTemp.initializingMessage != null){
+                connectionState?.text = locationViewModelTemp.initializingMessage!!
+            }
+
+        }else if(!allPermissionsGranted()){
+            connectionState?.text = "Go to the app setting and allow the missing permissions."
+        }else if(locationViewModelTemp.errorMessage != null){
+
+            connectionState?.text = locationViewModelTemp.errorMessage!!
+
+        }else if(bleConnectionState == ConnectionState.Connected){
+
+            x?.text = "X: ${locationViewModelTemp.x}"
+            y?.text = "Y: ${locationViewModelTemp.y}"
+            collisionAvoidance?.text  = "Collisio nAvoidance: ${locationViewModelTemp.collisionAvoidance}"
+
+        }else if(bleConnectionState == ConnectionState.Disconnected){
+            connectionState?.text = "Initialize again"
+
+        }else {
+            connectionState?.text = "No device was found"
+
+        }
     }
 }

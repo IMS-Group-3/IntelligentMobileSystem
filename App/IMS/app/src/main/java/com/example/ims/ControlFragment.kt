@@ -46,9 +46,11 @@ class ControlFragment : Fragment() {
         mTextViewAngle = view.findViewById(R.id.textView_angle) as TextView
         mTextViewStrength = view.findViewById(R.id.textView_strength) as TextView
         mTextViewCoordinate = view.findViewById(R.id.textView_coordinate)
+        bleConnectionState = controlViewModel.connectionState
         if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
             controlViewModel.initializeConnection()
         }
+
         val joystick = view.findViewById(R.id.joystickView) as JoystickView
         joystick.setOnMoveListener { angle, strength ->
 
@@ -77,7 +79,6 @@ class ControlFragment : Fragment() {
                 mTextViewCoordinate!!.text = "Initialize again"
 
             }
-
             mTextViewAngle!!.text = "$angle°"
             mTextViewStrength!!.text = "$strength%"
             /*mTextViewCoordinate!!.text = String.format(

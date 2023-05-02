@@ -3,6 +3,7 @@ package com.example.ims
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ims.data.ConnectionState
@@ -32,14 +33,14 @@ class LocationViewModelTemp  @Inject constructor (
     var collisionAvoidance by mutableStateOf(false)
         private set
 
-    var connectionState by mutableStateOf<ConnectionState>(ConnectionState.Uninitialized)
+    var connectionState = MutableLiveData<ConnectionState>(ConnectionState.Uninitialized)
 
     private fun subscribeToChanges(){
         viewModelScope.launch {
             communicationManager.data.collect{ result ->
                 when(result){
                     is Resource.Success -> {
-                        connectionState = result.data.connectionState
+                        connectionState.value = result.data.connectionState
                         x = result.data.x
                         y = result.data.y
                         collisionAvoidance = result.data.collisionAvoidance
@@ -47,12 +48,12 @@ class LocationViewModelTemp  @Inject constructor (
 
                     is Resource.Loading -> {
                         initializingMessage = result.message
-                        connectionState = ConnectionState.CurrentlyInitializing
+                        connectionState.value = ConnectionState.CurrentlyInitializing
                     }
 
                     is Resource.Error -> {
                         errorMessage = result.errorMessage
-                        connectionState = ConnectionState.Failed
+                        connectionState.value = ConnectionState.Failed
                     }
                 }
             }
