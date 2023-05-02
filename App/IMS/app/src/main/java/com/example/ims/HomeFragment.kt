@@ -7,23 +7,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
 import com.example.ims.data.ConnectionState
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
+import com.example.ims.views.DayViewContainer
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.atStartOfMonth
+import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.core.firstDayOfWeekFromLocale
+import com.kizitonwose.calendar.view.CalendarView
+import com.kizitonwose.calendar.view.MonthDayBinder
+import com.kizitonwose.calendar.view.WeekCalendarView
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.TextStyle
+import java.time.temporal.WeekFields
+import java.util.*
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -63,17 +66,61 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         bleConnectionState = locationViewModelTemp.connectionState
 
         if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
             locationViewModelTemp.initializeConnection()
         }
-        Log.i("fdghjklöjkhgfdsdhjgkjhlkjlölyitukyjdghc",bleConnectionState.toString() )
+
         val x = view.findViewById<TextView>(R.id.textView_x_coordinate)
         val y = view.findViewById<TextView>(R.id.textView_y_coordinate)
         val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
         val connectionState = view.findViewById<TextView>(R.id.textView_connection_state)
+
+        // Calendar
+        val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
+        val currentMonth = YearMonth.now()
+        val startMonth = currentMonth.minusMonths(100)  // Adjust as needed
+        val endMonth = currentMonth.plusMonths(100)  // Adjust as needed
+        val daysOfWeek = daysOfWeek() // Available in the library
+        calendarView.setup(startMonth, endMonth, daysOfWeek.first())
+        calendarView.scrollToMonth(currentMonth)
+
+        calendarView.setup(startMonth, endMonth, WeekFields.of(Locale.getDefault()).firstDayOfWeek)
+        calendarView.scrollToMonth(currentMonth)
+
+        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
+            // Called only when a new container is needed.
+            override fun create(view: View) = DayViewContainer(view)
+
+            // Called every time we need to reuse a container.
+            override fun bind(container: DayViewContainer, data: CalendarDay) {
+                container.textView.text = data.date.dayOfMonth.toString()
+            }
+        }
+        val titlesContainer = view.findViewById<ViewGroup>(R.id.titlesContainer)
+        titlesContainer.children
+            .map { it as TextView }
+            .forEachIndexed { index, textView ->
+                val dayOfWeek = daysOfWeek[index]
+                val title = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+                textView.text = title
+            }
+
+        /*
+        val weekCalendarView = view.findViewById<WeekCalendarView>(R.id.weekCalendarView)
+        val currentDate = LocalDate.now()
+        val currentMonth = YearMonth.now()
+        val startDate = currentMonth.minusMonths(100).atStartOfMonth() // Adjust as needed
+        val endDate = currentMonth.plusMonths(100).atEndOfMonth()  // Adjust as needed
+        val firstDayOfWeek = firstDayOfWeekFromLocale() // Available from the library
+        weekCalendarView.setup(startDate, endDate, firstDayOfWeek)
+        weekCalendarView.scrollToWeek(currentDate)*/
+
+
+
+
+
         if(bleConnectionState == ConnectionState.CurrentlyInitializing){
             x.text = ""
             y.text = ""
