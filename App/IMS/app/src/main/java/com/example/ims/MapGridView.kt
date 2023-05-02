@@ -19,7 +19,7 @@ import com.example.ims.services.ImageApi
 import kotlin.math.ceil
 
 class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
-
+    var onCollisionListener: OnCollisionListener? = null
     private var canvasWidth: Int = 10000
     private var canvasHeight: Int = 15000
     private var viewWidth: Int = 0
@@ -46,7 +46,9 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private val backgroundBitmap: Bitmap
     private val imageApi = ImageApi()
 
-
+    interface OnCollisionListener {
+        fun onCollision()
+    }
     init {
         val configuration = ViewConfiguration.get(context)
         touchSlop = configuration.scaledTouchSlop
@@ -151,6 +153,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
                 // Draws warning icon on the map when collisionEvent is true
                 if (marker.collisionEvent) {
+
                     val iconWidth = iconWarning.intrinsicWidth
                     val iconHeight = iconWarning.intrinsicHeight
                     val halfIconWidth = iconWidth / 2
@@ -211,20 +214,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
                             // Exchange with the ID of the mapMarker where collisionEvent == true
                             val imageId = 1
-                            imageApi.getImageById(imageId) { result ->
-                                if (result.isSuccess) {
-
-                                    // Set imageView in the dialogbox with the bitmap result
-                                    val imageByteArray = result.getOrNull()
-                                    Log.e("isSuccess", "The images is successfully retrieved")
-
-                                    intent.putExtra("bitmap", imageByteArray)
-                                    context.startActivity(intent)
-                                } else if (result.isFailure) {
-                                    val exception = result.exceptionOrNull()
-                                    Log.e("isFailure", "isFailure")
-                                }
-                            }
+                            startImagePopUpActivity(imageId)
                         }
                     }
                 }
@@ -241,6 +231,24 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
         }
         return true
+    }
+
+    private fun startImagePopUpActivity(imageId: Int) {
+        val intent = Intent(context, ImagePopUpActivity::class.java)
+
+        imageApi.getImageById(imageId) { result ->
+            if (result.isSuccess) {
+                // Sets imageView in the dialogbox with the bitmap result
+                val imageByteArray = result.getOrNull()
+                Log.e("isSuccess", "The image is successfully retrieved")
+
+                intent.putExtra("bitmap", imageByteArray)
+                context.startActivity(intent)
+            } else if (result.isFailure) {
+                val exception = result.exceptionOrNull()
+                Log.e("isFailure", "isFailure")
+            }
+        }
     }
 
     private fun drawLineBetweenMarkers(index: Int, offsetX: Float, offsetY: Float, marker: LocationMarker, it: Canvas) {
@@ -325,8 +333,14 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     // Adds marker to map
     fun addMarker(marker: LocationMarker) {
+
         this.markers.add(marker)
         val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+        // Handles collision event
+        if (marker.collisionEvent) {
+            onCollisionListener?.onCollision()
+        }
 
         matrix.reset()
         matrix.postTranslate(width / 2f - markerCenterX, height / 2f - markerCenterY)

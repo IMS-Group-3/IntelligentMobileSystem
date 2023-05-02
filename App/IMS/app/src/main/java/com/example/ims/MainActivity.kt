@@ -15,11 +15,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.ims.databinding.ActivityMainBinding
+import createNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
+import sendCollisionNotification
 import javax.inject.Inject
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
 
@@ -30,6 +31,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setPermissions()
         replaceFragment(HomeFragment())
+
+        createNotificationChannel(this)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
 
@@ -46,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
     }
+
     private fun replaceFragment(fragment: Fragment){
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()

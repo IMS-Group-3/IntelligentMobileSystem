@@ -16,19 +16,26 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import sendCollisionNotification
 
-class MapsFragment : Fragment() {
+class MapsFragment : Fragment(), MapGridView.OnCollisionListener {
     private var isStarted = false
     private var isStopped = true
-
+    private lateinit var mapGridView: MapGridView
     // private var isStopVisible = false
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_maps, container, false)
+        val view = inflater.inflate(R.layout.fragment_maps, container, false)
+
+        mapGridView = view.findViewById(R.id.mapGridView)
+        mapGridView.onCollisionListener = this
+
+        return view
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -122,6 +129,12 @@ class MapsFragment : Fragment() {
 
         centerButton.setOnClickListener {
             mapGridView.centerMap()
+        }
+    }
+    override fun onCollision() {
+        // Handle the collision event
+        (activity as? MainActivity)?.let { mainActivity ->
+            sendCollisionNotification(mainActivity)
         }
     }
 }
