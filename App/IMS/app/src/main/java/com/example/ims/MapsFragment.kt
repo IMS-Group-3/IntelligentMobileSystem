@@ -9,6 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // For simulating the array coordinates from a socket
@@ -35,6 +37,7 @@ class MapsFragment : Fragment() {
 
         val mapGridView = view.findViewById<MapGridView>(R.id.mapGridView)
         val startButton = view.findViewById<Button>(R.id.startButton)
+        val infoButton = view.findViewById<ImageButton>(R.id.infoButton)
         val centerButton = view.findViewById<FloatingActionButton>(R.id.centerButton)
         centerButton.hide()
 
@@ -101,6 +104,26 @@ class MapsFragment : Fragment() {
 
         centerButton.setOnClickListener {
             mapGridView.centerMap()
+        }
+
+        infoButton?.setOnClickListener {
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info_button, null)
+            val builder = AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+
+            val dialog = builder.create()
+
+            //can't close dialog by clicking outside
+            dialog.setCanceledOnTouchOutside(false)
+
+            dialog.show()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            //close dialog through close_icon
+            val closeButton = dialogView.findViewById<Button>(R.id.closeButton_info)
+            closeButton?.setOnClickListener {
+                dialog.dismiss()
+            }
         }
     }
 }

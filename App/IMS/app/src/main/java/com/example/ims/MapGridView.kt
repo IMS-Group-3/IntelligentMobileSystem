@@ -240,7 +240,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                             )
                         ) {
                             //starts popupActivity in this activity
-                           val intent = Intent(context, ImagePopUpActivity::class.java)
+                            val intent = Intent(context, ImagePopUpActivity::class.java)
 
                             // Exchange with the ID of the mapMarker where collisionEvent == true
                             val imageId = 1
