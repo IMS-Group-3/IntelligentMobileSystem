@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 // For simulating the array coordinates from a socket
@@ -113,7 +112,6 @@ class MapsFragment : Fragment() {
                 .setView(dialogView)
 
             val dialog = builder.create()
-            centerButton.visibility = View.GONE
 
             //can't close dialog by clicking outside
             dialog.setCanceledOnTouchOutside(false)
