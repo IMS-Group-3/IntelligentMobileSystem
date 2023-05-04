@@ -6,7 +6,8 @@ const swaggerUi = require('swagger-ui-express');
 
 module.exports = function (
     {
-        image
+        image,
+        path
     }
 ) {
 
@@ -199,6 +200,7 @@ module.exports = function (
     app.use(bodyParser.json());
 
     app.use('/image', image);
+    app.use('/paths', path);
 
     return app;
 
