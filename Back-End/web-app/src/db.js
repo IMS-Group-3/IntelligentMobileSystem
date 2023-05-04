@@ -1,46 +1,19 @@
 const sqlite3 = require('sqlite3')
 const db = new sqlite3.Database('backend.db')
 
+  db.run(`
+        create table if not exists image(
+            imageId INTEGER PRIMARY KEY AUTOINCREMENT,
+            encodedImage TEXT
+        )
+    `)
 
-db.run(
-    `CREATE TABLE IF NOT EXISTS path (
-        pathId INTEGER PRIMARY KEY AUTOINCREMENT,
-        start_time TEXT,
-        end_time TEXT
-    )`
-)
- 
-db.run(
-    `CREATE TABLE IF NOT EXISTS position (
-        positionId INTEGER PRIMARY KEY AUTOINCREMENT,
-        x INTEGER NOT NULL,
-        y INTEGER NOT NULL,
-        timestamp TEXT NOT NULL,
-        collision_occured BOOLEAN DEFAULT FALSE,
-        pathId INTEGER NOT NULL,
-        FOREIGN KEY(pathId) REFERENCES path(pathId)
-    )`
-)
- 
-db.run(
-    `CREATE TABLE IF NOT EXISTS image (
-        imageId INTEGER PRIMARY KEY AUTOINCREMENT,
-        encodedImage TEXT NOT NULL,
-        image_classification TEXT,
-        positionId INTEGER,
-        FOREIGN KEY(positionId) REFERENCES position(positionId)
-    )`
-)
-
-
+    
 module.exports = function ({
 
 }){
 
     return {
-
-       
-
         storeImage (image, callback) {
             db.run(
                 `INSERT INTO image (encodedImage) VALUES (?)`,
