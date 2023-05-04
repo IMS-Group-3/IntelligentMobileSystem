@@ -88,9 +88,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_connection_state">
 
-      <!--      <include
-                android:id="@+id/titlesContainer"
-                layout="@layout/calendar_day_titles_container" /> -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="36sp"
+                android:layout_gravity="center_horizontal"
+                android:padding="8dp"
+                android:text="Calendar" />
             <TextView
                 android:id="@+id/monthTitle"
                 android:layout_width="wrap_content"

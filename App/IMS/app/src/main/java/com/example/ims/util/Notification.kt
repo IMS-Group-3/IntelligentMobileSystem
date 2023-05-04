@@ -43,7 +43,7 @@ fun sendCollisionNotification(context: Context, bitmap: Bitmap) {
             NotificationCompat.BigPictureStyle()
                 .bigPicture(bitmap)
                 .setBigContentTitle("A collision has been avoided!")
-                .setSummaryText("It was your neighboors cat..")
+                .setSummaryText("It was a cat")
         )
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 

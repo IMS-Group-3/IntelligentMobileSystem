@@ -67,7 +67,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         val backgroundDrawable = ContextCompat.getDrawable(context, R.drawable.grass_ims)
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
-        // Dummy marker to display the mower icon
+        // Dummy marker to display the mower icon at start of fragment
         markers.add(LocationMarker(5000, 5000, false))
 
         scaleDetector = ScaleGestureDetector(
@@ -238,15 +238,14 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         imageApi.getImageByteArrayById(imageId) { result ->
             if (result.isSuccess) {
+
                 // Sets imageView in the dialogbox with the bitmap result
                 val imageByteArray = result.getOrNull()
-                Log.e("isSuccess", "The image is successfully retrieved")
 
                 intent.putExtra("bitmap", imageByteArray)
                 context.startActivity(intent)
             } else if (result.isFailure) {
                 val exception = result.exceptionOrNull()
-                Log.e("isFailure", "isFailure")
             }
         }
     }
@@ -357,6 +356,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         return Pair(markerCenterX, markerCenterY)
     }
 
+    // Centers the map on the current location of the mower
     fun centerMap() {
         val marker = markers.last()
         scaleFactor = 1f

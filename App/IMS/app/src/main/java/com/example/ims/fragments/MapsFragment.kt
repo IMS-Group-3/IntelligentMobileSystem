@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import com.example.ims.views.MapView
 import com.example.ims.R
 import com.example.ims.activities.MainActivity
@@ -28,8 +30,11 @@ import kotlinx.coroutines.launch
 class MapsFragment : Fragment(), MapView.OnCollisionListener {
     private var isStarted = false
     private var isStopped = true
-    private lateinit var mapGridView: MapView
-    // private var isStopVisible = false
+    private lateinit var mapView: MapView
+    private lateinit var startButton: Button
+    private lateinit var infoButton : ImageButton
+    private lateinit var centerButton : FloatingActionButton
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,8 +42,8 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_maps, container, false)
 
-        mapGridView = view.findViewById(R.id.mapGridView)
-        mapGridView.onCollisionListener = this
+        mapView = view.findViewById(R.id.mapView)
+        mapView.onCollisionListener = this
 
         return view
     }
@@ -47,9 +52,9 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mapGridView = view.findViewById<MapView>(R.id.mapGridView)
-        val startButton = view.findViewById<Button>(R.id.startButton)
-        val centerButton = view.findViewById<FloatingActionButton>(R.id.centerButton)
+        startButton = view.findViewById(R.id.startButton)
+        infoButton = view.findViewById(R.id.infoButton)
+        centerButton = view.findViewById(R.id.centerButton)
         centerButton.hide()
 
         // Array of markers. Replace with real time coordinates from the mower team.
@@ -107,7 +112,7 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
             isStopped = false
 
             if (!isStarted) {
-                mapGridView.centerMap()
+                mapView.centerMap()
                 centerButton.show()
                 startButton.setText(R.string.stop_button)
                 startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
@@ -117,7 +122,7 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
                 CoroutineScope(Dispatchers.Main).launch {
                     markers.forEach { marker ->
                         if (!isStopped) {
-                            mapGridView.addMarker(marker)
+                            mapView.addMarker(marker)
                             delay(300)
                         }
                     }
@@ -135,11 +140,31 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
         }
 
         centerButton.setOnClickListener {
-            mapGridView.centerMap()
+            mapView.centerMap()
+        }
+
+        infoButton?.setOnClickListener {
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info_button, null)
+            val builder = AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+
+            val dialog = builder.create()
+
+            //can't close dialog by clicking outside
+            dialog.setCanceledOnTouchOutside(false)
+
+            dialog.show()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+            //close dialog through close_icon
+            val closeButton = dialogView.findViewById<Button>(R.id.closeButton_info)
+            closeButton?.setOnClickListener {
+                dialog.dismiss()
+            }
         }
     }
 
-    // Sends collision notification
+    // Handles collision notification
     override fun onCollision(imageId: Int) {
 
         (activity as? MainActivity)?.let { mainActivity ->

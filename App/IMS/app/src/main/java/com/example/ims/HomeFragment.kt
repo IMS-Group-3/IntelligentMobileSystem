@@ -76,6 +76,7 @@ class HomeFragment : Fragment() {
         val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
         val connectionState = view.findViewById<TextView>(R.id.textView_connection_state)
 
+
         // Calendar
         val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
         val currentMonth = YearMonth.now()
