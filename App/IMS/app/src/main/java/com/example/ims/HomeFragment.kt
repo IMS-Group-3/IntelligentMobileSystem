@@ -10,27 +10,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.ims.data.ConnectionState
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.util.Log
-import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
 import com.example.ims.views.CustomCalendar
-import com.example.ims.views.DayViewContainer
-import com.example.ims.views.MonthViewContainer
-import com.kizitonwose.calendar.core.*
 import com.kizitonwose.calendar.view.CalendarView
-import com.kizitonwose.calendar.view.MonthDayBinder
-import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
-import com.kizitonwose.calendar.view.WeekCalendarView
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.time.temporal.WeekFields
-import java.util.*
-
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -62,7 +45,6 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 

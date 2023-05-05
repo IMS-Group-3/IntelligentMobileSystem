@@ -2,11 +2,12 @@ package com.example.ims.views
 
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.children
 import com.example.ims.R
+import com.example.ims.util.loadSelectedDates
+import com.example.ims.util.saveSelectedDates
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
@@ -16,7 +17,6 @@ import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.*
@@ -96,7 +96,6 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
             }
         }
 
-        // Add this after setting up the calendarView.dayBinder
         val loadedDates = loadSelectedDates(context)
         selectedDates.addAll(loadedDates)
         loadedDates.forEach { calendarView.notifyDateChanged(it) }
@@ -109,29 +108,4 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
         monthTitleTextView.text = monthTitle
     }
 
-
-    fun localDateToString(date: LocalDate): String {
-        return date.format(DateTimeFormatter.ISO_LOCAL_DATE)
-    }
-
-    fun stringToLocalDate(dateString: String): LocalDate {
-        return LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE)
-    }
-    private fun saveSelectedDates(context: Context, selectedDates: MutableList<LocalDate>) {
-        val sharedPreferences = context.getSharedPreferences("selected_dates", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        val dateSet = selectedDates.map { localDateToString(it) }.toHashSet()
-
-        Log.e("CustomCalendar", "Saving selected dates: $dateSet") // Add this line to log the saved dates
-
-        editor.putStringSet("dates", dateSet)
-        editor.apply()
-    }
-
-
-    fun loadSelectedDates(context: Context): MutableList<LocalDate> {
-        val sharedPreferences = context.getSharedPreferences("selected_dates", Context.MODE_PRIVATE)
-        val dateSet = sharedPreferences.getStringSet("dates", emptySet()) ?: emptySet()
-        return dateSet.map { stringToLocalDate(it) }.toMutableList()
-    }
 }
