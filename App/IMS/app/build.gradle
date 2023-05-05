@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.ims"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -87,4 +87,7 @@ dependencies {
 
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:0.21.1-beta"
+
+    //Calendar
+    implementation 'com.kizitonwose.calendar:view:2.3.0'
 }
