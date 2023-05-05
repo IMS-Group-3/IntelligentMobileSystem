@@ -3,10 +3,10 @@ const container = awilix.createContainer();
 
 container.register({
     image: awilix.asFunction(require('./endpoints/image.js')),
-    position: awilix.asFunction(require('endpoints/position.js')),
-    app : awilix.asFunction(require('./app.js'))
+    app : awilix.asFunction(require('./app.js')), 
+    db: awilix.asFunction(require('./db.js'))
 });
 
-container.resolve('app').listen(8080, function () {
+container.resolve('app').listen(5000, function () {
     console.log('Running!')
 });
