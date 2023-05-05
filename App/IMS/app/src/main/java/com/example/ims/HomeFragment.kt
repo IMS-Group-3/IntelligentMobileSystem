@@ -10,10 +10,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.ims.data.ConnectionState
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.util.Log
 import androidx.core.view.children
 import androidx.fragment.app.activityViewModels
+import com.example.ims.views.CustomCalendar
 import com.example.ims.views.DayViewContainer
 import com.example.ims.views.MonthViewContainer
 import com.kizitonwose.calendar.core.*
@@ -23,6 +26,7 @@ import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.kizitonwose.calendar.view.WeekCalendarView
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.*
@@ -76,60 +80,10 @@ class HomeFragment : Fragment() {
         val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
         val connectionState = view.findViewById<TextView>(R.id.textView_connection_state)
 
-
         // Calendar
         val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
-        val currentMonth = YearMonth.now()
-        val startMonth = currentMonth.minusMonths(100)  // Adjust as needed
-        val endMonth = currentMonth.plusMonths(100)  // Adjust as needed
-        val daysOfWeek = daysOfWeek() // Available in the library
-        calendarView.setup(startMonth, endMonth, daysOfWeek.first())
-        calendarView.scrollToMonth(currentMonth)
-        calendarView.setup(startMonth, endMonth, WeekFields.of(Locale.getDefault()).firstDayOfWeek)
-        calendarView.scrollToMonth(currentMonth)
-
-        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-            // Called only when a new container is needed.
-            override fun create(view: View) = DayViewContainer(view)
-
-            // Called every time we need to reuse a container.
-            override fun bind(container: DayViewContainer, data: CalendarDay) {
-                container.textView.text = data.date.dayOfMonth.toString()
-            }
-        }
-        calendarView.monthScrollListener = { visibleMonth ->
-            updateMonthTitle(visibleMonth.yearMonth)
-        }
-
-        calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
-            override fun create(view: View) = MonthViewContainer(view)
-            override fun bind(container: MonthViewContainer, data: CalendarMonth) {
-                // Remember that the header is reused so this will be called for each month.
-                // However, the first day of the week will not change so no need to bind
-                // the same view every time it is reused.
-                if (container.titlesContainer.tag == null) {
-                    container.titlesContainer.tag = data.yearMonth
-                    container.titlesContainer.children.map { it as TextView }
-                        .forEachIndexed { index, textView ->
-                            val dayOfWeek = daysOfWeek[index]
-                            val title = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-                            textView.text = title
-
-                            updateMonthTitle(currentMonth)
-
-                            // In the code above, we use the same `daysOfWeek` list
-                            // that was created when we set up the calendar.
-                            // However, we can also get the `daysOfWeek` list from the month data:
-                            // val daysOfWeek = data.weekDays.first().map { it.date.dayOfWeek }
-                            // Alternatively, you can get the value for this specific index:
-                            // val dayOfWeek = data.weekDays.first()[index].date.dayOfWeek
-                        }
-                }
-            }
-        }
-
-
-
+        val monthTitleTextView = view.findViewById<TextView>(R.id.monthTitle)
+        CustomCalendar(calendarView, monthTitleTextView, requireContext())
 
         if(bleConnectionState == ConnectionState.CurrentlyInitializing){
             x.text = ""
@@ -198,6 +152,7 @@ class HomeFragment : Fragment() {
                 }
             }
     }
+
     private fun allPermissionsGranted():Boolean{
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
@@ -213,13 +168,6 @@ class HomeFragment : Fragment() {
         if (accessFineLocationPermission != PackageManager.PERMISSION_GRANTED){ return false  }
         if (accessCoarseLocationPermission != PackageManager.PERMISSION_GRANTED){ return false  }
         return true
-    }
-
-    private fun updateMonthTitle(yearMonth: YearMonth) {
-        val monthTitleTextView = requireView().findViewById<TextView>(R.id.monthTitle)
-        val monthName = yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        val monthTitle = "$monthName ${yearMonth.year}"
-        monthTitleTextView.text = monthTitle
     }
 
 }
