@@ -10,6 +10,7 @@ module.exports = function ({
     const router = express.Router();
 
     router.post('/', function (request, response) {
+        console.log(request.cookies.newPathId);
         const body = request.body;
         const positionModel = {
             startTime: body.startTime,
@@ -17,9 +18,14 @@ module.exports = function ({
             y: body.y,
             datetime: body.timestamp,
             collisionOcurred: body.collisionOcurred,
-            pathId: request.cookies.ids.pathId,
+            // pathId: request.cookies.newPathId.pathId,
             isNewPath: body.isNewPath
         };
+        
+
+        if(request.hasOwnProperty('cookies')){
+            positionModel['pathId'] = request.cookies.newPathId
+        }
 
         db.storePositions(positionModel, function (error, pathId, positionId) { 
             if (error != null){
@@ -30,9 +36,7 @@ module.exports = function ({
                 }
             } else {
                 console.log(pathId);
-                response.cookie('newPathId', {
-                    pathId: pathId
-                });
+                response.cookie('newPathId', pathId);
                 response.status(201).end();
             }
         });
