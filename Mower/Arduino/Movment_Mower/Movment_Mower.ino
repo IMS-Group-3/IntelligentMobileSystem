@@ -137,7 +137,6 @@ void setup(){   // put your setup code here, to run once:
 }
 
 void loop(){    // put your main code here, to run repeatedly:
-
   switch(mode){
     case INSIDE:
       if(ultraSensor.distanceCm()> 20){ //Check if Distance forward is grater then 20 cm
@@ -157,7 +156,7 @@ void loop(){    // put your main code here, to run repeatedly:
         
         Avoid();//Avoidens rutine
       }
-
+      
       //Ultra Sonic Sensor Minimum Delay of 100 Millisec
       delay(100);
     break;
@@ -180,12 +179,12 @@ void loop(){    // put your main code here, to run repeatedly:
         //Convert Recived data To signed ints
         signed int pwmRight = Serial.parseInt();//Read in a Int from the Recive Buffer
         signed int pwmLeft = Serial.parseInt();//Read in a Int from the Recive Buffer
-        
+        /*
         Serial.print("pwmRight : ");
         Serial.println(pwmRight);
         Serial.print("pwmLeft : ");
         Serial.println(pwmLeft);
-        
+        */
         //Checks if pwmRight are in allowed span
         if(pwmRight>510){
           pwmRight = 510;
@@ -198,21 +197,21 @@ void loop(){    // put your main code here, to run repeatedly:
         }else if(pwmLeft < 0){
           pwmLeft = 0;
         }
-        
+        /*
         Serial.print("pwmRight : ");
         Serial.println(pwmRight);
         Serial.print("pwmLeft : ");
         Serial.println(pwmLeft);
-        
+        */
         //Convert To allowed value Span of (-255) - (255)
         pwmRight = pwmRight - 255;
         pwmLeft = pwmLeft - 255;
-        
+        /*
         Serial.print("pwmRight : ");
         Serial.println(pwmRight);
         Serial.print("pwmLeft : ");
         Serial.println(pwmLeft);
-
+        */
         //Execute Recived Movment Command
         SetEnginenPWM(pwmRight,pwmLeft);
         RunEncoderLoops();
