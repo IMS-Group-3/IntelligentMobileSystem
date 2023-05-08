@@ -7,6 +7,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Base64
+import android.util.Log
 import org.json.JSONObject
 
 
@@ -30,6 +31,7 @@ class ImageApi {
 
                     // Decodes the image data and callback the byte array
                     val imageData = JSONObject(response).getJSONObject("imageData")
+                    Log.e("iamgeDATA", imageData.toString())
                     val encodedImage = imageData.getString("encodedImage")
                     val decodedBytes = Base64.decode(encodedImage, Base64.DEFAULT)
                     callback(Result.success(decodedBytes))

@@ -1,7 +1,9 @@
 package com.example.ims.views
 
+import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.core.view.children
@@ -16,13 +18,17 @@ import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.*
 
+
+
 class CustomCalendar(private val calendarView: CalendarView,  private val monthTitleTextView: TextView, private val context: Context) {
-    private val selectedDates = mutableListOf<LocalDate>()
+    private val selectedDates = mutableListOf<LocalDateTime>()
 
     init {
         val currentMonth = YearMonth.now()
@@ -63,16 +69,34 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                 container.textView.setOnClickListener {
                     val day = container.day
                     if (day.position == DayPosition.MonthDate) {
-                        if (selectedDates.contains(day.date)) {
-                            selectedDates.remove(day.date)
+                        if (selectedDates.any { it.toLocalDate() == day.date }) {
+                            selectedDates.removeAll { it.toLocalDate() == day.date }
                             calendarView.notifyDateChanged(day.date)
+                            saveSelectedDates(context, selectedDates)
                         } else {
-                            selectedDates.add(day.date)
-                            calendarView.notifyDateChanged(day.date)
+                            // Show TimePickerDialog
+                            val currentTime = LocalTime.now()
+                            val timePickerDialog = TimePickerDialog(
+                                context,
+                                { _, hourOfDay, minute ->
+                                    val selectedTime = LocalTime.of(hourOfDay, minute)
+                                    // Combine selected date and time
+                                    val selectedDateTime = day.date.atTime(selectedTime)
+                                    // Add the selected date with the time to the list
+                                    selectedDates.add(selectedDateTime)
+                                    // Reload the newly selected date so the dayBinder is called
+                                    calendarView.notifyDateChanged(day.date)
+                                    saveSelectedDates(context, selectedDates)
+                                },
+                                currentTime.hour,
+                                currentTime.minute,
+                                true // Use true for 24-hour format or false for 12-hour format
+                            )
+                            timePickerDialog.show()
                         }
-                        saveSelectedDates(context, selectedDates)
                     }
                 }
+
                 return container
             }
 
@@ -83,7 +107,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                 textView.text = day.date.dayOfMonth.toString()
                 if (day.position == DayPosition.MonthDate) {
                     textView.visibility = View.VISIBLE
-                    if (selectedDates.contains(day.date)) {
+                    if (selectedDates.any { it.toLocalDate() == day.date }) {
                         textView.setTextColor(Color.WHITE)
                         textView.setBackgroundResource(R.drawable.calendar_date_selection_background)
                     } else {
@@ -98,7 +122,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
 
         val loadedDates = loadSelectedDates(context)
         selectedDates.addAll(loadedDates)
-        loadedDates.forEach { calendarView.notifyDateChanged(it) }
+        loadedDates.forEach { calendarView.notifyDateChanged(it.toLocalDate()) }
     }
 
     private fun updateMonthTitle(yearMonth: YearMonth) {
