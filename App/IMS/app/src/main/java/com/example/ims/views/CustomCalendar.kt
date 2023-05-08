@@ -1,10 +1,13 @@
 package com.example.ims.views
 
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.view.children
 import com.example.ims.R
@@ -21,6 +24,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.*
@@ -69,15 +73,22 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                 container.textView.setOnClickListener {
                     val day = container.day
                     if (day.position == DayPosition.MonthDate) {
+                        val selectedDateTime = selectedDates.find { it.toLocalDate() == day.date }
                         if (selectedDates.any { it.toLocalDate() == day.date }) {
-                            selectedDates.removeAll { it.toLocalDate() == day.date }
+
+                            if (selectedDateTime != null) {
+                                showDateTimeDialog(day.date, selectedDateTime.toLocalTime())
+                            }
+                         /*   selectedDates.removeAll { it.toLocalDate() == day.date }
                             calendarView.notifyDateChanged(day.date)
-                            saveSelectedDates(context, selectedDates)
+                            saveSelectedDates(context, selectedDates)*/
+
                         } else {
                             // Show TimePickerDialog
                             val currentTime = LocalTime.now()
                             val timePickerDialog = TimePickerDialog(
                                 context,
+                                R.style.CustomTimePickerDialog,
                                 { _, hourOfDay, minute ->
                                     val selectedTime = LocalTime.of(hourOfDay, minute)
                                     // Combine selected date and time
@@ -131,5 +142,30 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
         val monthTitle = "$monthName ${yearMonth.year}"
         monthTitleTextView.text = monthTitle
     }
+    private fun showDateTimeDialog(date: LocalDate, time: LocalTime) {
+        val dialog = Dialog(context)
+        dialog.setContentView(R.layout.dialog_date_time)
+        dialog.setCancelable(false)
+
+        val selectedTimeText: TextView = dialog.findViewById(R.id.selected_time_text)
+        val cancelButton: Button = dialog.findViewById(R.id.cancel_date_button)
+        val closeButton: ImageButton = dialog.findViewById(R.id.close_dialog_button)
+
+        selectedTimeText.text = "${time.format(DateTimeFormatter.ofPattern("hh:mm a"))}"
+
+        cancelButton.setOnClickListener {
+            selectedDates.removeAll { it.toLocalDate() == date }
+            calendarView.notifyDateChanged(date)
+            saveSelectedDates(context, selectedDates)
+            dialog.dismiss()
+        }
+
+        closeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
 
 }
