@@ -79,9 +79,6 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                             if (selectedDateTime != null) {
                                 showDateTimeDialog(day.date, selectedDateTime.toLocalTime())
                             }
-                         /*   selectedDates.removeAll { it.toLocalDate() == day.date }
-                            calendarView.notifyDateChanged(day.date)
-                            saveSelectedDates(context, selectedDates)*/
 
                         } else {
                             // Show TimePickerDialog
@@ -101,7 +98,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                                 },
                                 currentTime.hour,
                                 currentTime.minute,
-                                true // Use true for 24-hour format or false for 12-hour format
+                                true
                             )
                             timePickerDialog.show()
                         }
