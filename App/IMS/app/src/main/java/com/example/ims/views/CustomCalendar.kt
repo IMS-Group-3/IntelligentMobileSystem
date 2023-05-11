@@ -117,13 +117,18 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                 val textView = container.textView
                 textView.text = day.date.dayOfMonth.toString()
                 if (day.position == DayPosition.MonthDate) {
-                    textView.visibility = View.VISIBLE
-                    if (selectedDates.any { it.toLocalDate() == day.date }) {
-                        textView.setTextColor(Color.WHITE)
-                        textView.setBackgroundResource(R.drawable.calendar_date_selection_background)
+                    if(day.date.isBefore(LocalDate.now())) {
+                        textView.alpha = 0.3f
+                        textView.setOnClickListener(null)
                     } else {
-                        textView.setTextColor(Color.BLACK)
-                        textView.background = null
+                        textView.visibility = View.VISIBLE
+                        if (selectedDates.any { it.toLocalDate() == day.date }) {
+                            textView.setTextColor(Color.WHITE)
+                            textView.setBackgroundResource(R.drawable.calendar_date_selection_background)
+                        } else {
+                            textView.setTextColor(Color.BLACK)
+                            textView.background = null
+                        }
                     }
                 } else {
                     textView.visibility = View.INVISIBLE
