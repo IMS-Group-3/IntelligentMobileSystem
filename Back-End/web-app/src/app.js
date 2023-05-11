@@ -1,12 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const path = require('./endpoints/path');
 
 module.exports = function (
     {
-        image
+        image,
+        path
     }
 ) {
 
@@ -197,8 +200,10 @@ module.exports = function (
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
     app.use(bodyParser.json());
+    app.use(cookieParser());
 
     app.use('/image', image);
+    app.use('/paths', path)
 
     return app;
 
