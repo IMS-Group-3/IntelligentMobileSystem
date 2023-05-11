@@ -17,6 +17,7 @@ import com.example.ims.R
 import com.example.ims.activities.MainActivity
 import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
+import com.example.ims.services.PathApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import sendCollisionNotification
 
@@ -35,6 +36,9 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
     private lateinit var infoButton : ImageButton
     private lateinit var centerButton : FloatingActionButton
 
+    private var markers = listOf<LocationMarker>()
+    private val pathApi = PathApi()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -48,7 +52,6 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
         return view
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -57,7 +60,28 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
         centerButton = view.findViewById(R.id.centerButton)
         centerButton.hide()
 
-        // Array of markers. Replace with real time coordinates from the mower team.
+        val pathId = 1
+        //Array of markers
+        pathApi.getPathById(pathId) { pathData ->
+            // Iterate over the key-value pairs
+            //key = positionId, valueList = x, y, timestamp, collisionOccurred
+            for ((key, valueList) in pathData) {
+                //Puts all values for specific key in a list
+                val listValues = mutableListOf<List<String>>()
+                listValues.add(valueList)
+                //Iterates through each value in the list
+                for (value in listValues) {
+                    val x = value[0].toInt()
+                    val y = value[1].toInt()
+                    val collision = value[3].toInt()
+                    val collisionOccurred = intToBoolean(collision)
+
+                    markers+=(LocationMarker(x, y, collisionOccurred))
+                }
+            }
+        }
+
+        /*// Array of markers. Replace with real time coordinates from the mower team.
         val markers = listOf(
             LocationMarker(5000, 5000, true),
             LocationMarker(5500, 5000, false),
@@ -106,7 +130,7 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
             LocationMarker(4000, 5000, false),
             LocationMarker(4500, 5000, false),
             LocationMarker(5000, 5000, false),
-        )
+        )*/
 
         startButton.setOnClickListener {
             isStopped = false
@@ -178,5 +202,8 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
                 }
             )
         }
+    }
+    private fun intToBoolean(value: Int): Boolean {
+        return value != 0
     }
 }
