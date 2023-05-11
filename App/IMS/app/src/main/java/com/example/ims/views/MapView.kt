@@ -14,7 +14,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
-import android.util.Log
 import com.example.ims.R
 import com.example.ims.activities.ImagePopUpActivity
 import com.example.ims.data.LocationMarker

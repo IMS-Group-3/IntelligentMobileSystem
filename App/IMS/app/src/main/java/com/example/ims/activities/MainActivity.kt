@@ -15,7 +15,8 @@ import androidx.fragment.app.Fragment
 import com.example.ims.*
 import com.example.ims.databinding.ActivityMainBinding
 import com.example.ims.fragments.MapsFragment
-import createNotificationChannel
+import createCollisionNotificationChannel
+import createMowingSessionNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 @AndroidEntryPoint
@@ -31,7 +32,8 @@ class MainActivity : AppCompatActivity(){
         setPermissions()
         replaceFragment(HomeFragment())
 
-        createNotificationChannel(this)
+        createMowingSessionNotificationChannel(this)
+        createCollisionNotificationChannel(this)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
 
@@ -61,6 +63,7 @@ class MainActivity : AppCompatActivity(){
        // showBluetoothDialog()
 
     }
+
     /*override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
