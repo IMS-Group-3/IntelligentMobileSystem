@@ -162,6 +162,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
             selectedDates.removeAll { it.toLocalDate() == date }
             calendarView.notifyDateChanged(date)
             saveSelectedDates(context, selectedDates)
+            cancelMowingSessionNotification(context, date)
             dialog.dismiss()
         }
 
@@ -173,14 +174,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
     }
     private fun scheduleMowingSessionNotification(context: Context, dateTime: LocalDateTime) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, MowingSessionReceiver::class.java)
-
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE else 0
-        )
+        val pendingIntent = createPendingIntent(context,dateTime.toLocalDate())
 
         val calendar = Calendar.getInstance().apply {
             timeInMillis = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -188,4 +182,23 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
     }
+    private fun cancelMowingSessionNotification(context: Context, date: LocalDate) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pendingIntent = createPendingIntent(context,date)
+
+        alarmManager.cancel(pendingIntent)
+    }
+    // Schedules the mowing broadcast
+    private fun createPendingIntent(context: Context, date: LocalDate): PendingIntent {
+        val intent = Intent(context, MowingSessionReceiver::class.java)
+        val requestCode = date.hashCode()
+        return PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+    }
+
+
 }
