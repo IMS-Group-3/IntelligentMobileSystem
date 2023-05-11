@@ -24,11 +24,6 @@ class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
 
-    companion object {
-        private const val REQUEST_CODE_SCHEDULE_EXACT_ALARM_PERMISSION = 1
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -68,39 +63,6 @@ class MainActivity : AppCompatActivity(){
        // showBluetoothDialog()
 
     }
-/*
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_CODE_SCHEDULE_EXACT_ALARM_PERMISSION -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted, you can schedule the exact alarm
-                } else {
-                    // Permission denied, show a message to the user explaining the feature won't work
-                }
-            }
-        }
-    }
-    private fun requestScheduleExactAlarmPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!hasScheduleExactAlarmPermission()) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM),
-                    REQUEST_CODE_SCHEDULE_EXACT_ALARM_PERMISSION
-                )
-            }
-        }
-    }
-
-    private fun hasScheduleExactAlarmPermission(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            checkSelfPermission(Manifest.permission.SCHEDULE_EXACT_ALARM) == PackageManager.PERMISSION_GRANTED
-        } else {
-            true
-        }
-    }*/
-
 
     /*override fun onRequestPermissionsResult(
         requestCode: Int,
