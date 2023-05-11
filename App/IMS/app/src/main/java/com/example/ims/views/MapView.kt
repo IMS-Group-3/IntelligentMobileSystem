@@ -14,7 +14,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
-import android.util.Log
 import com.example.ims.R
 import com.example.ims.activities.ImagePopUpActivity
 import com.example.ims.data.LocationMarker
@@ -213,7 +212,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                             )
                         ) {
                             // Exchange with the ID of the mapMarker where collisionEvent == true
-                            val imageId = 1
+                            val imageId = 11
                             startImagePopUpActivity(imageId)
                         }
                     }
@@ -338,7 +337,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         // Handles collision event
         if (marker.collisionEvent) {
             // Replace with marker ID when endpoint is finished
-            val markerId = 1
+            val markerId = 11
             onCollisionListener?.onCollision(markerId)
         }
 

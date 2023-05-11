@@ -1,16 +1,20 @@
 package com.example.ims.views
 
+import android.app.AlarmManager
 import android.app.Dialog
+import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
-import android.util.Log
+import android.os.Build
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.view.children
 import com.example.ims.R
+import com.example.ims.receivers.MowingSessionReceiver
 import com.example.ims.util.loadSelectedDates
 import com.example.ims.util.saveSelectedDates
 import com.kizitonwose.calendar.core.CalendarDay
@@ -20,10 +24,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.YearMonth
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
@@ -90,11 +91,13 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                                     val selectedTime = LocalTime.of(hourOfDay, minute)
                                     // Combine selected date and time
                                     val selectedDateTime = day.date.atTime(selectedTime)
-                                    // Add the selected date with the time to the list
+                                    scheduleMowingSessionNotification(context,selectedDateTime)
+
                                     selectedDates.add(selectedDateTime)
                                     // Reload the newly selected date so the dayBinder is called
                                     calendarView.notifyDateChanged(day.date)
                                     saveSelectedDates(context, selectedDates)
+
                                 },
                                 currentTime.hour,
                                 currentTime.minute,
@@ -148,7 +151,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
         val cancelButton: Button = dialog.findViewById(R.id.cancel_date_button)
         val closeButton: ImageButton = dialog.findViewById(R.id.close_dialog_button)
 
-        selectedTimeText.text = "${time.format(DateTimeFormatter.ofPattern("hh:mm a"))}"
+        selectedTimeText.text = time.format(DateTimeFormatter.ofPattern("hh:mm a"))
 
         cancelButton.setOnClickListener {
             selectedDates.removeAll { it.toLocalDate() == date }
@@ -163,6 +166,21 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
 
         dialog.show()
     }
+    private fun scheduleMowingSessionNotification(context: Context, dateTime: LocalDateTime) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, MowingSessionReceiver::class.java)
 
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_IMMUTABLE else 0
+        )
 
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        }
+
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+    }
 }
