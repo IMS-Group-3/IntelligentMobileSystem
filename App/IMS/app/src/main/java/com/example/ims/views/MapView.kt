@@ -22,8 +22,8 @@ import kotlin.math.ceil
 
 class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     var onCollisionListener: OnCollisionListener? = null
-    private var canvasWidth: Int = 10000
-    private var canvasHeight: Int = 15000
+    private var canvasWidth: Int = 100
+    private var canvasHeight: Int = 150
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
     private val markers = mutableListOf<LocationMarker>()
@@ -67,7 +67,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
         // Dummy marker to display the mower icon at start of fragment
-        markers.add(LocationMarker(5000, 5000, false))
+        markers.add(LocationMarker(10, 20, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
