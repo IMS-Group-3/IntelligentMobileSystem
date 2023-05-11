@@ -18,7 +18,7 @@ class MowingSessionReceiver : BroadcastReceiver() {
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.icon_grass)
             .setContentTitle("Mowing Session Started")
-            .setContentText("Trimming time!")
+            .setContentText("It's trimming time!")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
