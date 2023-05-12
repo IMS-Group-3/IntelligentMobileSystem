@@ -186,33 +186,59 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
 
        SMHIApi().fetchWeatherData { result ->
-           if(result.isSuccess) {
+           if (result.isSuccess) {
                val apiResponseString = result.getOrNull()
 
                // Parse and log the response
                val json = JSONObject(apiResponseString)
                val timeSeriesArray = json.getJSONArray("timeSeries")
 
+               // Assuming selectedDates is a list of your selected dates
+               val selectedDatesFormatted = selectedDates.map { it.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH")) }
+               Log.e("selectedDates", selectedDates.toString())
+               Log.e("selectedDatesFormatted", selectedDatesFormatted.toString())
                for (i in 0 until timeSeriesArray.length()) {
                    val forecastItem = timeSeriesArray.getJSONObject(i)
                    val validTime = forecastItem.getString("validTime")
-                   val parametersArray = forecastItem.getJSONArray("parameters")
+                   // Extract the date from the validTime
+                   val validDateTime = validTime.substringBefore(":")
 
-                   var pcat: Int? = null
-                   var Wsymb2: Int? = null
+                   // Check if the date is in the selectedDates
+                   if (validDateTime in selectedDatesFormatted) {
+                       Log.e("Yes", "Yes")
+                       val parametersArray = forecastItem.getJSONArray("parameters")
 
-                   for (j in 0 until parametersArray.length()) {
-                       val parameterItem = parametersArray.getJSONObject(j)
-                       val parameterName = parameterItem.getString("name")
-                       val parameterValue = parameterItem.getJSONArray("values").get(0) // Assuming the values array always has one element
+                       var temperature: Double? = null
+                       var precipitationCategory: Int? = null
+                       var weatherSymbol: Int? = null
+                       var isBadWeather = false
 
-                       when (parameterName) {
-                           "pcat" -> pcat = parameterValue as Int
-                           "Wsymb2" -> Wsymb2 = parameterValue as Int
+                       for (j in 0 until parametersArray.length()) {
+                           val parameterItem = parametersArray.getJSONObject(j)
+                           val parameterName = parameterItem.getString("name")
+                           val parameterValue = parameterItem.getJSONArray("values").get(0) // Assuming the values array always has one element
+
+                           when (parameterName) {
+                               "t" -> temperature = parameterValue as Double
+                               "pcat" -> {
+                                   precipitationCategory = parameterValue as Int
+                                   if (precipitationCategory != 0) {
+                                       isBadWeather = true
+                                   }
+                               }
+                               "Wsymb2" -> weatherSymbol = parameterValue as Int
+                           }
+
+
                        }
-                   }
+                       if (isBadWeather) {
+                           // Send notification to user from here?
+                           // If pcat is not 0, log a message or do something else
+                           Log.e("WeatherData", "Date: $validTime is bad weather, mow some other time?")
+                       }
 
-                   Log.e("WeatherData", "Time: $validTime, Precipitation Category: $pcat, Weather Symbol: $Wsymb2")
+                       Log.e("WeatherData", "Date: $validTime,Temperature: $temperature, Precipitation Category: $precipitationCategory, Weather Symbol: $weatherSymbol")
+                   }
                }
            } else {
                // Handle the error
@@ -220,6 +246,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                Log.e("SMHIApi", "Error fetching weather data", exception)
            }
        }
+
     }
     private fun cancelMowingSessionNotification(context: Context, date: LocalDate) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -227,7 +254,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
 
         alarmManager.cancel(pendingIntent)
     }
-    // Schedules the mowing broadcast
+    // sets the intent for the mowing broadcast
     private fun createPendingIntent(context: Context, date: LocalDate): PendingIntent {
         val intent = Intent(context, MowingSessionReceiver::class.java)
         val requestCode = date.hashCode()
