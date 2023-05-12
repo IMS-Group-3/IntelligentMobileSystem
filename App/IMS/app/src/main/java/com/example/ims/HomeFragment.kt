@@ -70,15 +70,15 @@ class HomeFragment : Fragment() {
 
         bleConnectionState = locationViewModelTemp.connectionState.value
 
-        if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
+        /*if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
             locationViewModelTemp.initializeConnection()
-        }
+        }*/
         Log.i("fdghjklöjkhgfdsdhjgkjhlkjlölyitukyjdghc",bleConnectionState.toString() )
         val x = view.findViewById<TextView>(R.id.textView_x_coordinate)
         val y = view.findViewById<TextView>(R.id.textView_y_coordinate)
         val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
         val connectionState = view.findViewById<TextView>(R.id.textView_connection_state)
-        if(bleConnectionState == ConnectionState.CurrentlyInitializing){
+        /*if(bleConnectionState == ConnectionState.CurrentlyInitializing){
             x.text = ""
             y.text = ""
             collisionAvoidance.text = ""
@@ -109,9 +109,9 @@ class HomeFragment : Fragment() {
         }else {
             connectionState.text = "No device was found"
 
-        }
+        }*/
 
-        locationViewModelTemp.run {
+        /*locationViewModelTemp.run {
             this.connectionState.observe(viewLifecycleOwner){
                 if(allPermissionsGranted()){
                     if (locationViewModelTemp.connectionState.value == ConnectionState.Uninitialized){
@@ -121,24 +121,24 @@ class HomeFragment : Fragment() {
 
                 }
 
-            }
-        }
+           }
+        }*/
 
     }
 
     override fun onStart() {
         super.onStart()
-        if(allPermissionsGranted() && bleConnectionState == ConnectionState.Disconnected){
+        /*if(allPermissionsGranted() && bleConnectionState == ConnectionState.Disconnected){
             locationViewModelTemp.reconnect()
-        }
+        }*/
 
     }
 
     override fun onStop() {
         super.onStop()
-        if(allPermissionsGranted() && bleConnectionState == ConnectionState.Connected){
+       /* if(allPermissionsGranted() && bleConnectionState == ConnectionState.Connected){
             locationViewModelTemp.disconnect()
-        }
+        }*/
     }
     companion object {
         /**

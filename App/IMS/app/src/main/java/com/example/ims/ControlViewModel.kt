@@ -3,6 +3,7 @@ package com.example.ims
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ims.data.ConnectionState
@@ -30,23 +31,26 @@ class ControlViewModel @Inject constructor(
     var connectionState by mutableStateOf<ConnectionState>(ConnectionState.Uninitialized)
 
     fun sendMessage(){
-        viewModelScope.launch {
-
+        if (connectionState == ConnectionState.Connected) {
             val controlComand = ControlCommand(
                 angle,
                 strength,
                 ConnectionState.Connected
             )
-            communicationManager. startSending(controlComand)
-
-            /**/
+            communicationManager.startSending(controlComand)
+        }else if (connectionState == ConnectionState.Disconnected ){
+            reconnect()
+        }else{
+            initializeConnection()
         }
     }
     private fun subscribeToChanges(){
         viewModelScope.launch {
             communicationManager.data.collect{ result ->
                 when(result){
-                    is Resource.Success -> {}
+                    is Resource.Success -> {
+                        connectionState = result.data.connectionState
+                    }
 
                     is Resource.Loading -> {
                         initializingMessage = result.message

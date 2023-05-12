@@ -53,8 +53,9 @@ class ControlFragment : Fragment() {
 
         val joystick = view.findViewById(R.id.joystickView) as JoystickView
         joystick.setOnMoveListener { angle, strength ->
+            bleConnectionState = controlViewModel.connectionState
 
-            if(bleConnectionState == ConnectionState.CurrentlyInitializing){
+            /*if(bleConnectionState == ConnectionState.CurrentlyInitializing){
 
                 if(controlViewModel.initializingMessage != null){
                     mTextViewCoordinate!!.text = controlViewModel.initializingMessage!!
@@ -68,20 +69,22 @@ class ControlFragment : Fragment() {
                 if(allPermissionsGranted()){
                     controlViewModel.initializeConnection()
                 }
-            }else if(bleConnectionState == ConnectionState.Connected){
-                controlViewModel
-                controlViewModel.angle = angle
-                controlViewModel.strength = strength
-                controlViewModel.sendMessage()
+            }else*/ if(bleConnectionState == ConnectionState.Connected) {
+            controlViewModel.angle = angle
+            controlViewModel.strength = strength
+            controlViewModel.sendMessage()
 
             }else if(bleConnectionState == ConnectionState.Disconnected){
+                controlViewModel.reconnect()
+                mTextViewCoordinate!!.text = "Reconnect"
+
+            }else{
                 controlViewModel.initializeConnection()
                 mTextViewCoordinate!!.text = "Initialize again"
-
             }
             mTextViewAngle!!.text = "$angle°"
-            mTextViewStrength!!.text = "$strength%"
-            /*mTextViewCoordinate!!.text = String.format(
+            mTextViewStrength!!.text = "$strength%"/*
+            mTextViewCoordinate!!.text = String.format(
                 "x%03d:y%03d",
                 joystick.normalizedX,
                 joystick.normalizedY
