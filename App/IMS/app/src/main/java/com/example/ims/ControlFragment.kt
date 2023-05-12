@@ -61,15 +61,15 @@ class ControlFragment : Fragment() {
                     mTextViewCoordinate!!.text = controlViewModel.initializingMessage!!
                 }
 
-            }else if(!allPermissionsGranted()){
+            }else*/ if(!allPermissionsGranted()){
                 mTextViewCoordinate!!.text = "Go to the app setting and allow the missing permissions."
-            }else if(controlViewModel.errorMessage != null){
+            }else /*if(controlViewModel.errorMessage != null){
 
                 mTextViewCoordinate!!.text = controlViewModel.errorMessage!!
                 if(allPermissionsGranted()){
                     controlViewModel.initializeConnection()
                 }
-            }else*/ if(bleConnectionState == ConnectionState.Connected) {
+            }else */if(bleConnectionState == ConnectionState.Connected) {
             controlViewModel.angle = angle
             controlViewModel.strength = strength
             controlViewModel.sendMessage()
@@ -83,7 +83,8 @@ class ControlFragment : Fragment() {
                 mTextViewCoordinate!!.text = "Initialize again"
             }
             mTextViewAngle!!.text = "$angle°"
-            mTextViewStrength!!.text = "$strength%"/*
+            mTextViewStrength!!.text = "$strength%"
+        /*
             mTextViewCoordinate!!.text = String.format(
                 "x%03d:y%03d",
                 joystick.normalizedX,
