@@ -5,9 +5,11 @@ MeEncoderOnBoard Encoder_2(SLOT2);
 MeUltrasonicSensor ultraSensor(PORT_7);
 MeRGBLed rgbled_0(0,12);
 
+//Used To enable Visual Debugging of mower
 bool LIGHT_DEBUG = true;
-//State Enum decleration
-enum Mode{INSIDE, OUTSIDE, MANUAL}mode;
+
+//Varible used in the State Machine expecting values M = Manual, O = Outside, I = Inside
+char mode;
 
 //Empty Loop used by _delay. Danger! Busy Waiting
 void _loop(){}
@@ -52,6 +54,7 @@ void Avoid(void){
   _delay(0.5);
 
   //Todo Comunicate to the raspberry pi that a picture is to be taken.
+  Serial.print("Collision");
 
   //Drive Backward for 1 sec
   SetEnginenPWM(128,-128);
@@ -63,10 +66,18 @@ void Avoid(void){
   RunEncoderLoops();
   _delay(0.5);
 
-  //Rotate Right
-  SetEnginenPWM(128,128);
-  RunEncoderLoops();
-  _delay(0.5);
+  if (random(2) == 0){
+    //Rotate Right
+    SetEnginenPWM(128,128);
+    RunEncoderLoops();
+    _delay(0.5);
+  }
+  else{
+    //Rotate Left
+    SetEnginenPWM(-128,-128);
+    RunEncoderLoops();
+    _delay(0.5);
+  }
 
   //Stoop
   SetEnginenPWM(000,000);
@@ -125,8 +136,11 @@ void setup(){   // put your setup code here, to run once:
   rgbled_0.setpin(44);
   rgbled_0.fillPixelsBak(0, 2, 1);
   
+  //seed the random generator
+  randomSeed(ultraSensor.distanceCm());
+  
   //Set Mode To Manual
-  mode = MANUAL;
+  mode = 'M';
 
   //Set PWM 8KHz
   TCCR1A = _BV(WGM10);
@@ -137,9 +151,17 @@ void setup(){   // put your setup code here, to run once:
 }
 
 void loop(){    // put your main code here, to run repeatedly:
+  
+  if (Serial.available()){
+    if(LIGHT_DEBUG){
+      RGBLightBlink(0.5,128,0,0);//Blink Color Red
+    }
+    mode = Serial.read();
+  }
+  
   switch(mode){
-    case INSIDE:
-      if(ultraSensor.distanceCm()> 20){ //Check if Distance forward is grater then 20 cm
+    case 'I':
+      if(ultraSensor.distanceCm()> 30){ //Check if Distance forward is grater then 20 cm
         if(LIGHT_DEBUG){
           RGBLightBlink(0.5,0,0,128);//Blink Color Blue
         }
@@ -161,16 +183,32 @@ void loop(){    // put your main code here, to run repeatedly:
       delay(100);
     break;
 
-    case OUTSIDE:
-      SetEnginenPWM(128,-128);
+    case 'O':
+      SetEnginenPWM(128,-128);//reverce for 0.5 sec
       RunEncoderLoops();
+      _delay(0.5);
+
+      if (random(2) == 0){
+      //Rotate Right
+      SetEnginenPWM(128,128);
+      RunEncoderLoops();
+      _delay(1);
+      }
+      else{
+        //Rotate Left
+        SetEnginenPWM(-128,-128);
+        RunEncoderLoops();
+        _delay(1);
+      }
     break;
 
-    case MANUAL:
+    case 'M':
       if(LIGHT_DEBUG){
         RGBLightBlink(0.5,128,0,128);//Blink Color purpule
       }
-      if(Serial.available()){  //Checks if The Serial recive Buffer contains data
+      if(Serial.available() && Serial.peek() != 'I' && 
+        Serial.peek() != 'O'&& Serial.peek() != 'M' && 
+        Serial.peek() != ' '){  //Checks if The Serial recive Buffer contains data and that the data does not start with a state prefix
         
         if(LIGHT_DEBUG){
           RGBLightBlink(0.5,0,128,128);//Blink Color turquse
@@ -179,12 +217,7 @@ void loop(){    // put your main code here, to run repeatedly:
         //Convert Recived data To signed ints
         signed int pwmRight = Serial.parseInt();//Read in a Int from the Recive Buffer
         signed int pwmLeft = Serial.parseInt();//Read in a Int from the Recive Buffer
-        /*
-        Serial.print("pwmRight : ");
-        Serial.println(pwmRight);
-        Serial.print("pwmLeft : ");
-        Serial.println(pwmLeft);
-        */
+        
         //Checks if pwmRight are in allowed span
         if(pwmRight>510){
           pwmRight = 510;
@@ -197,21 +230,11 @@ void loop(){    // put your main code here, to run repeatedly:
         }else if(pwmLeft < 0){
           pwmLeft = 0;
         }
-        /*
-        Serial.print("pwmRight : ");
-        Serial.println(pwmRight);
-        Serial.print("pwmLeft : ");
-        Serial.println(pwmLeft);
-        */
+        
         //Convert To allowed value Span of (-255) - (255)
         pwmRight = pwmRight - 255;
         pwmLeft = pwmLeft - 255;
-        /*
-        Serial.print("pwmRight : ");
-        Serial.println(pwmRight);
-        Serial.print("pwmLeft : ");
-        Serial.println(pwmLeft);
-        */
+        
         //Execute Recived Movment Command
         SetEnginenPWM(pwmRight,pwmLeft);
         RunEncoderLoops();
@@ -222,10 +245,15 @@ void loop(){    // put your main code here, to run repeatedly:
       }
     break;
 
+    case ' ':
+      //Somthing related to beeing Off
+    break;
+
     default:
     if(LIGHT_DEBUG){
     RGBLightBlink(0.5,128,128,0);//Blink Color yellow
     }
+    Serial.flush();
     break;
   }
   
