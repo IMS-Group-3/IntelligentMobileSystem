@@ -9,6 +9,24 @@ module.exports = function ({
 
     const router = express.Router();
 
+    router.post('/www', function (request, response) {
+        const body = request.body;
+        const positionModel = {
+            startTime: body.startTime,
+            x: body.x,
+            y: body.y,
+            datetime: body.timestamp,
+            collisionOcurred: body.collisionOcurred
+        };
+        db.storePathH(positionModel, function (error){
+            if(error == null){
+              console.log(error)  
+            } else { 
+                response.status(201).end();
+            }
+        })
+    })
+
     router.post('/', function (request, response) {
         console.log(request.cookies.newPathId);
         const body = request.body;
