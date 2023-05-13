@@ -73,56 +73,12 @@ class HomeFragment : Fragment() {
         /*if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
             locationViewModelTemp.initializeConnection()
         }*/
-        Log.i("fdghjklöjkhgfdsdhjgkjhlkjlölyitukyjdghc",bleConnectionState.toString() )
+        //Log.i("fdghjklöjkhgfdsdhjgkjhlkjlölyitukyjdghc",bleConnectionState.toString() )
         val x = view.findViewById<TextView>(R.id.textView_x_coordinate)
         val y = view.findViewById<TextView>(R.id.textView_y_coordinate)
         val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
         val connectionState = view.findViewById<TextView>(R.id.textView_connection_state)
-        /*if(bleConnectionState == ConnectionState.CurrentlyInitializing){
-            x.text = ""
-            y.text = ""
-            collisionAvoidance.text = ""
-            connectionState.text = ""
 
-            if(locationViewModelTemp.initializingMessage != null){
-                connectionState.text = locationViewModelTemp.initializingMessage!!
-            }
-
-        }else if(!allPermissionsGranted()){
-                connectionState.text = "Go to the app setting and allow the missing permissions."
-        }else if(locationViewModelTemp.errorMessage != null){
-
-            connectionState.text = locationViewModelTemp.errorMessage!!
-            if(allPermissionsGranted()){
-                locationViewModelTemp.initializeConnection()
-            }
-        }else if(bleConnectionState == ConnectionState.Connected){
-
-            x.text = "X: ${locationViewModelTemp.x}"
-            y.text = "Y: ${locationViewModelTemp.y}"
-            collisionAvoidance.text  = "Collisio nAvoidance: ${locationViewModelTemp.collisionAvoidance}"
-
-        }else if(bleConnectionState == ConnectionState.Disconnected){
-            locationViewModelTemp.initializeConnection()
-            connectionState.text = "Initialize again"
-
-        }else {
-            connectionState.text = "No device was found"
-
-        }*/
-
-        /*locationViewModelTemp.run {
-            this.connectionState.observe(viewLifecycleOwner){
-                if(allPermissionsGranted()){
-                    if (locationViewModelTemp.connectionState.value == ConnectionState.Uninitialized){
-                        locationViewModelTemp.initializeConnection()
-                    }
-                    updateFragment(it)
-
-                }
-
-           }
-        }*/
 
     }
 

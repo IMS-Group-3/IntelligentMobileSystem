@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setPermissions()
+        makePermissionRequests(1)
         replaceFragment(HomeFragment())
 
         binding.bottomNavigationView.setOnItemSelectedListener {
@@ -58,34 +58,8 @@ class MainActivity : AppCompatActivity() {
        // showBluetoothDialog()
 
     }
-    /*override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray) {
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            1-> {
-                if (grantResults.isEmpty() || grantResults.first() != PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(
-                        applicationContext,
-                        "getString(R.string.permission_required)",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            3-> {
-                if (grantResults.isEmpty() || grantResults.first() != PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(
-                        applicationContext,
-                        "gggghghg",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }*/
-    private fun showBluetoothDialog(){
+    private fun enableBluetoothIfNot(){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
             (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN )
                         == PackageManager.PERMISSION_GRANTED &&
@@ -125,10 +99,6 @@ class MainActivity : AppCompatActivity() {
     private fun makePermissionRequests(permissionCode: Int) {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            /*when(permissionCode){
-            1->{ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_SCAN),permissionCode)}
-            2->{ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT),permissionCode)}
-            }*/
             ActivityCompat.requestPermissions(this, arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,

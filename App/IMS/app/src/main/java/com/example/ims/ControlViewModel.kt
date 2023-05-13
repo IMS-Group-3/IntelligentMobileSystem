@@ -1,5 +1,6 @@
 package com.example.ims
 
+import android.bluetooth.BluetoothAdapter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,7 +16,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
 class ControlViewModel @Inject constructor(
-    private val communicationManager: CommunicationManager
+    private val communicationManager: CommunicationManager,
+    private var bluetoothAdapter: BluetoothAdapter
+
 ) : ViewModel(){
 
     var initializingMessage by mutableStateOf<String?>(null)
@@ -83,6 +86,7 @@ class ControlViewModel @Inject constructor(
         super.onCleared()
         communicationManager.closeConnection()
     }
-
-
+    fun isBluetoothEnabled():Boolean{
+        return bluetoothAdapter.isEnabled
+    }
 }
