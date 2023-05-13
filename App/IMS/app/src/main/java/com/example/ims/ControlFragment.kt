@@ -16,8 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
 import com.example.ims.data.ConnectionState
 import io.github.controlwear.virtual.joystick.android.JoystickView
 import javax.inject.Inject
@@ -141,7 +139,7 @@ class ControlFragment : Fragment() {
     private val startBluetoothIntentForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
             if(result.resultCode != Activity.RESULT_OK){
-                Log.i("www","ffghhfhfhf")
+                Log.i("BLE enable","Rejected")
             }
             isBluetoothDialogDisplayed = false
         }

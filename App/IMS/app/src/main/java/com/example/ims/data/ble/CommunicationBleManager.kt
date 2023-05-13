@@ -32,12 +32,6 @@ class CommunicationBleManager @Inject constructor(
         private val DRIVE_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
         private val DRIVE_CHARACTERISTICS_UUID = "12345678-1234-5678-1234-56789abcdef2"
 
-       /*private val DEVICE_NAME = "AyhamBle"
-        private val LOCATIN_SERVICE_UIID = "00002B39-0000-1000-8000-00805f9b34fb"
-        private val LOCATION_CHARACTERISTICS_UUID = "0000181C-0000-1000-8000-00805f9b34fb"
-        private val DRIVE_SERVICE_UUID = "00002B39-0000-1000-8000-00805f9b34fb"
-        private val DRIVE_CHARACTERISTICS_UUID = "0000181C-0000-1000-8000-00805f9b34fb"*/
-
         override val data: MutableSharedFlow<Resource<LocationResult>> = MutableSharedFlow()
 
         private val bleScanner by lazy {
