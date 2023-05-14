@@ -1,17 +1,11 @@
 package com.example.ims
 
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import com.example.ims.data.ConnectionState
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.fragment.app.activityViewModels
 import com.example.ims.views.CustomCalendar
 import com.kizitonwose.calendar.view.CalendarView
 
@@ -47,8 +41,22 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // Calendar
+        val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
+        val monthTitleTextView = view.findViewById<TextView>(R.id.monthTitle)
+        CustomCalendar(calendarView, monthTitleTextView, requireContext())
 
+    }
 
+    override fun onStart() {
+        super.onStart()
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of
