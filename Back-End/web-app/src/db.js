@@ -38,17 +38,6 @@ module.exports = function ({
 
 }){
 
-    function storeNewPath(startTime) {
-        const query = `INSERT INTO path (start_time) VALUES (?)`;
-        const values = [startTime];
-        db.run(query, values, function (error, success) {
-            if (error != null) {
-                return error
-            } else {
-                return success
-            }
-        })
-    }
     return {
         storeImage (image, callback) {
             db.run(
@@ -111,35 +100,62 @@ module.exports = function ({
                 callback(error, path);
             });
         }, 
-
-        storePositions(positionModel, callback) {
-            if(positionModel.isNewPath == true) {
-                storePath(positionModel.startTime, function (error, pathId) {
-                    callback(error, pathId, null)
-                });
-            } else {
-                const query = `
-                        INSERT INTO position (x, y, timestamp, collision_occured, pathId)
-                        VALUES (?,?,?,?,?)`;
-                const values = [positionModel.x, positionModel.y, positionModel.datetime, positionModel.collisionOcurred, positionModel.pathId]
-                db.run(query, values, function (error) {
-                    if (error != null) {
-                        callback(error, null, null);
+     
+        storePosition(positionModel, callback){
+            getLastPathId(positionModel, function (error, paths) {
+                if (error) {
+                    callback(error);
+                } else {
+                    if (paths.length === 0) {
+                        storePathToDatabase(positionModel.startTime, function (error, pathId) {
+                            if(error){
+                                callback(error);
+                            } else {
+                                storePositionToDatabase(positionModel, pathId, function (error){
+                                    callback(error);
+                                });
+                            }
+                        });
                     } else {
-                        callback(null, positionModel.pathId, this.lastID);
+                        const pathId = paths[0].pathId;
+                        storePositionToDatabase(positionModel, pathId, function (error){
+                            callback(error);
+                        });
                     }
-                });
-            }
+                }
+            });
         }
 
     }//return 
     
-    function storePath(startTime, callback) {
+    function getLastPathId(positionModel, callback){
+        const query = `SELECT pathId FROM path WHERE start_time= ?`
+        const value = [positionModel.startTime]
+        db.all(query, value, function (error, paths){
+            if (error){
+                callback(error, null)
+            } else { 
+                callback(null, paths)
+            }
+        })
+    }
+
+    function storePathToDatabase(startTime, callback) {
         const query = `INSERT INTO path (start_time) VALUES (?)`;
         const values = [startTime];
         db.run(query, values, function (error) {
             callback(error, this.lastID);
         })
+    }
+
+    function storePositionToDatabase(positionModel, pathId, callback){
+        const query = `
+            INSERT INTO position (x, y, timestamp, collision_occured, pathId)
+            VALUES (?,?,?,?,?)`;
+        const values = [positionModel.x, positionModel.y, positionModel.timestamp, positionModel.collisionOcurred, pathId]
+        db.run(query, values, function (error) {
+            callback(error);
+        });
     }
 
 }
