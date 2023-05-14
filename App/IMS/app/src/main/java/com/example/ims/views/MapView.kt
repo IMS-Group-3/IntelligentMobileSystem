@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.views
 
 import android.content.Context
 import android.content.Intent
@@ -14,14 +14,16 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
-import android.util.Log
+import com.example.ims.R
+import com.example.ims.activities.ImagePopUpActivity
+import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
 import kotlin.math.ceil
 
-class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
-
-    private var canvasWidth: Int = 10000
-    private var canvasHeight: Int = 15000
+class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+    var onCollisionListener: OnCollisionListener? = null
+    private var canvasWidth: Int = 100
+    private var canvasHeight: Int = 150
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
     private val markers = mutableListOf<LocationMarker>()
@@ -41,11 +43,14 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
     private var cellHeight = 0f
     private var isMarkerCentered = true
     private val iconWarning: Drawable
-    private val iconMower: Drawable
+    private val iconMowerRight: Drawable
+    private val iconMowerLeft: Drawable
     private val backgroundBitmap: Bitmap
     private val imageApi = ImageApi()
 
-
+    interface OnCollisionListener {
+        fun onCollision(imageId:Int)
+    }
     init {
         val configuration = ViewConfiguration.get(context)
         touchSlop = configuration.scaledTouchSlop
@@ -55,13 +60,14 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         linePaint.style = Paint.Style.STROKE
 
         iconWarning = ContextCompat.getDrawable(context, R.drawable.baseline_warning_24)!!
-        iconMower = ContextCompat.getDrawable(context, R.drawable.robotmower2)!!
+        iconMowerRight = ContextCompat.getDrawable(context, R.drawable.robotmower_right)!!
+        iconMowerLeft = ContextCompat.getDrawable(context, R.drawable.robotmower_left)!!
 
         val backgroundDrawable = ContextCompat.getDrawable(context, R.drawable.grass_ims)
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
-        // Dummy marker to display the mower icon
-        markers.add(LocationMarker(5000, 5000, false))
+        // Dummy marker to display the mower icon at start of fragment
+        markers.add(LocationMarker(10, 20, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -130,60 +136,26 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         }
 
         canvas?.let {
-
             markers.forEachIndexed { index, marker ->
-                val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
-                // Draws line between markers
-                if (index > 0) {
-                    val prevMarker = markers[index - 1]
-                    val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
+                    drawLineBetweenMarkers(index, offsetX, offsetY, marker, it)
 
-                    linePaint.color = markerColor
-                    linePaint.strokeWidth = markerRadius * 2
-                    it.drawLine(
-                        prevMarkerX + offsetX,
-                        prevMarkerY + offsetY,
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        linePaint
-                    )
-                }
-                // Draws mower
-                if (index == markers.size - 1) {
-                    val iconWidth = iconWarning.intrinsicWidth
-                    val iconHeight = iconWarning.intrinsicHeight
-                    val halfIconWidth = iconWidth
-                    val halfIconHeight = iconHeight
-
-                    val left = (markerCenterX + offsetX - halfIconWidth).toInt()
-                    val top = (markerCenterY + offsetY - halfIconHeight).toInt()
-                    val right = (markerCenterX + offsetX + halfIconWidth).toInt()
-                    val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
-
-                    iconMower.setBounds(left, top, right, bottom)
-                    iconMower.draw(it)
-
-                } else {
-                    markerPaint.color = markerColor
-                    it.drawCircle(
-                        markerCenterX + offsetX,
-                        markerCenterY + offsetY,
-                        markerRadius,
-                        markerPaint
-                    )
-                }
-
-
+                    if (index == markers.size - 1) {
+                        drawMower(index, offsetX, offsetY, marker, it)
+                    } else {
+                        drawMarker(marker, offsetX, offsetY, it)
+                    }
             }
+
 
             // Adds collision event markers to the map
             markers.forEachIndexed { index, marker ->
                 // Get the center coordinates of the latest marker
                 val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
 
-                // Draws blue circle on the map when collisionEvent is true
+                // Draws warning icon on the map when collisionEvent is true
                 if (marker.collisionEvent) {
+
                     val iconWidth = iconWarning.intrinsicWidth
                     val iconHeight = iconWarning.intrinsicHeight
                     val halfIconWidth = iconWidth / 2
@@ -239,25 +211,9 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
                                 markerRadius
                             )
                         ) {
-                            //starts popupActivity in this activity
-                           val intent = Intent(context, ImagePopUpActivity::class.java)
-
                             // Exchange with the ID of the mapMarker where collisionEvent == true
-                            val imageId = 1
-                            imageApi.getImageById(imageId) { result ->
-                                if (result.isSuccess) {
-
-                                    // Set imageView in the dialogbox with the bitmap result
-                                    val imageByteArray = result.getOrNull()
-                                    Log.e("isSuccess", "The images is successfully retrieved")
-
-                                    intent.putExtra("bitmap", imageByteArray)
-                                    context.startActivity(intent)
-                                } else if (result.isFailure) {
-                                    val exception = result.exceptionOrNull()
-                                    Log.e("isFailure", "isFailure")
-                                }
-                            }
+                            val imageId = 11
+                            startImagePopUpActivity(imageId)
                         }
                     }
                 }
@@ -274,6 +230,76 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
             }
         }
         return true
+    }
+
+    private fun startImagePopUpActivity(imageId: Int) {
+        val intent = Intent(context, ImagePopUpActivity::class.java)
+
+        imageApi.getImageByteArrayById(imageId) { result ->
+            if (result.isSuccess) {
+
+                // Sets imageView in the dialogbox with the bitmap result
+                val imageByteArray = result.getOrNull()
+
+                intent.putExtra("bitmap", imageByteArray)
+                context.startActivity(intent)
+            } else if (result.isFailure) {
+                val exception = result.exceptionOrNull()
+            }
+        }
+    }
+
+    private fun drawLineBetweenMarkers(index: Int, offsetX: Float, offsetY: Float, marker: LocationMarker, it: Canvas) {
+        if (index > 0) {
+            val prevMarker = markers[index - 1]
+            val (prevMarkerX, prevMarkerY) = getMarkerCenterCoordinates(prevMarker)
+            val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+            linePaint.color = markerColor
+            linePaint.strokeWidth = markerRadius * 2
+            it.drawLine(
+                prevMarkerX + offsetX,
+                prevMarkerY + offsetY,
+                markerCenterX + offsetX,
+                markerCenterY + offsetY,
+                linePaint
+            )
+        }
+    }
+    private fun drawMower(index: Int, offsetX: Float, offsetY: Float, marker: LocationMarker, it: Canvas) {
+        val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+        val iconWidth = iconWarning.intrinsicWidth
+        val iconHeight = iconWarning.intrinsicHeight
+        val halfIconWidth = iconWidth
+        val halfIconHeight = iconHeight
+
+        val left = (markerCenterX + offsetX - halfIconWidth).toInt()
+        val top = (markerCenterY + offsetY - halfIconHeight).toInt()
+        val right = (markerCenterX + offsetX + halfIconWidth).toInt()
+        val bottom = (markerCenterY + offsetY + halfIconHeight).toInt()
+
+        // Draws the mower facing the direction of the movement
+        val iconMower = if (index > 0 && markers[index - 1].x >= marker.x) {
+            iconMowerLeft
+        } else {
+            iconMowerRight
+        }
+
+        iconMower.setBounds(left, top, right, bottom)
+        iconMower.draw(it)
+    }
+
+    private fun drawMarker(marker: LocationMarker, offsetX: Float, offsetY: Float, it: Canvas) {
+        val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+        markerPaint.color = markerColor
+        it.drawCircle(
+            markerCenterX + offsetX,
+            markerCenterY + offsetY,
+            markerRadius,
+            markerPaint
+        )
     }
 
     // Transforms coordinates from the touch points to be in the same coordinate system as the markers
@@ -304,8 +330,16 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
 
     // Adds marker to map
     fun addMarker(marker: LocationMarker) {
+
         this.markers.add(marker)
         val (markerCenterX, markerCenterY) = getMarkerCenterCoordinates(marker)
+
+        // Handles collision event
+        if (marker.collisionEvent) {
+            // Replace with marker ID when endpoint is finished
+            val markerId = 11
+            onCollisionListener?.onCollision(markerId)
+        }
 
         matrix.reset()
         matrix.postTranslate(width / 2f - markerCenterX, height / 2f - markerCenterY)
@@ -321,6 +355,7 @@ class MapGridView(context: Context, attrs: AttributeSet?) : View(context, attrs)
         return Pair(markerCenterX, markerCenterY)
     }
 
+    // Centers the map on the current location of the mower
     fun centerMap() {
         val marker = markers.last()
         scaleFactor = 1f

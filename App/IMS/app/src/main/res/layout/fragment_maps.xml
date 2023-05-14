@@ -5,13 +5,12 @@
     android:id="@+id/mapContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsFragment">
+    tools:context=".fragments.MapsFragment">
 
-    <com.example.ims.MapGridView
-        android:id="@+id/mapGridView"
+    <com.example.ims.views.MapView
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent" />
 
     <Button
         android:id="@+id/startButton"
@@ -34,5 +33,16 @@
         android:layout_margin="30dp"
         app:maxImageSize="44dp"
         app:srcCompat="@drawable/baseline_gps_fixed_24"
+        />
+
+    <ImageButton
+        android:id="@+id/infoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="30dp"
+        android:background="@drawable/round_button"
+        android:contentDescription="@string/info_icon"
+        app:srcCompat="@drawable/icon_info_button"
         />
 </FrameLayout>

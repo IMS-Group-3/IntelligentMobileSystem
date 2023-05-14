@@ -1,4 +1,4 @@
-package com.example.ims
+package com.example.ims.activities
 
 import android.Manifest
 import android.app.Activity
@@ -14,12 +14,15 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.ims.*
 import com.example.ims.databinding.ActivityMainBinding
+import com.example.ims.fragments.MapsFragment
+import createCollisionNotificationChannel
+import createMowingSessionNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
 
@@ -30,6 +33,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         makePermissionRequests(1)
         replaceFragment(HomeFragment())
+
+        createMowingSessionNotificationChannel(this)
+        createCollisionNotificationChannel(this)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
 
@@ -46,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             true
         }
     }
+
     private fun replaceFragment(fragment: Fragment){
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
@@ -99,6 +106,10 @@ class MainActivity : AppCompatActivity() {
     private fun makePermissionRequests(permissionCode: Int) {
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            /*when(permissionCode){
+            1->{ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_SCAN),permissionCode)}
+            2->{ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_CONNECT),permissionCode)}
+            }*/
             ActivityCompat.requestPermissions(this, arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
                 Manifest.permission.BLUETOOTH_CONNECT,

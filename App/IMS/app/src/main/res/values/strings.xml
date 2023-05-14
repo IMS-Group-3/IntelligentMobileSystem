@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">IMS</string>
+    <string name="app_name">Intelligent Mower System</string>
     <string name="startscreen_title">Intelligent Mobile Systems</string>
     <string name="startscreen_subTitle">Group 3</string>
     <string name="history">History</string>
@@ -11,4 +11,9 @@
     <string name="collision_avoided">Collision avoided</string>
     <string name="close_icon">close_icon</string>
     <string name="image" />
+    <string name="info_icon" />
+    <string name="info">Info</string>
+    <string name="centerbutton">centerButton</string>
+    <string name="center_button_info">center_button_info</string>
+    <string name="ok">OK</string>
 </resources>

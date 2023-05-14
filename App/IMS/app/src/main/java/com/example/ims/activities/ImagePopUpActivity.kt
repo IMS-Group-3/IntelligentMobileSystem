@@ -1,13 +1,15 @@
-package com.example.ims
+package com.example.ims.activities
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.ims.R
 
 
 class ImagePopUpActivity : AppCompatActivity() {
@@ -37,7 +39,10 @@ class ImagePopUpActivity : AppCompatActivity() {
         loadImage(bitmap)
 
         dialog.show()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        //Removes the dimming effect on the popup when displayed
+        dialog.window?.setDimAmount(0f)
+        dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
     }
 
    private fun loadImage(bitmap: Bitmap) {

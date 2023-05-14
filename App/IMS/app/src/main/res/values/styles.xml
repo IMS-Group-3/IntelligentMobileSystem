@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TimePickerDialog custom style -->
+    <style name="CustomTimePickerDialog" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="colorAccent">@color/darkGrey</item>
+        <item name="colorOnSurface">@color/lightGrey</item>
+        <item name="colorControlActivated">@color/darkGrey</item>
+    </style>
+</resources>
