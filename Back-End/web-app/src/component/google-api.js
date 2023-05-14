@@ -6,18 +6,32 @@ const client = new vision.ImageAnnotatorClient({
     keyFilename: './api-key.json'
 });
 
-// Performs label detection on the image file
-client
-    .labelDetection('./mushu.jpg')
-    .then(results => {
-        const labels = results[0].labelAnnotations;
 
-        console.log('The image is: ' + labels[0].description);
-        //console.log(results);
-    })
-    .catch(err => {
-        console.error('ERROR:', err);
-    });
+// Performs label detection on the image file
+
+module.exports = function ({
+    
+}) { 
+
+    return {
+
+        getImageClass(image, callback) {
+            client
+                .labelDetection('./mushu.jpg')
+                .then(results => {
+                    const labels = results[0].labelAnnotations;
+
+                    console.log('The image is: ' + labels[0].description);
+                    callback( labels[0].description)
+                    //console.log(results);
+                })
+                .catch(err => {
+                    console.error('ERROR:', err);
+                });
+
+        }
+    }
+}
 
 
 /*const { Storage } = require('@google-cloud/storage');
