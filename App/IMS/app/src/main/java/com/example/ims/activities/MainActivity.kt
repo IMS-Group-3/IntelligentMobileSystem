@@ -25,6 +25,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
+    private val controlViewModel: ControlViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,14 @@ class MainActivity : AppCompatActivity(){
                 }
             }
             true
+        }
+        controlViewModel.run {
+            isBluetoothDialogDenied.observe(this@MainActivity) {
+                if (it != null && it){
+                    replaceFragment(HomeFragment())
+                    controlViewModel.isBluetoothDialogDenied.value = false
+                }
+            }
         }
     }
 

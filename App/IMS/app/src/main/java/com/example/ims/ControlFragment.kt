@@ -139,8 +139,8 @@ class ControlFragment : Fragment() {
     private val startBluetoothIntentForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
             if(result.resultCode != Activity.RESULT_OK){
-                Log.i("BLE enable","Rejected")
+                controlViewModel.isBluetoothDialogDenied.value = true
             }
-            isBluetoothDialogDisplayed = false
+            isBluetoothDialogDisplayed = true
         }
 }
