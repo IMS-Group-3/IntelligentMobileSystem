@@ -1,4 +1,7 @@
 #include <MeAuriga.h>
+#include <CircularBuffer.h>
+
+CircularBuffer<int,33> buffer;
 
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
@@ -8,27 +11,25 @@ MeRGBLed rgbled_0(0,12);
 //Used To enable Visual Debugging of mower
 bool LIGHT_DEBUG = true;
 
+//flag for Off state
+bool IS_ON;
+
+//flag for use in Outside function
+bool BeenInside;
+
 //Varible used in the State Machine expecting values M = Manual, O = Outside, I = Inside
 char mode;
 
-//Empty Loop used by _delay. Danger! Busy Waiting
-void _loop(){}
+// Varible used in the timing check
+unsigned long ENDTIME = 0;
 
-//Waits the amount of time specified in seconds. Danger! Busy Waiting
-void _delay(float seconds) {
-  if(seconds < 0.0){
-    seconds = 0.0;
+bool will_Change(int pwmRight, int pwmLeft){
+  if (Encoder_1.getCurPwm() != pwmRight || Encoder_2.getCurPwm() != pwmLeft){
+    return true;
   }
-  long endTime = millis() + seconds * 1000;
-  while(millis() < endTime) _loop();
-}
-
-/*Set All RGBLeds To The Color Determined by the Values Red Green Blue
-and how long in sec it is to show. Danger! Busy Waiting*/
-void RGBLightBlink(float onTime,int red,int green,int blue){
-  RGBLight(red,green,blue);//Set Light
-  _delay(onTime);
-  RGBLight(0,0,0);//Set Light Off
+  else{
+    return false;
+  }
 }
 
 //Set All RGBLeds To The Color Determined by the Values Red Green Blue
@@ -39,87 +40,89 @@ void RGBLight(int red,int green,int blue){
 
 //Runs Engine Encoder Loops
 void RunEncoderLoops(){
-for(int i = 0; i < 10; i++){
+  for(int i = 0; i < 10; i++){
     Encoder_1.loop();
     Encoder_2.loop();
-    delay(100);
+    delay(50);
   }
 }
 
-//performs Avoidens routine Curently Reverces for 1 sec and then stops
+/*performs Avoidens routine Curently Reverces for 1 sec 
+and then turns left or Right for 0,5 then forward*/
 void Avoid(void){
-  //Stopp
-  SetEnginenPWM(000,000);
-  RunEncoderLoops();
-  _delay(0.5);
+  //Clear Buffer
+  buffer.clear();
 
-  //Todo Comunicate to the raspberry pi that a picture is to be taken.
-  Serial.print("Collision");
+  //Stopp
+  buffer.push(500);
+  buffer.push(0);
+  buffer.push(0);
+
+  //Take Picture
+  buffer.push(-1);
 
   //Drive Backward for 1 sec
-  SetEnginenPWM(128,-128);
-  RunEncoderLoops();
-  _delay(1);
+  buffer.push(1000);
+  buffer.push(128);
+  buffer.push(-128);
   
   //stopp
-  SetEnginenPWM(000,000);
-  RunEncoderLoops();
-  _delay(0.5);
+  buffer.push(500);
+  buffer.push(0);
+  buffer.push(0);
 
   if (random(2) == 0){
     //Rotate Right
-    SetEnginenPWM(128,128);
-    RunEncoderLoops();
-    _delay(0.5);
+    buffer.push(500);
+    buffer.push(128);
+    buffer.push(128);
   }
   else{
     //Rotate Left
-    SetEnginenPWM(-128,-128);
-    RunEncoderLoops();
-    _delay(0.5);
+    buffer.push(500);
+    buffer.push(-128);
+    buffer.push(-128);
   }
 
   //Stoop
-  SetEnginenPWM(000,000);
-  RunEncoderLoops();
-  _delay(0.5);
+  buffer.push(500);
+  buffer.push(0);
+  buffer.push(0);
 
   //Forward at Half Speed
-  SetEnginenPWM(-128,128);
-  RunEncoderLoops();
+  buffer.push(500);
+  buffer.push(-128);
+  buffer.push(128);
 }
 
 //Movment Control Sets Engiens PWMs
 void SetEnginenPWM(signed int pwmRight,signed int pwmLeft){
-
-  if(LIGHT_DEBUG){
-    RGBLightBlink(0.5,0,128,0);//Blink Color Green
+  if(will_Change(pwmRight,pwmLeft)){
+    if(LIGHT_DEBUG){
+    RGBLight(0,128,0);//set Color Green
+    }
+    Encoder_1.setTarPWM(pwmRight);//Right Engine negative
+    Encoder_2.setTarPWM(pwmLeft);//Left Engine
+    RunEncoderLoops();
   }
-
-  Encoder_1.setTarPWM(pwmRight);//Right Engine negative
-  Encoder_2.setTarPWM(pwmLeft);//Left Engine
 }
 
-void isr_process_encoder1(void)
-{
-  if(digitalRead(Encoder_1.getPortB()) == 0)
-  {
+//Interupt service rutine for encoder 1
+void isr_process_encoder1(void){
+  if(digitalRead(Encoder_1.getPortB()) == 0){
     Encoder_1.pulsePosMinus();
   }
-  else
-  {
+  else{
     Encoder_1.pulsePosPlus();;
   }
 }
 
-void isr_process_encoder2(void)
-{
-  if(digitalRead(Encoder_2.getPortB()) == 0)
-  {
+//Interupt service rutine for encoder 2
+void isr_process_encoder2(void){
+  if(digitalRead(Encoder_2.getPortB()) == 0){
     Encoder_2.pulsePosMinus();
   }
-  else
-  {
+  else{
     Encoder_2.pulsePosPlus();
   }
 }
@@ -139,8 +142,14 @@ void setup(){   // put your setup code here, to run once:
   //seed the random generator
   randomSeed(ultraSensor.distanceCm());
   
-  //Set Mode To Manual
-  mode = 'M';
+  //Set Mode To Off
+  mode = ' ';
+
+  //sets off varible
+  IS_ON = false;
+
+  //set outside varible
+  BeenInside = true;
 
   //Set PWM 8KHz
   TCCR1A = _BV(WGM10);
@@ -148,80 +157,128 @@ void setup(){   // put your setup code here, to run once:
 
   TCCR2A = _BV(WGM21) | _BV(WGM20);
   TCCR2B = _BV(CS21);
+  
+  // Set current time
+  ENDTIME = millis();
 }
 
 void loop(){    // put your main code here, to run repeatedly:
   
-  if (Serial.available()){
+  if (Serial.available() > 0 && (Serial.peek() == 'I' || Serial.peek() == 'O' || Serial.peek() == 'M' || Serial.peek() == ' ')){
     if(LIGHT_DEBUG){
-      RGBLightBlink(0.5,128,0,0);//Blink Color Red
+      RGBLight(128,0,0);//Show Color Color Red
     }
+    buffer.clear();
     mode = Serial.read();
   }
-  
+  else{
+    while (Serial.available() > 0){
+      Serial.read();
+    }
+  }
+
   switch(mode){
     case 'I':
-      if(ultraSensor.distanceCm()> 30){ //Check if Distance forward is grater then 20 cm
-        if(LIGHT_DEBUG){
-          RGBLightBlink(0.5,0,0,128);//Blink Color Blue
-        }
-
-        //Drive Forward
-        SetEnginenPWM(-255,255);
-        RunEncoderLoops();
-        _delay(1);
-      }
-      else{ //Distance Less Then 20 cm
-        if(LIGHT_DEBUG){
-          RGBLight(255,0,0);//Set Color Red
-        }
-        
-        Avoid();//Avoidens rutine
+      if(LIGHT_DEBUG){
+        RGBLight(0,0,128);//Show Color Color Blue
       }
       
+      if (!BeenInside){
+        BeenInside = true;
+      }
+
+      if(!IS_ON){
+        IS_ON = true;
+      }
+
+      if(ENDTIME <= millis() && buffer.size() > 0){
+        if(buffer.first() < 0){
+          buffer.shift();
+          Serial.println("Collision");
+        }
+        else{
+          if(buffer.size() >= 3){
+            int Time = buffer.shift();
+            int pwmRight = buffer.shift();
+            int pwmLeft = buffer.shift();
+
+            SetEnginenPWM(pwmRight,pwmLeft);
+            ENDTIME = millis() + Time;
+          }
+        }
+      }
+      if(ultraSensor.distanceCm() > 20){ //Check if Distance forward is grater then 20 cm
+        if(buffer.size() < 1){
+          //Drive Forward
+          buffer.push(1000);
+          buffer.push(-128);
+          buffer.push(128);
+        }
+        }
+      else{ //Distance Less Then 20 cm
+        if(LIGHT_DEBUG){
+          RGBLight(255,255,255);//Set Color White
+        }
+        if(buffer.size() <= 0){
+          Avoid();//Avoidens rutine
+        }
+      }
       //Ultra Sonic Sensor Minimum Delay of 100 Millisec
       delay(100);
     break;
 
     case 'O':
-      SetEnginenPWM(128,-128);//reverce for 0.5 sec
-      RunEncoderLoops();
-      _delay(0.5);
-
-      if (random(2) == 0){
-      //Rotate Right
-      SetEnginenPWM(128,128);
-      RunEncoderLoops();
-      _delay(1);
+      if(!IS_ON){
+        IS_ON = true;
       }
-      else{
-        //Rotate Left
-        SetEnginenPWM(-128,-128);
-        RunEncoderLoops();
-        _delay(1);
+
+      if(LIGHT_DEBUG){
+        RGBLight(0,128,128);//Set Color Cyan
+      }
+
+      if (BeenInside){
+        if(will_Change(128,-128)){ //Check if pwm will change
+          SetEnginenPWM(128,-128);//reverce
+        }
+        else{
+          SetEnginenPWM(-128,128);//forward
+        }
+        
+        if (random(2) == 0){
+          //Rotate Right
+          buffer.push(500);
+          buffer.push(128);
+          buffer.push(128);
+        }
+        else{
+          //Rotate Left
+          buffer.push(500);
+          buffer.push(-128);
+          buffer.push(-128);
+        }
+        BeenInside = false;
       }
     break;
 
     case 'M':
-      if(LIGHT_DEBUG){
-        RGBLightBlink(0.5,128,0,128);//Blink Color purpule
+      if(!IS_ON){
+        IS_ON = true;
       }
-      if(Serial.available() && Serial.peek() != 'I' && 
-        Serial.peek() != 'O'&& Serial.peek() != 'M' && 
-        Serial.peek() != ' '){  //Checks if The Serial recive Buffer contains data and that the data does not start with a state prefix
-        
-        if(LIGHT_DEBUG){
-          RGBLightBlink(0.5,0,128,128);//Blink Color turquse
-        }
+
+      if(LIGHT_DEBUG){
+        RGBLight(128,0,128);//Show Color purpule
+      }
+
+      if(Serial.available() > 0 && Serial.peek() != 'I' && Serial.peek() != 'O' && Serial.peek() != ' '){//Checks if The Serial recive Buffer contains data
 
         //Convert Recived data To signed ints
         signed int pwmRight = Serial.parseInt();//Read in a Int from the Recive Buffer
         signed int pwmLeft = Serial.parseInt();//Read in a Int from the Recive Buffer
         
         //Checks if pwmRight are in allowed span
-        if(pwmRight>510){
+        if(pwmRight > 510){
           pwmRight = 510;
-        }else if(pwmRight<0){
+        }else if(pwmRight < 0){
           pwmRight = 0;
         }
         //Checks if pwmLeft are in allowed span
@@ -237,24 +294,27 @@ void loop(){    // put your main code here, to run repeatedly:
         
         //Execute Recived Movment Command
         SetEnginenPWM(pwmRight,pwmLeft);
-        RunEncoderLoops();
-
-        if(LIGHT_DEBUG){
-          RGBLightBlink(0.5,128,128,128);//Blink Color white
-        }
       }
     break;
 
     case ' ':
-      //Somthing related to beeing Off
+      if(LIGHT_DEBUG){
+      RGBLight(128,0,0);//Set Color Red
+      }
+      if (IS_ON){
+        SetEnginenPWM(0,0);
+        IS_ON = false;
+      }  
     break;
 
     default:
     if(LIGHT_DEBUG){
-    RGBLightBlink(0.5,128,128,0);//Blink Color yellow
+    RGBLight(128,128,0);//Set Color yellow
     }
-    Serial.flush();
     break;
   }
   
+  while (Serial.available() > 1){
+    Serial.read();
+  }
 }
