@@ -1,7 +1,15 @@
 #include <MeAuriga.h>
 #include <CircularBuffer.h>
+#include <string.h>
 
 CircularBuffer<int,33> buffer;
+
+String inputString;
+char inputChar;
+char delimiter = ',';
+char *token;
+char incomingData[32];
+bool readData = false;
 
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
@@ -39,13 +47,13 @@ void RGBLight(int red,int green,int blue){
 }
 
 //Runs Engine Encoder Loops
-void RunEncoderLoops(){
+/*void RunEncoderLoops(){
   for(int i = 0; i < 10; i++){
     Encoder_1.loop();
     Encoder_2.loop();
     delay(50);
   }
-}
+}*/
 
 /*performs Avoidens routine Curently Reverces for 1 sec 
 and then turns left or Right for 0,5 then forward*/
@@ -54,15 +62,13 @@ void Avoid(void){
   buffer.clear();
 
   //Stopp
-  buffer.push(500);
-  buffer.push(0);
-  buffer.push(0);
+  SetEnginenPWM(0,0);
 
   //Take Picture
   buffer.push(-1);
 
-  //Drive Backward for 1 sec
-  buffer.push(1000);
+  //Drive Backward for 0.5 sec
+  buffer.push(500);
   buffer.push(128);
   buffer.push(-128);
   
@@ -103,7 +109,7 @@ void SetEnginenPWM(signed int pwmRight,signed int pwmLeft){
     }
     Encoder_1.setTarPWM(pwmRight);//Right Engine negative
     Encoder_2.setTarPWM(pwmLeft);//Left Engine
-    RunEncoderLoops();
+    //RunEncoderLoops();
   }
 }
 
@@ -160,16 +166,21 @@ void setup(){   // put your setup code here, to run once:
   
   // Set current time
   ENDTIME = millis();
+
+  inputString.reserve(32);
 }
 
 void loop(){    // put your main code here, to run repeatedly:
-  
   if (Serial.available() > 0 && (Serial.peek() == 'I' || Serial.peek() == 'O' || Serial.peek() == 'M' || Serial.peek() == ' ')){
     if(LIGHT_DEBUG){
       RGBLight(128,0,0);//Show Color Color Red
     }
-    buffer.clear();
+    
     mode = Serial.read();
+
+    if(mode != 'I'){
+      buffer.clear();
+    }
   }
   else{
     while (Serial.available() > 0){
@@ -207,10 +218,11 @@ void loop(){    // put your main code here, to run repeatedly:
           }
         }
       }
+
       if(ultraSensor.distanceCm() > 20){ //Check if Distance forward is grater then 20 cm
         if(buffer.size() < 1){
           //Drive Forward
-          buffer.push(1000);
+          buffer.push(0);
           buffer.push(-128);
           buffer.push(128);
         }
@@ -268,29 +280,50 @@ void loop(){    // put your main code here, to run repeatedly:
       if(LIGHT_DEBUG){
         RGBLight(128,0,128);//Show Color purpule
       }
-
+      /*
       if(Serial.available() > 0 && Serial.peek() != 'I' && Serial.peek() != 'O' && Serial.peek() != ' '){//Checks if The Serial recive Buffer contains data
 
+        if (Serial.available() > 0) {
+          inputChar = (char)Serial.read();
+
+          if (inputChar == '<') {
+            inputString = "";
+            readData = true;
+          } else if (inputChar == '>' && readData) {
+            readData = false;
+            inputString.toCharArray(incomingData, inputString.length() + 1);
+            token = strtok(incomingData, &delimiter);
+
+            while (token != NULL) {
+              Serial.println(token);
+              token = strtok(NULL, &delimiter);
+            }
+          } else if (readData) {
+            inputString += inputChar;
+          }
+        }
+        */        
         //Convert Recived data To signed ints
         signed int pwmRight = Serial.parseInt();//Read in a Int from the Recive Buffer
         signed int pwmLeft = Serial.parseInt();//Read in a Int from the Recive Buffer
         
+        Serial.print("pwmRight : ");
+        Serial.println(pwmRight);
+        Serial.print("pwmLeft : ");
+        Serial.println(pwmLeft);
+
         //Checks if pwmRight are in allowed span
-        if(pwmRight > 510){
-          pwmRight = 510;
-        }else if(pwmRight < 0){
-          pwmRight = 0;
+        if(pwmRight > 255){
+          pwmRight = 255;
+        }else if(pwmRight < -255){
+          pwmRight = -255;
         }
         //Checks if pwmLeft are in allowed span
-        if(pwmLeft > 510){
-          pwmLeft = 510;
-        }else if(pwmLeft < 0){
-          pwmLeft = 0;
+        if(pwmLeft > 255){
+          pwmLeft = 255;
+        }else if(pwmLeft < -255){
+          pwmLeft = -255;
         }
-        
-        //Convert To allowed value Span of (-255) - (255)
-        pwmRight = pwmRight - 255;
-        pwmLeft = pwmLeft - 255;
         
         //Execute Recived Movment Command
         SetEnginenPWM(pwmRight,pwmLeft);
@@ -313,8 +346,6 @@ void loop(){    // put your main code here, to run repeatedly:
     }
     break;
   }
-  
-  while (Serial.available() > 1){
-    Serial.read();
-  }
+  Encoder_1.loop();
+  Encoder_2.loop();
 }
