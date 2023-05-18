@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ims.data.ConnectionState
@@ -31,6 +32,8 @@ class ControlViewModel @Inject constructor(
     var strength by mutableStateOf(0)
 
     var connectionState by mutableStateOf<ConnectionState>(ConnectionState.Uninitialized)
+
+    val  isBluetoothDialogDenied = MutableLiveData<Boolean?>(false)
 
     fun sendMessage(){
         if (connectionState == ConnectionState.Connected) {
