@@ -30,7 +30,6 @@ class ImageApi {
 
                     // Decodes the image data and callback the byte array
                     val imageData = JSONObject(response).getJSONObject("imageData")
-                    Log.e("iamgeDATA", imageData.toString())
                     val encodedImage = imageData.getString("encodedImage")
                     val decodedBytes = Base64.decode(encodedImage, Base64.DEFAULT)
                     callback(Result.success(decodedBytes))

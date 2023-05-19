@@ -1,60 +1,52 @@
-package com.example.ims.services
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import android.util.Log
 import org.json.JSONArray
 import org.json.JSONTokener
 
 class PathApi {
     private val baseUrl = "http://16.16.68.202"
 
-    private fun fetchPath(urlString: String, callback: (MutableMap<String, MutableList<String>>) -> Unit) {
+    private suspend fun fetchPath(urlString: String): Map<String, List<String>> = withContext(Dispatchers.IO) {
         val url = URL(urlString)
-        var map = mutableMapOf<String, MutableList<String>>()
+        var map = mutableMapOf<String, List<String>>()
 
-        Thread {
-            try {
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
-                connection.connect()
-                val responseCode = connection.responseCode
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.connect()
 
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    val reader = BufferedReader(InputStreamReader(connection.inputStream))
-                    val response = reader.readText()
-                    reader.close()
+        try {
+            val responseCode = connection.responseCode
+            println("Response Code: $responseCode")
 
-                    val jsonArray = JSONTokener(response).nextValue() as JSONArray
-                    for (i in 0 until jsonArray.length()) {
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                val response = reader.readText()
+                reader.close()
 
-                        val positionId = jsonArray.getJSONObject(i).getString("positionId")
-                        val x = jsonArray.getJSONObject(i).getString("x")
-                        val y = jsonArray.getJSONObject(i).getString("y")
-                        val timestamp = jsonArray.getJSONObject(i).getString("timestamp")
-                        val collisionOccurred = jsonArray.getJSONObject(i).getString("collision_occured")
+                val jsonArray = JSONTokener(response).nextValue() as JSONArray
+                for (i in 0 until jsonArray.length()) {
+                    val positionId = jsonArray.getJSONObject(i).getString("positionId")
+                    val x = jsonArray.getJSONObject(i).getString("x")
+                    val y = jsonArray.getJSONObject(i).getString("y")
+                    val collisionOccurred = jsonArray.getJSONObject(i).getString("collision_occured")
 
-                        map[positionId] = mutableListOf(x, y, timestamp, collisionOccurred)
-                    }
-                    callback(map)
+                    map[positionId] = listOf(x, y, collisionOccurred)
                 }
-
-                connection.disconnect()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                val emptyMap = mutableMapOf<String, MutableList<String>>()
-                callback(emptyMap)
             }
-        }.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            connection.disconnect()
+        }
+        map
     }
 
-    fun getPathById(id: Int, callback: (MutableMap<String, MutableList<String>>) -> Unit) {
-        fetchPath("$baseUrl/paths/$id", callback)
-    }
-
-    fun getAllPositions(callback: (MutableMap<String, MutableList<String>>) -> Unit) {
-        fetchPath("$baseUrl/paths", callback)
+    suspend fun getPathById(id: Int): Map<String, List<String>> {
+        val urlString = "$baseUrl/paths/$id"
+        return fetchPath(urlString)
     }
 }
