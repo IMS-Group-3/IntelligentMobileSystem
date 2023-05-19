@@ -1,7 +1,5 @@
-const sqlite3 = require('sqlite3')
-const db = new sqlite3.Database('backend-db.db')
-
-var START_TIME = "";
+const sqlite3 = require('sqlite3');
+const db = new sqlite3.Database('backend-db.db');
 
 db.run(
     `CREATE TABLE IF NOT EXISTS path (
@@ -9,7 +7,7 @@ db.run(
         start_time TEXT, 
         end_time TEXT
     )`
-)
+);
 
 db.run(
     `CREATE TABLE IF NOT EXISTS position (
@@ -21,7 +19,7 @@ db.run(
         pathId INTEGER NOT NULL,
         FOREIGN KEY(pathId) REFERENCES path(pathId)
     )`
-)
+);
 
 db.run(
     `CREATE TABLE IF NOT EXISTS image (
@@ -31,7 +29,7 @@ db.run(
         positionId INTEGER,
         FOREIGN KEY(positionId) REFERENCES position(positionId) 
     )`
-)
+);
 
 
 module.exports = function ({
@@ -39,31 +37,32 @@ module.exports = function ({
 }){
 
     return {
-        storeImage (image, callback) {
-            db.run(
-                `INSERT INTO image (encodedImage) VALUES (?)`,
-                [image],
-                function (err) {
-                    if (err) {
-                        callback(err, null)
-                    } else {
-                        callback(null, this.lastID)
-                    }
+        storeImage (imageModel, callback) {
+            fetchPositionId(imageModel.position, function (error, positionId){
+                if (error) {
+                    callback(error, null);
+                } else {
+                    const query = `INSERT INTO image (encodedImage, image_classification, positionId) VALUES (?, ?, ?)`;
+                    const values = [imageModel.encodedImage, imageModel.image_classification, positionId];
+                    db.run(query, values, function (error) {
+                        callback(error);
+                    });
                 }
-            )
+            });
+            
         },
 
         fetchImages(callback) {
             db.all(
-                `select * from image`,
+                `SELECT * FROM image`,
                 function (err, images) {
                     if (err) {
-                        callback(err, null)
+                        callback(err, null);
                     } else {
-                        callback(null, images)
+                        callback(null, images);
                     }
                 }
-            )
+            );
         },
 
         fetchImage(imageId, callback) {
@@ -74,13 +73,12 @@ module.exports = function ({
                 [imageId], 
                 function (err, image){
                     if (err){
-                        callback(err, null)
-                    } else { 
-                        console.log(image)
-                        callback(null, image)
+                        callback(err, null);
+                    } else {
+                        callback(null, image);
                     }
                 }
-            )
+            );
         }, 
 
         fetchPaths(callback) {
@@ -129,15 +127,15 @@ module.exports = function ({
     }//return 
     
     function getLastPathId(positionModel, callback){
-        const query = `SELECT pathId FROM path WHERE start_time= ?`
-        const value = [positionModel.startTime]
+        const query = `SELECT pathId FROM path WHERE start_time= ?`;
+        const value = [positionModel.startTime];
         db.all(query, value, function (error, paths){
             if (error){
-                callback(error, null)
+                callback(error, null);
             } else { 
-                callback(null, paths)
+                callback(null, paths);
             }
-        })
+        });
     }
 
     function storePathToDatabase(startTime, callback) {
@@ -145,16 +143,28 @@ module.exports = function ({
         const values = [startTime];
         db.run(query, values, function (error) {
             callback(error, this.lastID);
-        })
+        });
     }
 
     function storePositionToDatabase(positionModel, pathId, callback){
         const query = `
             INSERT INTO position (x, y, timestamp, collision_occured, pathId)
             VALUES (?,?,?,?,?)`;
-        const values = [positionModel.x, positionModel.y, positionModel.timestamp, positionModel.collisionOcurred, pathId]
+        const values = [positionModel.x, positionModel.y, positionModel.timestamp, positionModel.collisionOcurred, pathId];
         db.run(query, values, function (error) {
             callback(error);
+        });
+    }
+
+    function fetchPositionId(position, callback){
+        const query = `SELECT positionId FROM position WHERE x=? AND y=?`;
+        const values = [position.x, position.y];
+        db.get(query, values, function (error, position){
+            if (error){
+                callback(error, null);
+            } else {
+                callback(null, position.positionId);
+            }
         });
     }
 

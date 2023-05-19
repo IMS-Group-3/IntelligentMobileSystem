@@ -199,7 +199,9 @@ module.exports = function (
     const specs = swaggerJsdoc(options);
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({
+        limit: '5gb'
+    }));
     app.use(cookieParser());
 
     app.use('/image', image);

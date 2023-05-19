@@ -1,19 +1,22 @@
-const express = require('express');
-const app = express();
 const vision = require('@google-cloud/vision');
 
-const performLabelDetection = async () => {
-    const client = new vision.ImageAnnotatorClient({
-        keyFilename: './api-key.json'
-    });
+module.exports = function () {
 
-    try {
-        const [results] = await client.labelDetection('./mushu.jpg');
-        const labels = results.labelAnnotations;
-        console.log('The image is: ' + labels[0].description);
-    } catch (err) {
-        console.error('ERROR:', err);
+    return {
+        
+        async performImageDetection(imagePath, callback) {
+            const client = new vision.ImageAnnotatorClient({
+                keyFilename: './src/component/api-key.json'
+            });
+
+            try {
+                const [results] = await client.labelDetection(imagePath);
+                const labels = results.labelAnnotations;
+                callback(null, labels[0].description);
+            } catch (error) {
+                callback(error, null);
+            }
+        }
     }
-};
-
-performLabelDetection();
+    
+}
