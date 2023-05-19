@@ -67,7 +67,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
         // Dummy marker to display the mower icon at start of fragment
-        markers.add(LocationMarker(10, 20, false))
+        markers.add(LocationMarker(0,10, 20, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -214,6 +214,12 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                             // Exchange with the ID of the mapMarker where collisionEvent == true
                             val imageId = 11
                             startImagePopUpActivity(imageId)
+
+                            /* This is what should be used when the endpoint is live
+
+                            startImagePopUpActivity(marker.positionId)
+
+                            */
                         }
                     }
                 }
@@ -238,8 +244,10 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         imageApi.getImageByteArrayById(imageId) { result ->
             if (result.isSuccess) {
 
-                // Sets imageView in the dialogbox with the bitmap result
-                val imageByteArray = result.getOrNull()
+                val imageResult = result.getOrNull()
+
+                val imageClassification = imageResult?.first
+                val imageByteArray = imageResult?.second
 
                 intent.putExtra("bitmap", imageByteArray)
                 context.startActivity(intent)
@@ -337,8 +345,14 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         // Handles collision event
         if (marker.collisionEvent) {
             // Replace with marker ID when endpoint is finished
-            val markerId = 11
-            onCollisionListener?.onCollision(markerId)
+            val imageID = 11
+            onCollisionListener?.onCollision(imageID)
+            /* This is what should be used when the endpoint is live
+
+            onCollisionListener?.onCollision(marker.positionId)
+
+            */
+
         }
 
         matrix.reset()

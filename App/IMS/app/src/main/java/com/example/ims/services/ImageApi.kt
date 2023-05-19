@@ -14,7 +14,7 @@ class ImageApi {
     private val baseUrl = "http://16.16.68.202"
 
     // Return an image bytearray
-    private fun fetchImage(urlString: String, callback: (Result<ByteArray>) -> Unit) {
+    private fun fetchImage(urlString: String, callback: (Result<Pair<String, ByteArray>>) -> Unit) {
         val url = URL(urlString)
         Thread {
             try {
@@ -31,8 +31,9 @@ class ImageApi {
                     // Decodes the image data and callback the byte array
                     val imageData = JSONObject(response).getJSONObject("imageData")
                     val encodedImage = imageData.getString("encodedImage")
-                    val decodedBytes = Base64.decode(encodedImage, Base64.DEFAULT)
-                    callback(Result.success(decodedBytes))
+                    val imageClassification = imageData.getString("image_classification")
+                    val decodedImage = Base64.decode(encodedImage, Base64.DEFAULT)
+                    callback(Result.success(Pair(imageClassification, decodedImage)))
                 } else {
                     callback(Result.failure(Exception("Error: $responseCode")))
                 }
@@ -45,13 +46,18 @@ class ImageApi {
         }.start()
     }
 
-    fun getImageByteArrayById(id: Int, callback: (Result<ByteArray>) -> Unit) {
+    // This needs to be updated with the endpoint for fetching the image from the positionId
+    fun getImageByteArrayById(id: Int, callback: (Result<Pair<String, ByteArray>>) -> Unit) {
         fetchImage("$baseUrl/image/$id", callback)
     }
     fun getImageBitmapByID(imageId: Int, onSuccess: (Bitmap) -> Unit, onFailure: () -> Unit) {
         getImageByteArrayById(imageId) { result ->
             if (result.isSuccess) {
-                val imageByteArray = result.getOrNull()
+                val imageResult = result.getOrNull()
+
+                val imageClassification = imageResult?.first
+                val imageByteArray = imageResult?.second
+
                 val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
                 onSuccess(bitmap)
             } else if (result.isFailure) {
@@ -59,7 +65,7 @@ class ImageApi {
             }
         }
     }
-    fun getAllImagesByteArray(callback: (Result<ByteArray>) -> Unit) {
+    fun getAllImagesByteArray(callback: (Result<Pair<String, ByteArray>>) -> Unit) {
         fetchImage("$baseUrl/image", callback)
     }
 }
