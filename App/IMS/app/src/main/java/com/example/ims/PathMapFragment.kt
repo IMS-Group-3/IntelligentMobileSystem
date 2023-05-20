@@ -31,7 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class MapsFragment : Fragment(), MapView.OnCollisionListener {
+class PathMapFragment : Fragment(), MapView.OnCollisionListener {
     private val pathMapViewModel: PathMapViewModel by activityViewModels()
 
     private var isStarted = false

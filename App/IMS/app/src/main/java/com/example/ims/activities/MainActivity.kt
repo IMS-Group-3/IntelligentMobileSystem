@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(){
         historyViewModel.run {
             pathInfoFromItemClick.observe(this@MainActivity) {
                 if (it != null){
-                    replaceFragment(MapsFragment())
+                    replaceFragment(PathMapFragment())
                 }
             }
         }
