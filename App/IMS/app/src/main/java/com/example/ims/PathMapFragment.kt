@@ -1,5 +1,6 @@
 package com.example.ims
 
+import PathApi
 import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.fragment.app.Fragment
@@ -20,7 +21,6 @@ import com.example.ims.R
 import com.example.ims.activities.MainActivity
 import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
-import com.example.ims.services.PathApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import sendCollisionNotification
 
@@ -70,31 +70,12 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
 
         val pathId = pathMapViewModel.pathId.value!!
         //Array of markers
-        pathApi.getPathById(pathId) { pathData ->
-            // Iterate over the key-value pairs
-            //key = positionId, valueList = x, y, timestamp, collisionOccurred
-            for ((key, valueList) in pathData) {
-                //Puts all values for specific key in a list
-                val listValues = mutableListOf<List<String>>()
-                listValues.add(valueList)
-                //Iterates through each value in the list
-                for (value in listValues) {
-                    val x = value[0].toInt()
-                    val y = value[1].toInt()
-                    val collision = value[3].toInt()
-                    val collisionOccurred = intToBoolean(collision)
-
-                    markers+=(LocationMarker(x, y, collisionOccurred))
-                }
-            }
-            pathMapViewModel.hasData.postValue(true)
-        }
 
         startButton.setOnClickListener {
             isStopped = false
 
             if (!isStarted) {
-                start()
+                start(pathId)
             } else {
                 centerButton.hide()
                 isStopped = true
@@ -149,14 +130,16 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
     override fun onStart() {
         super.onStart()
         isStopped= false
-        pathMapViewModel.run {
+        start(pathMapViewModel.pathId.value!!)
+
+        /*pathMapViewModel.run {
             hasData.observe(this@PathMapFragment) {
-                if (it != null && it){
-                    start()
+                if (it != null ){
+                    start(pathMapViewModel.pathId.value!!)
 
                 }
             }
-        }
+        }*/
     }
 
     override fun onStop() {
@@ -165,27 +148,48 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
         isStopped = true
     }
 
-    private fun start(){
-        mapView.centerMap()
-        centerButton.show()
-        startButton.setText(R.string.stop_button)
-        startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
-        isStarted = true
+    private fun start(pathId:Int){
+        if (!isStarted) {
+            isStopped = false
+            mapView.centerMap()
+            centerButton.show()
+            startButton.setText(R.string.stop_button)
+            startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
+            isStarted = true
 
-        // Simulate adding markers with a 500ms delay
-        CoroutineScope(Dispatchers.Main).launch {
-            markers.forEach { marker ->
-                if (!isStopped) {
+            CoroutineScope(Dispatchers.Main).launch {
+                val pathData = getPath(pathId)
+                for (marker in pathData) {
+                    if (isStopped) break // Exit the loop if stopped
                     mapView.addMarker(marker)
                     delay(300)
                 }
             }
+        } else {
+            isStopped = true // Stop the loop
             centerButton.hide()
             startButton.setText(R.string.start_button)
             startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
-            isStopped = true
             isStarted = false
         }
+
+    }
+    private suspend fun getPath(pathId: Int): List<LocationMarker> {
+
+        val markers = mutableListOf<LocationMarker>()
+
+        val pathData = pathApi.getPathById(pathId)
+
+        for ((_, valueList) in pathData) {
+            val x = valueList[0].toInt()
+            val y = valueList[1].toInt()
+            val collision = valueList[2].toInt()
+            val collisionOccurred = collision != 0
+
+            val locationMarker = LocationMarker(x, y, collisionOccurred)
+            markers.add(locationMarker)
+        }
+        return markers
     }
 }
 

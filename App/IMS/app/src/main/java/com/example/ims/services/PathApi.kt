@@ -55,7 +55,6 @@ class PathApi {
     }
     private fun fetchPaths(urlString: String, callback: (JSONArray) -> Unit) {
         val url = URL(urlString)
-        var map = mutableMapOf<String, MutableList<String>>()
 
         Thread {
             try {
