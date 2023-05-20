@@ -9,38 +9,23 @@ module.exports = function ({
 
     const router = express.Router();
 
-    router.post('/', function (request, response) {
-        console.log(request.cookies.newPathId);
+    router.post('/position', function (request, response) {
         const body = request.body;
         const positionModel = {
             startTime: body.startTime,
             x: body.x,
             y: body.y,
-            datetime: body.timestamp,
-            collisionOcurred: body.collisionOcurred,
-            // pathId: request.cookies.newPathId.pathId,
-            isNewPath: body.isNewPath
+            timestamp: body.timestamp,
+            collisionOcurred: body.collisionOcurred
         };
-        
-
-        if(request.hasOwnProperty('cookies')){
-            positionModel['pathId'] = request.cookies.newPathId
-        }
-
-        db.storePositions(positionModel, function (error, pathId, positionId) { 
-            if (error != null){
-                if (error.errno === SQLITE_CONSTRAINT){
-                    response.status(500).json({err: "pathId cannot be NULL!"});
-                } else {
-                    response.status(500).end();
-                }
-            } else {
-                console.log(pathId);
-                response.cookie('newPathId', pathId);
+        db.storePosition(positionModel, function (error){
+            if(error != null){
+              response.status(500).end(); 
+            } else { 
                 response.status(201).end();
             }
-        });
-    });
+        })
+    })
 
     router.get('/', function (request, response) {
         db.fetchPaths(function (error, paths){
