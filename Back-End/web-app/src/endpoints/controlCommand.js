@@ -63,9 +63,6 @@ module.exports = function ({
         }
     });
 
-    router.get('/', function (request, response){
-        response.status(200).end();
-    });
-
+    
     return router;
 }
