@@ -14,6 +14,7 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import com.example.ims.*
 import com.example.ims.databinding.ActivityMainBinding
 import com.example.ims.fragments.MapsFragment
@@ -28,6 +29,8 @@ class MainActivity : AppCompatActivity(){
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
     private val controlViewModel: ControlViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
+    private val pathMapViewModel: PathMapViewModel by viewModels()
+
     val pathApi = PathApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +72,9 @@ class MainActivity : AppCompatActivity(){
         historyViewModel.run {
             pathInfoFromItemClick.observe(this@MainActivity) {
                 if (it != null){
+                    pathMapViewModel.pathId.value = it.pathId.toInt()
                     replaceFragment(PathMapFragment())
+                    pathMapViewModel.isHistory.value = true
                 }
             }
         }
