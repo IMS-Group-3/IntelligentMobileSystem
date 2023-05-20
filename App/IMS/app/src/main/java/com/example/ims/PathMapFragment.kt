@@ -87,32 +87,14 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
                     markers+=(LocationMarker(x, y, collisionOccurred))
                 }
             }
+            pathMapViewModel.hasData.postValue(true)
         }
 
         startButton.setOnClickListener {
             isStopped = false
 
             if (!isStarted) {
-                mapView.centerMap()
-                centerButton.show()
-                startButton.setText(R.string.stop_button)
-                startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
-                isStarted = true
-
-                // Simulate adding markers with a 500ms delay
-                CoroutineScope(Dispatchers.Main).launch {
-                    markers.forEach { marker ->
-                        if (!isStopped) {
-                            mapView.addMarker(marker)
-                            delay(300)
-                        }
-                    }
-                    centerButton.hide()
-                    startButton.setText(R.string.start_button)
-                    startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
-                    isStopped = true
-                    isStarted = false
-                }
+                start()
             } else {
                 centerButton.hide()
                 isStopped = true
@@ -163,12 +145,56 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
     private fun intToBoolean(value: Int): Boolean {
         return value != 0
     }
+
+    override fun onStart() {
+        super.onStart()
+        isStopped= false
+        pathMapViewModel.run {
+            hasData.observe(this@PathMapFragment) {
+                if (it != null && it){
+                    start()
+
+                }
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        centerButton.hide()
+        isStopped = true
+    }
+
+    private fun start(){
+        mapView.centerMap()
+        centerButton.show()
+        startButton.setText(R.string.stop_button)
+        startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
+        isStarted = true
+
+        // Simulate adding markers with a 500ms delay
+        CoroutineScope(Dispatchers.Main).launch {
+            markers.forEach { marker ->
+                if (!isStopped) {
+                    mapView.addMarker(marker)
+                    delay(300)
+                }
+            }
+            centerButton.hide()
+            startButton.setText(R.string.start_button)
+            startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
+            isStopped = true
+            isStarted = false
+        }
+    }
 }
 
 class PathMapViewModel() : ViewModel(){
 
     var isHistory = MutableLiveData<Boolean>(false)
     val  pathId = MutableLiveData<Int>(0)
+    val hasData = MutableLiveData<Boolean>(false)
+
 
 
 }
