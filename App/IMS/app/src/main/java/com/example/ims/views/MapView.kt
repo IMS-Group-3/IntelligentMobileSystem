@@ -138,13 +138,13 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         canvas?.let {
             markers.forEachIndexed { index, marker ->
 
-                    drawLineBetweenMarkers(index, offsetX, offsetY, marker, it)
+                drawLineBetweenMarkers(index, offsetX, offsetY, marker, it)
 
-                    if (index == markers.size - 1) {
-                        drawMower(index, offsetX, offsetY, marker, it)
-                    } else {
-                        drawMarker(marker, offsetX, offsetY, it)
-                    }
+                if (index == markers.size - 1) {
+                    drawMower(index, offsetX, offsetY, marker, it)
+                } else {
+                    drawMarker(marker, offsetX, offsetY, it)
+                }
             }
 
 
