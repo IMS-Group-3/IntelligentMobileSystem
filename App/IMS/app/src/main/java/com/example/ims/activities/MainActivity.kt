@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import com.example.ims.*
 import com.example.ims.databinding.ActivityMainBinding
 import com.example.ims.fragments.MapsFragment
+import com.example.ims.services.PathApi
 import createCollisionNotificationChannel
 import createMowingSessionNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +27,8 @@ class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
     private val controlViewModel: ControlViewModel by viewModels()
+    private val historyViewModel: HistoryViewModel by viewModels()
+    val pathApi = PathApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,11 +55,21 @@ class MainActivity : AppCompatActivity(){
             }
             true
         }
+        pathApi.getAllPaths() { paths ->
+            historyViewModel.pathsList.postValue(paths)
+        }
         controlViewModel.run {
             isBluetoothDialogDenied.observe(this@MainActivity) {
                 if (it != null && it){
                     replaceFragment(HomeFragment())
                     controlViewModel.isBluetoothDialogDenied.value = false
+                }
+            }
+        }
+        historyViewModel.run {
+            pathInfoFromItemClick.observe(this@MainActivity) {
+                if (it != null){
+                    replaceFragment(MapsFragment())
                 }
             }
         }

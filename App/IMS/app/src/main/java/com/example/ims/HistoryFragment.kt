@@ -1,10 +1,17 @@
 package com.example.ims
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ListView
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.ims.services.PathApi
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +28,8 @@ class HistoryFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private val historyViewModel: HistoryViewModel by activityViewModels()
+    var listview:ListView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -37,6 +46,20 @@ class HistoryFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_history, container, false)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        listview = view.findViewById<ListView>(R.id.pathListView)
+
+        historyViewModel.adapter = PathsListAdapter(requireContext(), historyViewModel.pathsList.value!!)
+        listview?.adapter = historyViewModel.adapter
+
+        listview?.onItemClickListener = AdapterView.OnItemClickListener{ _, _, position, _ ->
+            val path = historyViewModel.pathsList.value!![position]
+            historyViewModel.pathInfoFromItemClick.value = path
+        }
+
+    }
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -56,4 +79,19 @@ class HistoryFragment : Fragment() {
                 }
             }
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        historyViewModel.adapter.notifyDataSetChanged()
+    }
+}
+
+class HistoryViewModel() : ViewModel(){
+
+    var pathsList = MutableLiveData<ArrayList<Path>?>(null)
+    lateinit var adapter: PathsListAdapter
+    val  pathInfoFromItemClick = MutableLiveData<Path?>(null)
+
+
 }

@@ -5,6 +5,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Log
+import com.example.ims.Path
 import org.json.JSONArray
 import org.json.JSONTokener
 
@@ -76,17 +77,7 @@ class PathApi {
                     reader.close()
 
                     val jsonArray = JSONTokener(response).nextValue() as JSONArray
-                    for (i in 0 until jsonArray.length()) {
 
-                        val positionId = jsonArray.getJSONObject(i).getString("positionId")
-                        val x = jsonArray.getJSONObject(i).getString("x")
-                        val y = jsonArray.getJSONObject(i).getString("y")
-                        val timestamp = jsonArray.getJSONObject(i).getString("timestamp")
-                        val collisionOccurred = jsonArray.getJSONObject(i).getString("collision_occured")
-
-                        map[positionId] = mutableListOf(x, y, timestamp, collisionOccurred)
-                    }
-                    Log.i("ff",jsonArray.toString())
                     callback(jsonArray)
                 }
 
@@ -97,18 +88,19 @@ class PathApi {
             }
         }.start()
     }
-    fun getAllPaths(id: Int, callback: (ArrayList<String>) -> Unit) {
-        val arrayList: ArrayList<String> = arrayListOf()
+    fun getAllPaths( callback: (ArrayList<Path>) -> Unit) {
+        val arrayList: ArrayList<Path> = ArrayList()
         fetchPaths("http://16.16.68.202/paths/",){
             for (i in 0 until it.length()) {
                 val path = it.getJSONObject(i)
                 val pathId = path.getString("pathId")
                 val startTime = path.getString("start_time")
                 val endTime = path.getString("end_time")
+                val newPath = Path(pathId,endTime,startTime)
+                arrayList.add(newPath)
 
-                arrayList.add("hhj")
-                //map[positionId] = mutableListOf(x, y, timestamp, collisionOccurred)
             }
+
             callback(arrayList)
         }
     }
