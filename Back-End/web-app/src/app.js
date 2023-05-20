@@ -9,7 +9,10 @@ const path = require('./endpoints/path');
 module.exports = function (
     {
         image,
+<<<<<<< HEAD
+=======
         path
+>>>>>>> main
     }
 ) {
 
