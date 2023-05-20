@@ -14,7 +14,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
-import android.util.Log
 import com.example.ims.R
 import com.example.ims.activities.ImagePopUpActivity
 import com.example.ims.data.LocationMarker
@@ -23,8 +22,8 @@ import kotlin.math.ceil
 
 class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     var onCollisionListener: OnCollisionListener? = null
-    private var canvasWidth: Int = 10000
-    private var canvasHeight: Int = 15000
+    private var canvasWidth: Int = 100
+    private var canvasHeight: Int = 150
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
     private val markers = mutableListOf<LocationMarker>()
@@ -68,7 +67,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
         // Dummy marker to display the mower icon at start of fragment
-        markers.add(LocationMarker(5000, 5000, false))
+        markers.add(LocationMarker(10, 20, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
@@ -139,13 +138,13 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         canvas?.let {
             markers.forEachIndexed { index, marker ->
 
-                    drawLineBetweenMarkers(index, offsetX, offsetY, marker, it)
+                drawLineBetweenMarkers(index, offsetX, offsetY, marker, it)
 
-                    if (index == markers.size - 1) {
-                        drawMower(index, offsetX, offsetY, marker, it)
-                    } else {
-                        drawMarker(marker, offsetX, offsetY, it)
-                    }
+                if (index == markers.size - 1) {
+                    drawMower(index, offsetX, offsetY, marker, it)
+                } else {
+                    drawMarker(marker, offsetX, offsetY, it)
+                }
             }
 
 
@@ -213,7 +212,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                             )
                         ) {
                             // Exchange with the ID of the mapMarker where collisionEvent == true
-                            val imageId = 1
+                            val imageId = 11
                             startImagePopUpActivity(imageId)
                         }
                     }
@@ -338,7 +337,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         // Handles collision event
         if (marker.collisionEvent) {
             // Replace with marker ID when endpoint is finished
-            val markerId = 1
+            val markerId = 11
             onCollisionListener?.onCollision(markerId)
         }
 

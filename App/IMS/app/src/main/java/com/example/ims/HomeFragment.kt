@@ -1,32 +1,13 @@
 package com.example.ims
 
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import com.example.ims.data.ConnectionState
-import android.Manifest
-import android.content.pm.PackageManager
-import android.util.Log
-import androidx.core.view.children
-import androidx.fragment.app.activityViewModels
-import com.example.ims.views.DayViewContainer
-import com.example.ims.views.MonthViewContainer
-import com.kizitonwose.calendar.core.*
+import com.example.ims.views.CustomCalendar
 import com.kizitonwose.calendar.view.CalendarView
-import com.kizitonwose.calendar.view.MonthDayBinder
-import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
-import com.kizitonwose.calendar.view.WeekCalendarView
-import java.time.LocalDate
-import java.time.YearMonth
-import java.time.format.TextStyle
-import java.time.temporal.WeekFields
-import java.util.*
-
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,15 +23,12 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private val locationViewModelTemp: LocationViewModelTemp by activityViewModels()
-    var bleConnectionState: ConnectionState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
-            bleConnectionState = locationViewModelTemp.connectionState
         }
     }
 
@@ -58,126 +36,26 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bleConnectionState = locationViewModelTemp.connectionState
-
-        if(allPermissionsGranted() && bleConnectionState == ConnectionState.Uninitialized){
-            locationViewModelTemp.initializeConnection()
-        }
-
-        val x = view.findViewById<TextView>(R.id.textView_x_coordinate)
-        val y = view.findViewById<TextView>(R.id.textView_y_coordinate)
-        val collisionAvoidance = view.findViewById<TextView>(R.id.textView_collision_avoidance)
-        val connectionState = view.findViewById<TextView>(R.id.textView_connection_state)
-
-
         // Calendar
         val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
-        val currentMonth = YearMonth.now()
-        val startMonth = currentMonth.minusMonths(100)  // Adjust as needed
-        val endMonth = currentMonth.plusMonths(100)  // Adjust as needed
-        val daysOfWeek = daysOfWeek() // Available in the library
-        calendarView.setup(startMonth, endMonth, daysOfWeek.first())
-        calendarView.scrollToMonth(currentMonth)
-        calendarView.setup(startMonth, endMonth, WeekFields.of(Locale.getDefault()).firstDayOfWeek)
-        calendarView.scrollToMonth(currentMonth)
-
-        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-            // Called only when a new container is needed.
-            override fun create(view: View) = DayViewContainer(view)
-
-            // Called every time we need to reuse a container.
-            override fun bind(container: DayViewContainer, data: CalendarDay) {
-                container.textView.text = data.date.dayOfMonth.toString()
-            }
-        }
-        calendarView.monthScrollListener = { visibleMonth ->
-            updateMonthTitle(visibleMonth.yearMonth)
-        }
-
-        calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
-            override fun create(view: View) = MonthViewContainer(view)
-            override fun bind(container: MonthViewContainer, data: CalendarMonth) {
-                // Remember that the header is reused so this will be called for each month.
-                // However, the first day of the week will not change so no need to bind
-                // the same view every time it is reused.
-                if (container.titlesContainer.tag == null) {
-                    container.titlesContainer.tag = data.yearMonth
-                    container.titlesContainer.children.map { it as TextView }
-                        .forEachIndexed { index, textView ->
-                            val dayOfWeek = daysOfWeek[index]
-                            val title = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-                            textView.text = title
-
-                            updateMonthTitle(currentMonth)
-
-                            // In the code above, we use the same `daysOfWeek` list
-                            // that was created when we set up the calendar.
-                            // However, we can also get the `daysOfWeek` list from the month data:
-                            // val daysOfWeek = data.weekDays.first().map { it.date.dayOfWeek }
-                            // Alternatively, you can get the value for this specific index:
-                            // val dayOfWeek = data.weekDays.first()[index].date.dayOfWeek
-                        }
-                }
-            }
-        }
-
-
-
-
-        if(bleConnectionState == ConnectionState.CurrentlyInitializing){
-            x.text = ""
-            y.text = ""
-            collisionAvoidance.text = ""
-            connectionState.text = ""
-
-            if(locationViewModelTemp.initializingMessage != null){
-                connectionState.text = locationViewModelTemp.initializingMessage!!
-            }
-
-        }else if(!allPermissionsGranted()){
-                connectionState.text = "Go to the app setting and allow the missing permissions."
-        }else if(locationViewModelTemp.errorMessage != null){
-
-            connectionState.text = locationViewModelTemp.errorMessage!!
-            if(allPermissionsGranted()){
-                locationViewModelTemp.initializeConnection()
-            }
-        }else if(bleConnectionState == ConnectionState.Connected){
-
-            x.text = "X: ${locationViewModelTemp.x}"
-            y.text = "Y: ${locationViewModelTemp.y}"
-            collisionAvoidance.text  = "Collisio nAvoidance: ${locationViewModelTemp.collisionAvoidance}"
-
-        }else if(bleConnectionState == ConnectionState.Disconnected){
-            locationViewModelTemp.initializeConnection()
-            connectionState.text = "Initialize again"
-
-        }else {
-            connectionState.text = "No device was found"
-
-        }
+        val monthTitleTextView = view.findViewById<TextView>(R.id.monthTitle)
+        CustomCalendar(calendarView, monthTitleTextView, requireContext())
 
     }
 
     override fun onStart() {
         super.onStart()
-        if(allPermissionsGranted() && bleConnectionState == ConnectionState.Disconnected){
-            locationViewModelTemp.reconnect()
-        }
+
     }
 
     override fun onStop() {
         super.onStop()
-        if(allPermissionsGranted() && bleConnectionState == ConnectionState.Connected){
-            locationViewModelTemp.disconnect()
-        }
+
     }
     companion object {
         /**
@@ -198,28 +76,4 @@ class HomeFragment : Fragment() {
                 }
             }
     }
-    private fun allPermissionsGranted():Boolean{
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
-            val bluetoothScanPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN)
-            val bluetoothConnectPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT)
-
-            if (bluetoothScanPermission != PackageManager.PERMISSION_GRANTED){ return false }
-            if (bluetoothConnectPermission != PackageManager.PERMISSION_GRANTED){ return false  }        }
-
-        val accessFineLocationPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-        val accessCoarseLocationPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-
-        if (accessFineLocationPermission != PackageManager.PERMISSION_GRANTED){ return false  }
-        if (accessCoarseLocationPermission != PackageManager.PERMISSION_GRANTED){ return false  }
-        return true
-    }
-
-    private fun updateMonthTitle(yearMonth: YearMonth) {
-        val monthTitleTextView = requireView().findViewById<TextView>(R.id.monthTitle)
-        val monthName = yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        val monthTitle = "$monthName ${yearMonth.year}"
-        monthTitleTextView.text = monthTitle
-    }
-
 }

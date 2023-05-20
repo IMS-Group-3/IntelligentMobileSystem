@@ -8,30 +8,35 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.ims.*
 import com.example.ims.databinding.ActivityMainBinding
 import com.example.ims.fragments.MapsFragment
-import createNotificationChannel
+import createCollisionNotificationChannel
+import createMowingSessionNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
+    private val controlViewModel: ControlViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setPermissions()
+        makePermissionRequests(1)
         replaceFragment(HomeFragment())
 
-        createNotificationChannel(this)
+        createMowingSessionNotificationChannel(this)
+        createCollisionNotificationChannel(this)
 
         binding.bottomNavigationView.setOnItemSelectedListener {
 
@@ -47,6 +52,14 @@ class MainActivity : AppCompatActivity(){
             }
             true
         }
+        controlViewModel.run {
+            isBluetoothDialogDenied.observe(this@MainActivity) {
+                if (it != null && it){
+                    replaceFragment(HomeFragment())
+                    controlViewModel.isBluetoothDialogDenied.value = false
+                }
+            }
+        }
     }
 
     private fun replaceFragment(fragment: Fragment){
@@ -61,34 +74,8 @@ class MainActivity : AppCompatActivity(){
        // showBluetoothDialog()
 
     }
-    /*override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray) {
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            1-> {
-                if (grantResults.isEmpty() || grantResults.first() != PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(
-                        applicationContext,
-                        "getString(R.string.permission_required)",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            3-> {
-                if (grantResults.isEmpty() || grantResults.first() != PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(
-                        applicationContext,
-                        "gggghghg",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-        }
-    }*/
-    private fun showBluetoothDialog(){
+    private fun enableBluetoothIfNot(){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
             (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN )
                         == PackageManager.PERMISSION_GRANTED &&

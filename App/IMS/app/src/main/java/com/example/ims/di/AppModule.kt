@@ -6,8 +6,6 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import com.example.ims.data.CommunicationManager
 import com.example.ims.data.ble.CommunicationBleManager
-//import com.example.bletutorial.data.TemperatureAndHumidityReceiveManager
-//import com.example.bletutorial.data.ble.TemperatureAndHumidityBLEReceiveManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

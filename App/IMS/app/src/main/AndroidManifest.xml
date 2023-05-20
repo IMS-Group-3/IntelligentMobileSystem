@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <application
         android:name=".ImsApp"
@@ -24,6 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IMS"
         tools:targetApi="33">
+
+        <receiver android:name=".receivers.MowingSessionReceiver" />
 
         <activity
             android:name=".activities.ImagePopUpActivity"
@@ -40,9 +42,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.ControlActivity"
-            android:exported="false"></activity>
+
 
     </application>
 

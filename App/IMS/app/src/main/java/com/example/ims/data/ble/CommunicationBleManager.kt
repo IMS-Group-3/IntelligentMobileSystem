@@ -20,19 +20,17 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
+@Suppress("DEPRECATION")
 @SuppressLint("MissingPermission")
 
 class CommunicationBleManager @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter,
     private val context: Context
     ) : CommunicationManager {
-//00001801-0000-1000-8000-00805f9b34fb
 
         private val DEVICE_NAME = "RaspberryPiZero"
-        private val LOCATIN_SERVICE_UIID = "12345678-1234-5678-1234-56789abcdef0"
-        private val LOCATION_CHARACTERISTICS_UUID = "12345678-1234-5678-1234-56789abcdef1"
         private val DRIVE_SERVICE_UUID = "12345678-1234-5678-1234-56789abcdef0"
-        private val DRIVE_CHARACTERISTICS_UUID = "12345678-1234-5678-1234-56789abcdef1"
+        private val DRIVE_CHARACTERISTICS_UUID = "12345678-1234-5678-1234-56789abcdef2"
 
         override val data: MutableSharedFlow<Resource<LocationResult>> = MutableSharedFlow()
 
@@ -53,8 +51,12 @@ class CommunicationBleManager @Inject constructor(
         private val scanCallback = object : ScanCallback(){
 
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-               // Log.i("scan result ",result.device.name.toString() )
+                if (result.device.name != null){
+                    Log.i("scan result ",result.device.name.toString() )
+
+                }
                 if(result.device.name == DEVICE_NAME){
+                    Log.i("scan result ",result.device.name.toString() )
                     coroutineScope.launch {
                         data.emit(Resource.Loading(message = "Connecting to device..."))
                     }
@@ -65,18 +67,10 @@ class CommunicationBleManager @Inject constructor(
                     }
                 }
             }
-
-            override fun onScanFailed(errorCode: Int) {
-                super.onScanFailed(errorCode)
-                coroutineScope.launch {
-                    data.emit(Resource.Error(errorMessage = "No device was found"))
-                    isScanning = false
-                }
-            }
         }
 
         private var currentConnectionAttempt = 1
-        private var MAXIMUM_CONNECTION_ATTEMPTS = 5
+        private var MAXIMUM_CONNECTION_ATTEMPTS = 10000
 
         private val gattCallback = object : BluetoothGattCallback(){
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
@@ -89,7 +83,9 @@ class CommunicationBleManager @Inject constructor(
                         this@CommunicationBleManager.gatt = gatt
                     } else if(newState == BluetoothProfile.STATE_DISCONNECTED){
                         coroutineScope.launch {
-                            data.emit(Resource.Success(data = LocationResult(0,0,false,ConnectionState.Disconnected)))
+                            data.emit(Resource.Success(data = LocationResult(0,0,
+                                false,
+                                ConnectionState.Disconnected)))
                         }
                         gatt.close()
                     }
@@ -119,44 +115,67 @@ class CommunicationBleManager @Inject constructor(
                     coroutineScope.launch {
                         data.emit(Resource.Loading(message = "Adjusting MTU space..."))
                     }
-                    gatt.requestMtu(517)
+                   // gatt.requestMtu(517)
                 }
+                Log.i("Mtu","Adjusting MTU space...")
+                coroutineScope.launch {
+                    data.emit(Resource.Success(data = LocationResult(0,0,false,
+                        ConnectionState.Connected)))
+                }
+
             }
 
             override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
-                val characteristic = findCharacteristics(LOCATIN_SERVICE_UIID, LOCATION_CHARACTERISTICS_UUID)
+                val characteristic = findCharacteristics(DRIVE_SERVICE_UUID, DRIVE_CHARACTERISTICS_UUID)
+
                 if(characteristic == null){
+                    Log.e("Mtu","No characteristic was found")
+
                     coroutineScope.launch {
                         data.emit(Resource.Error(errorMessage = "Could not find location publisher"))
                     }
                     return
                 }
+                Log.i("Mtu","Adjusted MTU space")
+                coroutineScope.launch {
+                    data.emit(Resource.Success(data = LocationResult(0,0,false,
+                        ConnectionState.Connected)))
+                }
                 enableNotification(characteristic)
             }
 
+            override fun onCharacteristicWrite(
+                gatt: BluetoothGatt?,
+                characteristic: BluetoothGattCharacteristic?,
+                status: Int
+            ) {
+                super.onCharacteristicWrite(gatt, characteristic, status)
+            }
             override fun onCharacteristicChanged(
                 gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic,
-                value: ByteArray
+                characteristic: BluetoothGattCharacteristic
+               // value: ByteArray
             ) {
+
                 with(characteristic){
                     when(uuid){
-                        UUID.fromString(LOCATION_CHARACTERISTICS_UUID) -> {
-                            //XX XX XX XX XX XX
-                            val x = value[1].toInt() //+ value[2].toInt()
-                            val y = value[2].toInt() //+ value[5].toInt()
-                            val collisionAvoidance = value[3].toInt() != 0
-                            val locationResult = LocationResult(
-                                x,
-                                y,
-                                collisionAvoidance,
-                                ConnectionState.Connected
+                        UUID.fromString(DRIVE_CHARACTERISTICS_UUID) -> {
+                        //XX XX XX XX XX XX
+                        val x = value[1].toInt() //+ value[2].toInt()
+                        val y = value[2].toInt() //+ value[5].toInt()
+                        val collisionAvoidance = value[3].toInt() != 0
+                        val locationResult = LocationResult(
+                            x,
+                            y,
+                            collisionAvoidance,
+                            ConnectionState.Connected
+                        )
+                        coroutineScope.launch {
+                            data.emit(
+                                Resource.Success(data = locationResult)
                             )
-                            coroutineScope.launch {
-                                data.emit(
-                                    Resource.Success(data = locationResult)
-                                )
-                            }
+                        }
+                            Log.e("Data","Dade was read ")
                         }
                         else -> Unit
                     }
@@ -166,13 +185,12 @@ class CommunicationBleManager @Inject constructor(
 
         }
 
-
-
         private fun enableNotification(characteristic: BluetoothGattCharacteristic){
             val cccdUuid = UUID.fromString(CCCD_DESCRIPTOR_UUID)
             val payload = when {
                 characteristic.isIndicatable() -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
                 characteristic.isNotifiable() -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+
                 else -> return
             }
 
@@ -212,31 +230,46 @@ class CommunicationBleManager @Inject constructor(
             isScanning = true
             bleScanner.startScan(null,scanSettings,scanCallback)
         }
-    override fun startSending(data: ControlCommand) {
+    override fun startSending(command: ControlCommand) {
+        Log.i("sending", "started")
+
         val characteristic = findCharacteristics(DRIVE_SERVICE_UUID, DRIVE_CHARACTERISTICS_UUID)
-        val driveCommand = byteArrayOf(data.angle.toByte(), data.strength.toByte())
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            gatt?.writeCharacteristic(characteristic!!,driveCommand,BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
+        val driveCommand = byteArrayOf(command.angle.toByte(), command.strength.toByte())
+        if (characteristic != null) {
+            Log.i("sending to characteristic: ", characteristic.uuid.toString())
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Log.i("VERSION", Build.VERSION_CODES.TIRAMISU.toString())
+
+                gatt?.writeCharacteristic(
+                    characteristic,
+                    driveCommand,
+                    BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                )
+            }else {
+                Log.i("VERSION", "old")
+                characteristic.value = driveCommand
+                gatt?.writeCharacteristic(characteristic)
+                Log.i("Characteristic", "writen")
+
+            }
         }else{
-            characteristic?.value = driveCommand
-            gatt?.writeCharacteristic(characteristic)
+            Log.e("Characteristic", "not found")
         }
-        gatt?.disconnect()
+        //gatt?.disconnect()
+
     }
 
-    override fun reconnect() {
+        override fun reconnect() {
             gatt?.connect()
         }
 
         override fun disconnect() {
             gatt?.disconnect()
         }
-
-
-
         override fun closeConnection() {
             bleScanner.stopScan(scanCallback)
-            val characteristic = findCharacteristics(LOCATIN_SERVICE_UIID, LOCATION_CHARACTERISTICS_UUID)
+            val characteristic = findCharacteristics(DRIVE_SERVICE_UUID, DRIVE_CHARACTERISTICS_UUID)
             if(characteristic != null){
                 disconnectCharacteristic(characteristic)
             }

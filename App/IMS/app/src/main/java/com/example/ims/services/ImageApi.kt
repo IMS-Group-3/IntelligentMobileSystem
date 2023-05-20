@@ -7,8 +7,8 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Base64
+import android.util.Log
 import org.json.JSONObject
-
 
 class ImageApi {
     private val baseUrl = "http://16.16.68.202"
@@ -44,7 +44,6 @@ class ImageApi {
             }
         }.start()
     }
-
 
     fun getImageByteArrayById(id: Int, callback: (Result<ByteArray>) -> Unit) {
         fetchImage("$baseUrl/image/$id", callback)
