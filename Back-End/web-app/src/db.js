@@ -81,6 +81,13 @@ module.exports = function ({
             );
         }, 
 
+        fetchImageByPositionId(positionId, callback) {
+            const query = `SELECT * FROM image WHERE positionId=?`;
+            db.get(query, [positionId], function (error, image){
+                callback(error, image);
+            });
+        },
+
         fetchPaths(callback) {
             const query = `SELECT * FROM path`;
             db.all(query, function(error, paths){

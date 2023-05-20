@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs'); 
 
-var DECODED_IMAGE_PATH = "./src/decodedImages/s.jpg"
+var DECODED_IMAGE_PATH = "./src/decodedImages/xxx.jpg"
 
 module.exports = function ({
     db,
@@ -32,6 +32,17 @@ module.exports = function ({
         });
     });
 
+    router.get('/position/:positionId', function (request, response){
+        const positionId = request.params.positionId;
+        db.fetchImageByPositionId(positionId, function (error, image){
+            if (error) {
+                response.status(500).end();
+            } else {
+                response.status(200).json(image);
+            }
+        });
+    });
+
     router.post('/', function (request, response){
         const requestBody = request.body;
         const imageModel = {
@@ -58,6 +69,9 @@ module.exports = function ({
             }
         });
     });
+
+    
+    
 
     function classifyImage(encodedImage, callback) {
         const buffer = Buffer.from(encodedImage, 'base64');
