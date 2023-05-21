@@ -1,5 +1,6 @@
 package com.example.ims.activities
 
+import PathApi
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -26,6 +27,10 @@ class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
     @Inject lateinit var bluetoothAdapter: BluetoothAdapter
     private val controlViewModel: ControlViewModel by viewModels()
+    private val historyViewModel: HistoryViewModel by viewModels()
+    private val pathMapViewModel: PathMapViewModel by viewModels()
+
+    val pathApi = PathApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,11 +57,23 @@ class MainActivity : AppCompatActivity(){
             }
             true
         }
+        pathApi.getAllPaths() { paths ->
+            historyViewModel.pathsList.postValue(paths)
+        }
         controlViewModel.run {
             isBluetoothDialogDenied.observe(this@MainActivity) {
                 if (it != null && it){
                     replaceFragment(HomeFragment())
                     controlViewModel.isBluetoothDialogDenied.value = false
+                }
+            }
+        }
+        historyViewModel.run {
+            pathInfoFromItemClick.observe(this@MainActivity) {
+                if (it != null){
+                    pathMapViewModel.pathId.value = it.pathId.toInt()
+                    replaceFragment(PathMapFragment())
+                    pathMapViewModel.isHistory.value = true
                 }
             }
         }
