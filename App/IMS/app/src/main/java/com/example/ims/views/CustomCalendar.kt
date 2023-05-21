@@ -161,7 +161,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
         val formattedDateText = "$month ${getSuffix(dayOfMonth)}"
 
 
-        selectedTimeText.text = time.format(DateTimeFormatter.ofPattern("hh:mm a"))
+        selectedTimeText.text = time.format(DateTimeFormatter.ofPattern("HH:mm"))
         selectedDateText.text = "Your scheduled mowing session $formattedDateText starts at"
 
         cancelButton.setOnClickListener {
