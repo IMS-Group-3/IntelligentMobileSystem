@@ -50,7 +50,7 @@ class ImageApi {
     fun getImageByteArrayById(id: Int, callback: (Result<Pair<String, ByteArray>>) -> Unit) {
         fetchImage("$baseUrl/image/position/$id", callback)
     }
-    fun getImageBitmapByID(imageId: Int, onSuccess: (Bitmap) -> Unit, onFailure: () -> Unit) {
+    fun getImageBitmapByID(imageId: Int, onSuccess: (Result<Pair<String, Bitmap>>) -> Unit, onFailure: () -> Unit) {
         getImageByteArrayById(imageId) { result ->
             if (result.isSuccess) {
                 val imageResult = result.getOrNull()
@@ -59,12 +59,14 @@ class ImageApi {
                 val imageByteArray = imageResult?.second
 
                 val bitmap = BitmapFactory.decodeByteArray(imageByteArray, 0, imageByteArray!!.size)
-                onSuccess(bitmap)
+
+                onSuccess(Result.success(Pair(imageClassification, bitmap)) as Result<Pair<String, Bitmap>>)
             } else if (result.isFailure) {
                 onFailure()
             }
         }
     }
+
     fun getAllImagesByteArray(callback: (Result<Pair<String, ByteArray>>) -> Unit) {
         fetchImage("$baseUrl/image", callback)
     }

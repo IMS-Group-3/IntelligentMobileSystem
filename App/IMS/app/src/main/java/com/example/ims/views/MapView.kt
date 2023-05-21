@@ -212,10 +212,8 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                                 markerRadius
                             )
                         ) {
-                                                    Log.e("marker.positionId", marker.positionId.toString())
+                            Log.e("marker.positionId", marker.positionId.toString())
                             startImagePopUpActivity(marker.positionId)
-
-
                         }
                     }
                 }
@@ -341,15 +339,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
         // Handles collision event
         if (marker.collisionEvent) {
-            // Replace with marker ID when endpoint is finished
-          //  val imageID = 11
-           // onCollisionListener?.onCollision(imageID)
-            /* This is what should be used when the endpoint is live fyi
-*/
             onCollisionListener?.onCollision(marker.positionId)
-
-
-
         }
 
         matrix.reset()

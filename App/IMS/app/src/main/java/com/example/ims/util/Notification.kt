@@ -44,7 +44,7 @@ fun createCollisionNotificationChannel(context: Context) {
     }
 }
 
-fun sendCollisionNotification(context: Context, bitmap: Bitmap) {
+fun sendCollisionNotification(context: Context, bitmap: Bitmap, imageClassification: String) {
 
     val notificationView = RemoteViews(context.packageName, R.layout.notification_image_layout)
     notificationView.setImageViewBitmap(R.id.notification_imageView, bitmap)
@@ -57,7 +57,7 @@ fun sendCollisionNotification(context: Context, bitmap: Bitmap) {
             NotificationCompat.BigPictureStyle()
                 .bigPicture(bitmap)
                 .setBigContentTitle("A collision has been avoided!")
-                .setSummaryText("It was a cat")
+                .setSummaryText("Due to a $imageClassification")
         )
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 

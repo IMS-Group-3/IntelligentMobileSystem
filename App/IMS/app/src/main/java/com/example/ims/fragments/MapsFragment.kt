@@ -112,8 +112,19 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
         (activity as? MainActivity)?.let { mainActivity ->
             ImageApi().getImageBitmapByID(
                 imageId,
-                onSuccess = { bitmap ->
-                    sendCollisionNotification(mainActivity, bitmap)
+                onSuccess = { result ->
+                    if (result.isSuccess) {
+                        val imageResult = result.getOrNull()
+                        val imageClassification = imageResult?.first
+                        val bitmap = imageResult?.second
+                        if (bitmap != null) {
+                            sendCollisionNotification(mainActivity, bitmap, imageClassification!!)
+                        } else {
+                            Log.e("Notification", "Bitmap is null")
+                        }
+                    } else {
+                        Log.e("Notification", "Failed to load image for notification")
+                    }
                 },
                 onFailure = {
                     Log.e("Notification", "Failed to load image for notification")

@@ -94,7 +94,7 @@
                 android:textSize="36sp"
                 android:layout_gravity="center_horizontal"
                 android:padding="8dp"
-                android:text="Calendar" />
+                android:text="Mowing Schedule" />
             <TextView
                 android:id="@+id/monthTitle"
                 android:layout_width="wrap_content"
