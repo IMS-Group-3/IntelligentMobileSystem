@@ -128,14 +128,16 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
         val markers = mutableListOf<LocationMarker>()
 
         val pathData = pathApi.getPathById(pathId)
-
-        for ((_, valueList) in pathData) {
+        Log.e("pathData", pathData.toString())
+        for ((key, valueList) in pathData) {
+           // Log.e("valueList", valueList.toString())
+            val postitionId = key.toInt()
             val x = valueList[0].toInt()
             val y = valueList[1].toInt()
             val collision = valueList[2].toInt()
             val collisionOccurred = collision != 0
 
-            val locationMarker = LocationMarker(x, y, collisionOccurred)
+            val locationMarker = LocationMarker(postitionId,x, y, collisionOccurred)
             markers.add(locationMarker)
         }
         return markers
