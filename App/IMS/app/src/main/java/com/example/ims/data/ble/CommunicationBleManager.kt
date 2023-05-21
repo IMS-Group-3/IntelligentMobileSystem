@@ -51,10 +51,10 @@ class CommunicationBleManager @Inject constructor(
         private val scanCallback = object : ScanCallback(){
 
             override fun onScanResult(callbackType: Int, result: ScanResult) {
-                if (result.device.name != null){
+              /*  if (result.device.name != null){
                     Log.i("scan result ",result.device.name.toString() )
 
-                }
+                }*/
                 if(result.device.name == DEVICE_NAME){
                     Log.i("scan result ",result.device.name.toString() )
                     coroutineScope.launch {

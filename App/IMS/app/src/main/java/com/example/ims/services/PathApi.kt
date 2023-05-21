@@ -1,13 +1,13 @@
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import android.util.Log
 import com.example.ims.Path
+import com.example.ims.data.Commands
 import org.json.JSONArray
+import org.json.JSONObject
 import org.json.JSONTokener
+import java.io.*
 
 class PathApi {
     private val baseUrl = "http://16.16.68.202"
@@ -95,5 +95,50 @@ class PathApi {
 
             callback(arrayList)
         }
+    }
+    fun sendManualCommand(command: Commands, callback: (Int) -> Unit) {
+        val url = URL("$baseUrl/command")
+        var commandStr = ""
+        when (command) {
+            Commands.M_MANUEL -> {commandStr = "manual"}
+            Commands.M_AUTO -> {commandStr = "autonomous"}
+            Commands.M_OFF -> {commandStr = "turn_off"}
+        }
+
+        Thread {
+            try {
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+
+                val jsonObject = JSONObject()
+                jsonObject.accumulate("command", commandStr)
+                setPostRequestContent(connection,jsonObject)
+                connection.connect()
+                val responseCode = connection.responseCode
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                    reader.close()
+
+                    callback(HttpURLConnection.HTTP_OK)
+                }
+
+                connection.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback(e.hashCode())
+            }
+        }.start()
+    }
+    @Throws(IOException::class)
+    private fun setPostRequestContent(conn: HttpURLConnection, jsonObject: JSONObject) {
+
+        val os = conn.outputStream
+        val writer = BufferedWriter(OutputStreamWriter(os, "UTF-8"))
+        writer.write(jsonObject.toString())
+        //Log.i(MainActivity::class.java.toString(), jsonObject.toString())
+        writer.flush()
+        writer.close()
+        os.close()
     }
 }
