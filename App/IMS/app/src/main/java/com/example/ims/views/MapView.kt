@@ -347,7 +347,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             // Replace with marker ID when endpoint is finished
             val imageID = 11
             onCollisionListener?.onCollision(imageID)
-            /* This is what should be used when the endpoint is live
+            /* This is what should be used when the endpoint is live fyi
 
             onCollisionListener?.onCollision(marker.positionId)
 
