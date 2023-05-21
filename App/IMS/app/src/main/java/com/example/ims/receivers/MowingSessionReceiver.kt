@@ -1,7 +1,7 @@
 package com.example.ims.receivers
 
 import MOWING_SESSION_CHANNEL_ID
-import PathApi
+
 import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.ims.R
 import com.example.ims.data.Commands
+import com.example.ims.services.PathApi
 
 class MowingSessionReceiver : BroadcastReceiver() {
 
