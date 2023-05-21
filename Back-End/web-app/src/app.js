@@ -9,10 +9,8 @@ const path = require('./endpoints/path');
 module.exports = function (
     {
         image,
-<<<<<<< HEAD
-=======
-        path
->>>>>>> main
+        path, 
+        controlCommand
     }
 ) {
 
@@ -208,7 +206,8 @@ module.exports = function (
     app.use(cookieParser());
 
     app.use('/image', image);
-    app.use('/paths', path)
+    app.use('/paths', path);
+    app.use('/command', controlCommand);
 
     return app;
 
