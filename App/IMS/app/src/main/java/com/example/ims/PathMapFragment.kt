@@ -1,6 +1,5 @@
 package com.example.ims
 
-import PathApi
 import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.fragment.app.Fragment
@@ -21,6 +20,7 @@ import com.example.ims.R
 import com.example.ims.activities.MainActivity
 import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
+import com.example.ims.services.PathApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import sendCollisionNotification
 
@@ -178,17 +178,19 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
 
         val markers = mutableListOf<LocationMarker>()
 
-        val pathData = pathApi.getPathById(pathId)
+        val pathData = pathApi.getPathById()
 
-        for ((key, valueList) in pathData) {
-            val postitionId = key.toInt()
-            val x = valueList[0].toInt()
-            val y = valueList[1].toInt()
-            val collision = valueList[2].toInt()
-            val collisionOccurred = collision != 0
+        pathData?.let {
+            for ((key, valueList) in pathData) {
+                val positionId = key.toInt()
+                val x = valueList[0].toInt()
+                val y = valueList[1].toInt()
+                val collision = valueList[2].toInt()
+                val collisionOccurred = collision != 0
 
-            val locationMarker = LocationMarker(postitionId,x, y, collisionOccurred)
-            markers.add(locationMarker)
+                val locationMarker = LocationMarker(positionId, x, y, collisionOccurred)
+                markers.add(locationMarker)
+            }
         }
         return markers
     }

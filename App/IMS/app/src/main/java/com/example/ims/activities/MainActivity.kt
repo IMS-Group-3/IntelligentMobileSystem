@@ -1,6 +1,5 @@
 package com.example.ims.activities
 
-import PathApi
 import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
@@ -19,6 +18,7 @@ import com.example.ims.*
 import com.example.ims.data.Commands
 import com.example.ims.databinding.ActivityMainBinding
 import com.example.ims.fragments.MapsFragment
+import com.example.ims.services.PathApi
 import createCollisionNotificationChannel
 import createMowingSessionNotificationChannel
 import dagger.hilt.android.AndroidEntryPoint
