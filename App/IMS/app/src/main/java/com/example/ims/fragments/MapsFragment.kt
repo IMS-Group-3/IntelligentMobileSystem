@@ -1,6 +1,5 @@
 package com.example.ims.fragments
 
-import PathApi
 import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.fragment.app.Fragment
@@ -18,12 +17,12 @@ import com.example.ims.R
 import com.example.ims.activities.MainActivity
 import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
+import com.example.ims.services.PathApi
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.*
 import sendCollisionNotification
 
 // For simulating the array coordinates from a socket
-
 
 class MapsFragment : Fragment(), MapView.OnCollisionListener {
     private var isStarted = false
@@ -135,22 +134,36 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
     }
 
     private suspend fun getPath(): List<LocationMarker> {
-        val pathId = 1
         val markers = mutableListOf<LocationMarker>()
+        val displayedMarkers = mutableSetOf<LocationMarker>()
 
-        val pathData = pathApi.getPathById(pathId)
-        Log.e("pathData", pathData.toString())
-        for ((key, valueList) in pathData) {
-           // Log.e("valueList", valueList.toString())
-            val postitionId = key.toInt()
-            val x = valueList[0].toInt()
-            val y = valueList[1].toInt()
-            val collision = valueList[2].toInt()
-            val collisionOccurred = collision != 0
+        while (true) {
+            val pathData = pathApi.getPathById()
 
-            val locationMarker = LocationMarker(postitionId,x, y, collisionOccurred)
-            markers.add(locationMarker)
+            pathData?.let {
+                for ((key, valueList) in pathData) {
+                    val positionId = key.toInt()
+                    val x = valueList[0].toInt()
+                    val y = valueList[1].toInt()
+                    val collision = valueList[2].toInt()
+                    val collisionOccurred = collision != 0
+
+                    val locationMarker = LocationMarker(positionId, x, y, collisionOccurred)
+
+                    //checks if displayedMarkers contains locationMarker, if not it adds it.
+                    //makes sure already displayed positions wont be added to markers again
+                    if (!displayedMarkers.contains(locationMarker)) {
+                        displayedMarkers.add(locationMarker)
+                        markers.add(locationMarker)
+                    }
+                }
+            }
+
+            if (markers.isNotEmpty()) {
+                return markers
+            }
+
+            delay(200)
         }
-        return markers
     }
 }
