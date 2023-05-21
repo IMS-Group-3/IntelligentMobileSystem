@@ -14,6 +14,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import android.graphics.drawable.BitmapDrawable
+import android.util.Log
 import com.example.ims.R
 import com.example.ims.activities.ImagePopUpActivity
 import com.example.ims.data.LocationMarker
@@ -49,7 +50,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private val imageApi = ImageApi()
 
     interface OnCollisionListener {
-        fun onCollision(imageId:Int)
+        fun onCollision(positionId:Int)
     }
     init {
         val configuration = ViewConfiguration.get(context)
@@ -212,14 +213,14 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                             )
                         ) {
                             // Exchange with the ID of the mapMarker where collisionEvent == true
-                            val imageId = 11
-                            startImagePopUpActivity(imageId)
+                          //  val imageId = 11
+                          //  startImagePopUpActivity(imageId)
 
                             /* This is what should be used when the endpoint is live
-
+*/                          Log.e("marker.positionId", marker.positionId.toString())
                             startImagePopUpActivity(marker.positionId)
 
-                            */
+
                         }
                     }
                 }
@@ -250,6 +251,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                 val imageByteArray = imageResult?.second
 
                 intent.putExtra("bitmap", imageByteArray)
+                intent.putExtra("imageClassification", imageClassification)
                 context.startActivity(intent)
             } else if (result.isFailure) {
                 val exception = result.exceptionOrNull()
@@ -345,13 +347,13 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         // Handles collision event
         if (marker.collisionEvent) {
             // Replace with marker ID when endpoint is finished
-            val imageID = 11
-            onCollisionListener?.onCollision(imageID)
+          //  val imageID = 11
+           // onCollisionListener?.onCollision(imageID)
             /* This is what should be used when the endpoint is live fyi
-
+*/
             onCollisionListener?.onCollision(marker.positionId)
 
-            */
+
 
         }
 

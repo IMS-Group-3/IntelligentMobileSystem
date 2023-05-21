@@ -29,7 +29,7 @@ class ImageApi {
                     reader.close()
 
                     // Decodes the image data and callback the byte array
-                    val imageData = JSONObject(response).getJSONObject("imageData")
+                    val imageData = JSONObject(response)
                     val encodedImage = imageData.getString("encodedImage")
                     val imageClassification = imageData.getString("image_classification")
                     val decodedImage = Base64.decode(encodedImage, Base64.DEFAULT)
@@ -48,7 +48,7 @@ class ImageApi {
 
     // This needs to be updated with the endpoint for fetching the image from the positionId
     fun getImageByteArrayById(id: Int, callback: (Result<Pair<String, ByteArray>>) -> Unit) {
-        fetchImage("$baseUrl/image/$id", callback)
+        fetchImage("$baseUrl/image/position/$id", callback)
     }
     fun getImageBitmapByID(imageId: Int, onSuccess: (Bitmap) -> Unit, onFailure: () -> Unit) {
         getImageByteArrayById(imageId) { result ->

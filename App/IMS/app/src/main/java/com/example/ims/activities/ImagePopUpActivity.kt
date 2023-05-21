@@ -19,10 +19,11 @@ class ImagePopUpActivity : AppCompatActivity() {
 
         // Gets the ByteArray from the Intent and converts it back to Bitmap
         val byteArray = intent.getByteArrayExtra("bitmap")
+        val imageClassification = intent.getStringExtra("imageClassification")
         val bitmap = byteArray?.let { BitmapFactory.decodeByteArray(byteArray, 0, it.size) }
 
         //create AlertDialog with image
-        popupWindow(bitmap!!)
+        popupWindow(bitmap!!, imageClassification!!)
 
         //clickListener to close dialog
         closeDialog()
@@ -31,13 +32,14 @@ class ImagePopUpActivity : AppCompatActivity() {
         setPopupTitle()
     }
 
-    private fun popupWindow(bitmap: Bitmap) {
+    private fun popupWindow(bitmap: Bitmap, imageClassification: String) {
         val dialogBuilder = AlertDialog.Builder(this)
         val dialog = dialogBuilder.create()
 
         // Load image from the Bitmap
         loadImage(bitmap)
-
+        val text = findViewById<TextView>(R.id.popup_window_title)
+        text.text = imageClassification
         dialog.show()
 
         //Removes the dimming effect on the popup when displayed
