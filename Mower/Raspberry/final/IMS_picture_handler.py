@@ -18,11 +18,11 @@ class IMS_picture_handler():
         base64_path = os.path.join(base64_folder, f"base64_{timestamp}.txt")
         self.save_base64_string(encoded_image, base64_path)
 
-    def send_picture(self, compressed_image):
+    def send_picture(self, compressed_image, x_coor, y_coor):
         # Send the encoded image to the server as raw JSON
         base64_image = self.encode_image_to_base64(compressed_image)
         url = 'http://16.16.68.202/image'  #Webserver URL for HTTP request
-        data = {'encodedImage': base64_image}
+        data = {'encodedImage': base64_image, 'x': x_coor, 'y': y_coor}
         json_data = json.dumps(
             data)  # Convert the data dictionary to a JSON string
         headers = {
@@ -41,7 +41,7 @@ class IMS_picture_handler():
             )
             return False
 
-    def take_picture_and_compress(quality=75):
+    def take_picture_and_compress(self, quality=74):
         stream = io.BytesIO()
         with PiCamera() as camera:
             camera.resolution = (1024, 768)
@@ -57,11 +57,11 @@ class IMS_picture_handler():
         compressed_stream.seek(0)
         return compressed_stream
 
-    def encode_image_to_base64(image_stream):
+    def encode_image_to_base64(self, image_stream):
         encoded_image = base64.b64encode(image_stream.read())
-        return encoded_image
+        return encoded_image.decode("utf-8")
 
-    def save_base64_string(encoded_image, output_path):
+    def save_base64_string(self, encoded_image, output_path):
         with open(output_path, 'wb') as output_file:
             output_file.write(encoded_image)
 
