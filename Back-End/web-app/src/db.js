@@ -96,14 +96,29 @@ module.exports = function ({
         }, 
 
         fetchPath(pathId, callback) {
-            const query = `
+            if (pathId == 0) {
+                const query1 = `SELECT max(pathId) from path`;
+                db.get(query1, function (error, pathId) {
+                    if (error) {
+                        callback(error, null);
+                    } else {
+                        const query2 = `SELECT * FROM position WHERE pathId=?`;
+                        db.all(query2, [pathId['max(pathId)']], function (error, positions) {
+                            callback(error, positions);
+                        })
+                    }
+                });
+            } else {
+                const query = `
                 SELECT * FROM position 
                 WHERE pathId = ?
                 ORDER BY position.timestamp ASC`;
-            const values = [pathId];
-            db.all(query, values, function (error, path) {
-                callback(error, path);
-            });
+                const values = [pathId];
+                db.all(query, values, function (error, path) {
+                    callback(error, path);
+                });
+            }
+
         }, 
      
         storePosition(positionModel, callback){
