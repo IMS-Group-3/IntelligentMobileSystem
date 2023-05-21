@@ -178,6 +178,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
 
         dialog.show()
     }
+    // Adds suffix to the date in the showDateTimeDialog
      private fun getSuffix(n: Int): String {
          val suffixes = arrayOf("th", "st", "nd", "rd")
          val value = n % 100
