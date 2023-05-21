@@ -212,12 +212,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
                                 markerRadius
                             )
                         ) {
-                            // Exchange with the ID of the mapMarker where collisionEvent == true
-                          //  val imageId = 11
-                          //  startImagePopUpActivity(imageId)
-
-                            /* This is what should be used when the endpoint is live
-*/                          Log.e("marker.positionId", marker.positionId.toString())
+                                                    Log.e("marker.positionId", marker.positionId.toString())
                             startImagePopUpActivity(marker.positionId)
 
 
