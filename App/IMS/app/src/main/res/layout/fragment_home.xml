@@ -38,28 +38,6 @@
             app:layout_constraintVertical_bias="0.038" />
 
         <TextView
-            android:id="@+id/textView_x_coordinate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_subTitle"
-            app:layout_constraintVertical_bias="0.038" />
-        <TextView
-            android:id="@+id/textView_y_coordinate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_x_coordinate"
-            app:layout_constraintVertical_bias="0.038" />
-        <TextView
             android:id="@+id/textView_collision_avoidance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,41 +49,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_title" />
 
-        <TextView
-            android:id="@+id/textView_connection_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_collision_avoidance"
-            app:layout_constraintVertical_bias="0.038" />
-
         <ImageView
             android:id="@+id/husqvarna_mower"
             android:layout_width="340dp"
             android:layout_height="203dp"
+            android:contentDescription="@string/husqvarnamower"
             app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_connection_state"
-            app:layout_constraintVertical_bias="0.6"
-            app:srcCompat="@drawable/husqvarna_robotic_mower"
-            android:contentDescription="@string/husqvarnamower" />
+            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_subTitle"
+            app:srcCompat="@drawable/husqvarna_robotic_mower" />
 
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="411dp"
             android:layout_height="407dp"
+            android:layout_marginBottom="36dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_connection_state"
-            app:layout_constraintVertical_bias="0.84">
+            app:layout_constraintStart_toStartOf="parent">
 
             <TextView
                 android:layout_width="wrap_content"

@@ -30,7 +30,7 @@
             android:layout_width="282dp"
             android:layout_height="430dp"
             android:layout_centerInParent="true"
-            android:background="@drawable/rounded_corners"
+            android:background="@color/darkGrey"
             android:minHeight="170dp">
 
             <TextView
@@ -62,9 +62,10 @@
 
             <ImageView
                 android:id="@+id/popup_collision_image"
-                android:layout_width="264dp"
-                android:layout_height="304dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:contentDescription="@string/image"
+                android:padding="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
