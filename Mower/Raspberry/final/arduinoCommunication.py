@@ -11,6 +11,7 @@ from IMS_bluetooth_controller import BluetoothController as IMS_BLE
 from IMS_HTTP_requests import IMS_HTTP_request_client as HTTP_client
 from IMS_MQTT_listener import IMS_MQTT_listener as MQTT_Listener
 import math
+import decimal
 
 
 # Enum class that keeps tabs on the mower state and can return its value in both integer and character form
@@ -50,8 +51,8 @@ class IMS_arduino_communicator:
         self.mower_state = Mower_state.Manual
         self.mower_session_start = None
         self.current_coordinates = None
-        self.pwm_left = 0
-        self.pwm_right = 0
+        self.right_speed = 0
+        self.left_speed = 0
 
         # Variable that changes the writing rate to the mower/Backend (sleep time in seconds)
         self.write_speed_mower = 0.2
@@ -97,8 +98,9 @@ class IMS_arduino_communicator:
                 #print(f"{arduino_id}: {received_str}")
                 if (arduino_id == 1):
                     if (received_str == "Collision"):
-                        self.send_avoidance_image()
-                        self.send_coordinates(is_collision=True)
+                        if (self.current_coordinates != None):
+                            self.send_avoidance_image()
+                            self.send_coordinates(is_collision=True)
                 elif (arduino_id == 2):
                     try:
                         if (self.get_mower_state()
@@ -166,41 +168,49 @@ class IMS_arduino_communicator:
                                 min_speed=100,
                                 max_speed=255):
         if strength < deadzone:
-            return 0, 0
-
-        strength = strength / 100  # Normalize the strength
+            self.left_speed = 0
+            self.right_speed = 0
 
         angle_rad = math.radians(angle)
-        adjusted_angle = (angle_rad - math.pi / 2) % (2 * math.pi)
-        if adjusted_angle > math.pi:
-            adjusted_angle -= 2 * math.pi
+        normalized_strength = strength / 100.0
 
-        linear_velocity = strength * math.cos(adjusted_angle)
-        angular_velocity = strength * math.sin(adjusted_angle)
+        sin_angle = math.sin(angle_rad)
+        cos_angle = math.cos(angle_rad)
 
-        left_wheel_speed = linear_velocity - angular_velocity
-        right_wheel_speed = linear_velocity + angular_velocity
+        # Determine if we are going forward or backward based on the sign of sin_angle
+        if sin_angle >= 0:  # Forward
+            left_wheel_speed = normalized_strength * (1 + cos_angle)
+            right_wheel_speed = normalized_strength * (1 - cos_angle)
+            min_speed_for_calculation = min_speed
+        else:  # Reverse
+            left_wheel_speed = normalized_strength * (
+                1 + cos_angle)  # Switch '+' and '-' for reverse
+            right_wheel_speed = normalized_strength * (1 - cos_angle)
+            min_speed_for_calculation = -min_speed  # reverse min speed
 
-        # Convert wheel speeds to PWM values
-        left_pwm = int(min_speed * left_wheel_speed + (max_speed - min_speed) *
-                       (left_wheel_speed / 2))
-        # The right engine is mounted backwards and needs its PWM value to be inverted
-        right_pwm = -int(min_speed * right_wheel_speed +
-                         (max_speed - min_speed) * (right_wheel_speed / 2))
-        #print(f"left pwm:{left_pwm}, right pwm:{right_pwm}")
+        # Convert wheel speeds to motor speed range
+        left_pwm = int(left_wheel_speed *
+                       (max_speed - min_speed_for_calculation) +
+                       min_speed_for_calculation)
+        right_pwm = int(right_wheel_speed *
+                        (max_speed - min_speed_for_calculation) +
+                        min_speed_for_calculation)
 
-        self.left_speed = left_pwm
-        self.right_speed = right_pwm
+        # Inverse motor direction based on forward or reverse movement
+        self.left_speed = left_pwm if sin_angle >= 0 else -left_pwm
+        self.right_speed = -right_pwm if sin_angle >= 0 else right_pwm  # right engine is mounted in reverse
 
     def write_mower(self):
         while (self.running):
             time.sleep(self.write_speed_mower)
             if (self.get_mower_state() == 3):
                 input_str = (
-                    f"1,{self.mower_state},{self.pwm_right},{self.pwm_left}")
+                    f"1,<{self.mower_state},{self.right_speed},{self.left_speed}>"
+                )
                 #print(f"writing: mower_state:{self.mower_state}, right_pwm:{self.pwm_right}, left_pwm:{self.pwm_left}")
             else:
-                input_str = (f"1,{self.mower_state}")
+                input_str = (f"1,<{self.mower_state}>")
+
             arduino_id, message = input_str.split(',', 1)
             try:
                 arduino_id = int(arduino_id)
@@ -218,14 +228,20 @@ class IMS_arduino_communicator:
 
     #TODO Fix Blocking while loop
     def send_avoidance_image(self):
-        img_stream = self.img_handler.take_picture_and_compress
+        img_stream = self.img_handler.take_picture_and_compress(quality=75)
         base64_img = self.img_handler.encode_image_to_base64(img_stream)
-        json_payload = {"encodedImage", base64_img}
+
+        json_payload = {
+            "encodedImage": base64_img,
+            "x": self.current_coordinates[0],
+            "y": self.current_coordinates[1]
+        }
         timeout = 0
         while (timeout < 10):
             try:
                 self.http_client.send_post_request(endpoint="image",
                                                    data=json_payload)
+                break
             except Exception as e:
                 print(f"Error sending image to backend: {e}")
                 timeout += 1
@@ -239,8 +255,8 @@ class IMS_arduino_communicator:
         if (self.http_backend_request_delay()):
             json_payload = {
                 "startTime": self.mower_session_start,
-                "x": self.current_coordiantes[0],
-                "y": self.current_coordiantes[1],
+                "x": self.current_coordinates[0],
+                "y": self.current_coordinates[1],
                 "timestamp": "%Y%m%d %H%M%S",
                 "collisionOccured": is_collision
             }

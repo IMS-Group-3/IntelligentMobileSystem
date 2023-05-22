@@ -26,7 +26,41 @@
             app:layout_constraintVertical_bias="0.138" />
 
         <TextView
-            android:id="@+id/textView_connection_state"
+            android:id="@+id/textView_startscreen_subTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_title"
+            app:layout_constraintVertical_bias="0.038" />
+
+        <TextView
+            android:id="@+id/textView_x_coordinate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_subTitle"
+            app:layout_constraintVertical_bias="0.038" />
+        <TextView
+            android:id="@+id/textView_y_coordinate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_x_coordinate"
+            app:layout_constraintVertical_bias="0.038" />
+        <TextView
+            android:id="@+id/textView_collision_avoidance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/startscreen_subTitle"
@@ -36,6 +70,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_title" />
+
+        <TextView
+            android:id="@+id/textView_connection_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/startscreen_subTitle"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_collision_avoidance"
+            app:layout_constraintVertical_bias="0.038" />
 
         <ImageView
             android:id="@+id/husqvarna_mower"
@@ -65,7 +111,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/calendar"
+                android:text="Mowing Schedule"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold" />

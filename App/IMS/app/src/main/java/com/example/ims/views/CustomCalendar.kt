@@ -155,10 +155,16 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
         dialog.setCancelable(false)
 
         val selectedTimeText: TextView = dialog.findViewById(R.id.selected_time_text)
+        val selectedDateText: TextView = dialog.findViewById(R.id.selected_time_title)
         val cancelButton: Button = dialog.findViewById(R.id.cancel_date_button)
         val closeButton: ImageButton = dialog.findViewById(R.id.close_dialog_button)
+        val dayOfMonth = date.dayOfMonth
+        val month = date.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        val formattedDateText = "$month ${getSuffix(dayOfMonth)}"
 
-        selectedTimeText.text = time.format(DateTimeFormatter.ofPattern("hh:mm a"))
+
+        selectedTimeText.text = time.format(DateTimeFormatter.ofPattern("HH:mm"))
+        selectedDateText.text = "Your scheduled mowing session $formattedDateText starts at"
 
         cancelButton.setOnClickListener {
             selectedDates.removeAll { it.toLocalDate() == date }
@@ -174,6 +180,17 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
 
         dialog.show()
     }
+    // Adds suffix to the date in the showDateTimeDialog
+     private fun getSuffix(n: Int): String {
+         val suffixes = arrayOf("th", "st", "nd", "rd")
+         val value = n % 100
+
+         return if(value in 11..13){
+             "$n${suffixes[0]}"
+         } else {
+              "$n${suffixes[(value % 10).coerceAtMost(3)]}"
+         }
+     }
     private fun scheduleMowingSessionNotification(context: Context, dateTime: LocalDateTime) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pendingIntent = createPendingIntent(context,dateTime.toLocalDate())
