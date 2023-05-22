@@ -60,6 +60,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                             val dayOfWeek = daysOfWeek[index]
                             val title = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
                             textView.text = title
+                            textView.setTextColor(Color.WHITE)
 
                             updateMonthTitle(currentMonth)
                         }
@@ -118,6 +119,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                 textView.text = day.date.dayOfMonth.toString()
                 if (day.position == DayPosition.MonthDate) {
                     if(day.date.isBefore(LocalDate.now())) {
+                        textView.setTextColor(Color.WHITE)
                         textView.alpha = 0.3f
                         textView.setOnClickListener(null)
                     } else {
@@ -126,7 +128,7 @@ class CustomCalendar(private val calendarView: CalendarView,  private val monthT
                             textView.setTextColor(Color.WHITE)
                             textView.setBackgroundResource(R.drawable.calendar_date_selection_background)
                         } else {
-                            textView.setTextColor(Color.BLACK)
+                            textView.setTextColor(Color.WHITE)
                             textView.background = null
                         }
                     }

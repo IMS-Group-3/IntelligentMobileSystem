@@ -8,7 +8,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/darkGrey">
 
         <TextView
             android:id="@+id/textView_startscreen_title"
@@ -17,56 +18,13 @@
             android:text="@string/startscreen_title"
             android:textAlignment="center"
             android:textSize="30sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.138" />
 
-        <TextView
-            android:id="@+id/textView_startscreen_subTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_title"
-            app:layout_constraintVertical_bias="0.038" />
-
-        <TextView
-            android:id="@+id/textView_x_coordinate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_subTitle"
-            app:layout_constraintVertical_bias="0.038" />
-        <TextView
-            android:id="@+id/textView_y_coordinate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_x_coordinate"
-            app:layout_constraintVertical_bias="0.038" />
-        <TextView
-            android:id="@+id/textView_collision_avoidance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/startscreen_subTitle"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_y_coordinate"
-            app:layout_constraintVertical_bias="0.038" />
         <TextView
             android:id="@+id/textView_connection_state"
             android:layout_width="wrap_content"
@@ -74,45 +32,66 @@
             android:text="@string/startscreen_subTitle"
             android:textAlignment="center"
             android:textSize="20sp"
+            android:textColor="@color/green"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_collision_avoidance"
-            app:layout_constraintVertical_bias="0.038" />
+            app:layout_constraintTop_toBottomOf="@+id/textView_startscreen_title" />
+
+        <ImageView
+            android:id="@+id/husqvarna_mower"
+            android:layout_width="340dp"
+            android:layout_height="203dp"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView_connection_state"
+            app:layout_constraintVertical_bias="0.6"
+            app:srcCompat="@drawable/husqvarna_robotic_mower"
+            android:contentDescription="@string/husqvarnamower" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout"
+            android:layout_width="411dp"
+            android:layout_height="407dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView_connection_state">
+            app:layout_constraintTop_toBottomOf="@+id/textView_connection_state"
+            app:layout_constraintVertical_bias="0.84">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="36sp"
                 android:layout_gravity="center_horizontal"
-                android:padding="8dp"
-                android:text="Calendar" />
+                android:text="@string/calendar"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/monthTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:layout_gravity="center_horizontal"
-                android:padding="8dp"
-                android:text="Month and Year" />
-
+                android:paddingBottom="8dp"
+                android:text="@string/month_and_year"
+                android:textColor="@color/green"
+                android:textSize="18sp" />
 
             <com.kizitonwose.calendar.view.CalendarView
                 android:id="@+id/calendarView"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_connection_state"
+                android:layout_height="319dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/rounded_corners"
+                android:padding="15dp"
                 app:cv_dayViewResource="@layout/calendar_day_layout"
-                app:cv_monthHeaderResource="@layout/calendar_day_titles_container"/>
+                app:cv_monthHeaderResource="@layout/calendar_day_titles_container"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView_connection_state" />
 
         </LinearLayout>
 
