@@ -45,7 +45,6 @@ class HomeFragment : Fragment() {
         val calendarView = view.findViewById<CalendarView>(R.id.calendarView)
         val monthTitleTextView = view.findViewById<TextView>(R.id.monthTitle)
         CustomCalendar(calendarView, monthTitleTextView, requireContext())
-
     }
 
     override fun onStart() {

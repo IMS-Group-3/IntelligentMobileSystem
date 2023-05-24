@@ -16,4 +16,10 @@
     <string name="centerbutton">centerButton</string>
     <string name="center_button_info">center_button_info</string>
     <string name="ok">OK</string>
+    <string name="husqvarnamower">husqvarnaMower</string>
+    <string name="calendar">Calendar</string>
+    <string name="month_and_year">Month and Year</string>
+    <string name="whiteListText" />
+    <string name="mower_controller">Mower Controller</string>
+    <string name="mower_sessions">Mower Sessions</string>
 </resources>

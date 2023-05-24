@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.IMS" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#669933</item>
+        <item name="colorPrimary">@color/green</item>
         <item name="colorPrimaryVariant">#164D00</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
