@@ -4,8 +4,8 @@
 
 
 class IMS_Polygon:
-    standard_points = [[200, 100], [200, 900], [1800, 900], [1800, 100],
-                       [200, 100]]
+    standard_points = [[500, 500], [500, 3000], [5000, 3000], [5000, 500],
+                       [500, 500]]
 
     @staticmethod
     def pnpoly(nvert: int, vertx: list, verty: list, testx: int, testy: int):

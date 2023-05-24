@@ -29,15 +29,18 @@ class BluetoothController:
             callback(Characteristic.RESULT_SUCCESS, self._value.encode())
 
         def onWriteRequest(self, data, offset, withoutResponse, callback):
-            if len(data) != 2:
+            if len(data) != 3:
                 print("Invalid data received")
                 callback(Characteristic.RESULT_UNLIKELY_ERROR)
                 return
 
-            angle = data[0]
-            strength = data[1]
+            houndred_digit = data[
+                0] * 100  # data[0] contains the 100 value digit
+            remaining_digits = data[1]  # data[1] contains the 10s and 1 values
+            angle = houndred_digit + remaining_digits
+            strength = data[2]
             self._value = {"angle": angle, "strength": strength}
-            #print(f"Write request received for driving control: '{self._value}'")
+            #print(f"Write request received for driving control: '{self._value}, byte[0]:{data[0]}, byte[1]:{data[1]}, byte[2]:{data[2]}'")
             self._parent.bluetooth_callback(angle, strength)
             callback(Characteristic.RESULT_SUCCESS)
 
@@ -58,7 +61,7 @@ class BluetoothController:
                 })
             ])
 
-    def on_disconnect(self):
+    def on_disconnect(self, client_address):
         print("Disconnected from Bluetooth device")
         # Calls the callback function with appropriate arguments to stop the robot
         self.bluetooth_callback(0, 0)

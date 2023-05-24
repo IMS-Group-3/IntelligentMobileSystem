@@ -170,6 +170,46 @@ class IMS_arduino_communicator:
         if strength < deadzone:
             self.left_speed = 0
             self.right_speed = 0
+            return
+
+        angle_rad = math.radians(angle)
+        normalized_strength = strength / 100.0
+
+        sin_angle = math.sin(angle_rad)
+        cos_angle = math.cos(angle_rad)
+
+        if sin_angle >= 0:  # Forward
+            left_strength = normalized_strength * (1 + cos_angle)
+            right_strength = normalized_strength * (1 - cos_angle)
+        else:  # Reverse
+            left_strength = -normalized_strength * (1 + cos_angle)
+            right_strength = -normalized_strength * (1 - cos_angle)
+
+        # Multiply by +/- 255 based on the direction
+        left_pwm = int(left_strength * 255)
+        right_pwm = int(right_strength * 255)
+
+        # Limit PWM values to the range of -255 to 255
+        left_pwm = max(-255, min(left_pwm, 255))
+        right_pwm = max(-255, min(right_pwm, 255))
+
+        # Inverse motor direction based on forward or reverse movement
+        self.left_speed = left_pwm
+        self.right_speed = -right_pwm  # right engine is mounted in reverse
+        print(
+            f"right pwm: {self.right_speed}, left pwm: {self.left_speed}. sin({angle})={sin_angle}, cos({angle})={cos_angle}"
+        )
+
+    def calculate_engine_speed_old(self,
+                                   angle,
+                                   strength,
+                                   deadzone=10,
+                                   min_speed=100,
+                                   max_speed=255):
+        if strength < deadzone:
+            self.left_speed = 0
+            self.right_speed = 0
+            return
 
         angle_rad = math.radians(angle)
         normalized_strength = strength / 100.0
@@ -179,14 +219,21 @@ class IMS_arduino_communicator:
 
         # Determine if we are going forward or backward based on the sign of sin_angle
         if sin_angle >= 0:  # Forward
-            left_wheel_speed = normalized_strength * (1 + cos_angle)
-            right_wheel_speed = normalized_strength * (1 - cos_angle)
+            if cos_angle > 0:
+                left_wheel_speed = normalized_strength
+                right_wheel_speed = normalized_strength * (1 - cos_angle)
+            else:
+                left_wheel_speed = normalized_strength * (1 + cos_angle)
+                right_wheel_speed = normalized_strength
             min_speed_for_calculation = min_speed
         else:  # Reverse
-            left_wheel_speed = normalized_strength * (
-                1 + cos_angle)  # Switch '+' and '-' for reverse
-            right_wheel_speed = normalized_strength * (1 - cos_angle)
-            min_speed_for_calculation = -min_speed  # reverse min speed
+            if cos_angle > 0:
+                left_wheel_speed = -normalized_strength * (1 + cos_angle)
+                right_wheel_speed = -normalized_strength
+            else:
+                left_wheel_speed = -normalized_strength
+                right_wheel_speed = -normalized_strength * (1 - cos_angle)
+            min_speed_for_calculation = -min_speed
 
         # Convert wheel speeds to motor speed range
         left_pwm = int(left_wheel_speed *
@@ -197,8 +244,11 @@ class IMS_arduino_communicator:
                         min_speed_for_calculation)
 
         # Inverse motor direction based on forward or reverse movement
-        self.left_speed = left_pwm if sin_angle >= 0 else -left_pwm
-        self.right_speed = -right_pwm if sin_angle >= 0 else right_pwm  # right engine is mounted in reverse
+        self.left_speed = left_pwm
+        self.right_speed = -right_pwm  # right engine is mounted in reverse
+        print(
+            f"right pwm:{self.right_speed}, left pwm:{self.left_speed}. sin({angle})={sin_angle}, cos({angle})={cos_angle}"
+        )
 
     def write_mower(self):
         while (self.running):
