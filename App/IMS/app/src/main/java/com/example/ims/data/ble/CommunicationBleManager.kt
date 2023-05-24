@@ -234,7 +234,9 @@ class CommunicationBleManager @Inject constructor(
         Log.i("sending", "started")
 
         val characteristic = findCharacteristics(DRIVE_SERVICE_UUID, DRIVE_CHARACTERISTICS_UUID)
-        val driveCommand = byteArrayOf(command.angle.toByte(), command.strength.toByte())
+        val angleHandreds = command.angle/100
+        val angleRest = command.angle % 100
+        val driveCommand = byteArrayOf(angleHandreds.toByte(),angleRest.toByte(), command.strength.toByte())
         if (characteristic != null) {
             Log.i("sending to characteristic: ", characteristic.uuid.toString())
 
