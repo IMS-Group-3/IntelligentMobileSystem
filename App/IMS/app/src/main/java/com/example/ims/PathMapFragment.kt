@@ -189,7 +189,7 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
 
         val markers = mutableListOf<LocationMarker>()
 
-        val pathData = pathApi.getPathById()
+        val pathData = pathApi.getLocationsByPathId(pathId)
 
         pathData?.let {
             for ((key, valueList) in pathData) {
@@ -211,7 +211,7 @@ class PathMapViewModel() : ViewModel(){
 
     var isHistory = MutableLiveData<Boolean>(false)
     val  pathId = MutableLiveData<Int>(0)
-    val hasData = MutableLiveData<Boolean>(false)
+    //val hasData = MutableLiveData<Boolean>(false)
 
 
 

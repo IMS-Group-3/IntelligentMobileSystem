@@ -173,6 +173,10 @@ class PathApi {
         println("hej")
         latestPathId
     }
+    suspend fun getLocationsByPathId(id: Int): Map<String, List<String>> {
+        val urlString = "$baseUrl/paths/$id"
+        return fetchPath(urlString)
+    }
     private fun fetchPaths(urlString: String, callback: (JSONArray) -> Unit) {
         val url = URL(urlString)
 
