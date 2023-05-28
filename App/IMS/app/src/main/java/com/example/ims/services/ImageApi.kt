@@ -7,7 +7,6 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import android.util.Base64
-import android.util.Log
 import org.json.JSONObject
 
 class ImageApi {

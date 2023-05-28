@@ -20,8 +20,6 @@ import java.util.Date
 class PathApi {
     private val baseUrl = "http://16.16.68.202"
 
-    private val maxChecks = 5
-
     private suspend fun fetchPath(urlString: String): Map<String, List<String>> = withContext(Dispatchers.IO) {
         val url = URL(urlString)
         val map = mutableMapOf<String, List<String>>()
@@ -64,32 +62,24 @@ class PathApi {
 
         val urlString = "$baseUrl/paths/$id"
         val markers = mutableMapOf<String, List<String>>()
-        var checks = 0
 
-        //check for new data, sends a get request 5 times
-        while (checks < maxChecks) {
-            println("Checks: $checks")
-            val pathData = fetchPath(urlString)
+        val pathData = fetchPath(urlString)
 
-            for ((positionId, valueList) in pathData) {
-                //checks to see if positionId already exists in markers, only adds new positionId
-                if (!markers.containsKey(positionId)) {
-                    markers[positionId] = valueList
-                }
+        for ((positionId, valueList) in pathData) {
+            //checks to see if positionId already exists in markers, only adds new positionId
+            if (!markers.containsKey(positionId)) {
+                markers[positionId] = valueList
             }
-            checks += 1
-
-            //if new data, reset checks and return markers
-            if (markers.isNotEmpty()) {
-                // Reset checks if new values are found
-                checks = 0
-                println("Markers: $markers")
-                return markers
-            }
-            println("Checks if reset: $checks")
-            //check for new data every 0.2 sec
-            delay(checkIntervalMillis)
         }
+
+        //if new data, return markers
+        if (markers.isNotEmpty()) {
+            println("Markers: $markers")
+            return markers
+        }
+        //check for new data every 0.2 sec
+        delay(checkIntervalMillis)
+
         //if markers is empty(no new data), return null
         return null
     }
@@ -105,7 +95,6 @@ class PathApi {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
         val currentTime = System.currentTimeMillis()
         val fiveSecondsAgo = currentTime - 5_000 // 5 seconds in milliseconds
-        var checks = 0
 
         try {
             val responseCode = connection.responseCode
@@ -116,53 +105,50 @@ class PathApi {
 
                 val jsonArray = JSONTokener(response).nextValue() as JSONArray
 
-                while (checks < maxChecks) {
-                    for (i in 0 until jsonArray.length()) {
-                        val pathId = jsonArray.getJSONObject(i).getInt("pathId")
-                        val startTime = jsonArray.getJSONObject(i).getString("start_time")
+                for (i in 0 until jsonArray.length()) {
+                    val pathId = jsonArray.getJSONObject(i).getInt("pathId")
+                    val startTime = jsonArray.getJSONObject(i).getString("start_time")
 
-                        val startTimeMillis = dateFormat.parse(startTime)?.time ?: continue
+                    val startTimeMillis = dateFormat.parse(startTime)?.time ?: continue
 
-                        // Extract the date and time components from the current time
-                        val currentDate = dateFormat.format(Date(currentTime))
-                        val currentDateObj = dateFormat.parse(currentDate)
+                    // Extract the date and time components from the current time
+                    val currentDate = dateFormat.format(Date(currentTime))
+                    val currentDateObj = dateFormat.parse(currentDate)
 
-                        // Extract the date and time components from the start time
-                        val startDate = dateFormat.format(Date(startTimeMillis))
-                        val startDateObj = dateFormat.parse(startDate)
+                    // Extract the date and time components from the start time
+                    val startDate = dateFormat.format(Date(startTimeMillis))
+                    val startDateObj = dateFormat.parse(startDate)
 
-                        if (startDateObj != null && currentDateObj != null) {
-                            //check if currentDateObj is < startDateObj, should always be true
-                            if (startDateObj.after(currentDateObj)) {
+                    if (startDateObj != null && currentDateObj != null) {
+                        //check if currentDateObj is < startDateObj
+                        if (startDateObj.after(currentDateObj)) {
+                            latestPathId = pathId
+                            break
+                        }
+                        //check if both dates are equal
+                        else if (startDateObj == currentDateObj) {
+                            //check for startTimeMillis 5 sec earlier or within 5 sec of currentTime
+                            //OR check if currentTime is <= startTimeMillis
+                            if (startTimeMillis in fiveSecondsAgo..currentTime || currentTime <= startTimeMillis) {
                                 latestPathId = pathId
                                 break
                             }
-                            //check if both dates are equal
-                            else if (startDateObj == currentDateObj) {
-                                //check for startTimeMillis 5 sec earlier or within 5 sec of currentTime
-                                //OR check if currentTime is <= startTimeMillis
-                                if (startTimeMillis in fiveSecondsAgo..currentTime || currentTime <= startTimeMillis) {
-                                    latestPathId = pathId
-                                    break
-                                }
-                            }
-                            //check if startDateObj is < CurrentDateObj
-                            else {
-                                //add a full day as milliseconds to currentTime
-                                val adjustedCurrentTime = currentTime + 24 * 60 * 60 * 1000
+                        }
+                        //check if startDateObj is < CurrentDateObj
+                        else {
+                            //add a full day as milliseconds to currentTime
+                            val adjustedCurrentTime = currentTime + 24 * 60 * 60 * 1000
 
-                                //subtract startTimeMillis with currentTime
-                                val timeDifference = adjustedCurrentTime - startTimeMillis
+                            //subtract startTimeMillis with currentTime
+                            val timeDifference = adjustedCurrentTime - startTimeMillis
 
-                                //check if timeDifference is <= 5 sec
-                                if (timeDifference <= 5_000) {
-                                    latestPathId = pathId
-                                    break
-                                }
+                            //check if timeDifference is <= 5 sec
+                            if (timeDifference <= 5_000) {
+                                latestPathId = pathId
+                                break
                             }
                         }
                     }
-                    checks += 1
                 }
             }
         } catch (e: Exception) {
@@ -170,7 +156,6 @@ class PathApi {
         } finally {
             connection.disconnect()
         }
-        println("hej")
         latestPathId
     }
     suspend fun getLocationsByPathId(id: Int): Map<String, List<String>> {
@@ -214,9 +199,7 @@ class PathApi {
                 val endTime = path.getString("end_time")
                 val newPath = Path(pathId,endTime,startTime)
                 arrayList.add(newPath)
-
             }
-
             callback(arrayList)
         }
     }

@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity(){
     private val historyViewModel: HistoryViewModel by viewModels()
     private val pathMapViewModel: PathMapViewModel by viewModels()
 
-    val pathApi = PathApi()
+    private val pathApi = PathApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

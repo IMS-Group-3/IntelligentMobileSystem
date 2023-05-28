@@ -183,7 +183,6 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
             startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
             isStarted = false
         }
-
     }
     private suspend fun getPath(pathId: Int): List<LocationMarker> {
 
