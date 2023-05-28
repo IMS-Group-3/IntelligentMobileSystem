@@ -162,7 +162,6 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
             if (markers.isNotEmpty()) {
                 return markers
             }
-
             delay(200)
         }
     }

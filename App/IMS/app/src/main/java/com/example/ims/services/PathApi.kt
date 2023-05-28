@@ -20,8 +20,6 @@ import java.util.Date
 class PathApi {
     private val baseUrl = "http://16.16.68.202"
 
-    private val maxChecks = 5
-
     private suspend fun fetchPath(urlString: String): Map<String, List<String>> = withContext(Dispatchers.IO) {
         val url = URL(urlString)
         val map = mutableMapOf<String, List<String>>()
@@ -74,7 +72,7 @@ class PathApi {
             }
         }
 
-        //if new data, reset checks and return markers
+        //if new data, return markers
         if (markers.isNotEmpty()) {
             println("Markers: $markers")
             return markers
