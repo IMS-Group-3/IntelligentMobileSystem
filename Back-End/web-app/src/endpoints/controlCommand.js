@@ -40,7 +40,7 @@ module.exports = function ({
         console.log(`Received message on topic '${topic}': ${message}`);
     });
 
-    // API endpoint to receive commands
+    // API endpoint to receive commands //
     router.post('/', (req, res) => {
         const command = req.body.command;
         const bodyCopy = {"command": req.body.command};
