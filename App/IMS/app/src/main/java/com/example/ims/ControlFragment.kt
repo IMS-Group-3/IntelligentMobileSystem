@@ -18,6 +18,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.ims.data.ConnectionState
 import io.github.controlwear.virtual.joystick.android.JoystickView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -60,27 +64,16 @@ class ControlFragment : Fragment() {
         val joystick = view.findViewById(R.id.joystickView) as JoystickView
         joystick.setOnMoveListener { angle, strength ->
             bleConnectionState = controlViewModel.connectionState
-
-            if (!allPermissionsGranted()) {
-                mTextViewCoordinate!!.text =
-                    "Go to the app setting and allow the missing permissions."
-
-            } else {
-                enableBluetoothIfNot()
-                if (bleConnectionState == ConnectionState.Connected) {
-                    controlViewModel.angle = angle
-                    controlViewModel.strength = strength
-                    controlViewModel.sendMessage()
-
-                } else if (bleConnectionState == ConnectionState.Disconnected) {
-                    controlViewModel.reconnect()
-                    mTextViewCoordinate!!.text = "Reconnect"
-
-                } else {
-                    controlViewModel.initializeConnection()
-                    mTextViewCoordinate!!.text = "Initialize again"
+            if (angle == 0 && strength == 0){
+                CoroutineScope(Dispatchers.Main).launch {
+                    for(i in 1..4){
+                        send(angle,strength)
+                        delay(200)
+                    }
                 }
+
             }
+            send(angle,strength)
 
 
             mTextViewAngle!!.text = "$angle°"
@@ -89,7 +82,28 @@ class ControlFragment : Fragment() {
         }
 
     }
+    private fun send(angle:Int,strength:Int){
+        if (!allPermissionsGranted()) {
+            mTextViewCoordinate!!.text =
+                "Go to the app setting and allow the missing permissions."
 
+        } else {
+            enableBluetoothIfNot()
+            if (bleConnectionState == ConnectionState.Connected) {
+                controlViewModel.angle = angle
+                controlViewModel.strength = strength
+                controlViewModel.sendMessage()
+
+            } else if (bleConnectionState == ConnectionState.Disconnected) {
+                controlViewModel.reconnect()
+                mTextViewCoordinate!!.text = "Reconnect"
+
+            } else {
+                controlViewModel.initializeConnection()
+                mTextViewCoordinate!!.text = "Initialize again"
+            }
+        }
+    }
     override fun onStart() {
         super.onStart()
         if(allPermissionsGranted() && bleConnectionState == ConnectionState.Disconnected){
