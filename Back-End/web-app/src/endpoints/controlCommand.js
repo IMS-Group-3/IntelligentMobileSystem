@@ -43,9 +43,10 @@ module.exports = function ({
     // API endpoint to receive commands
     router.post('/', (req, res) => {
         const command = req.body.command;
+        const bodyCopy = {"command": req.body.command};
         if (command === 'manual' || command === 'turn_off' || command === 'autonomous') {
             if (connected) {
-                client.publish('mower/control', command, (err) => {
+                client.publish('mower/control', JSON.stringify(bodyCopy), (err) => {
                     if (err) {
                         console.error('Error publishing command:', err);
                         res.status(500).json({ message: 'Error publishing command' });
