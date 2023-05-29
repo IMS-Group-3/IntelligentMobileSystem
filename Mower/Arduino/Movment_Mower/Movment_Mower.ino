@@ -11,13 +11,17 @@ char *token;
 char incomingData[32];
 bool readData = false;
 
+signed int pwmRight;//varibel to store manual input from the Recive Buffer
+signed int pwmLeft;//varibel to store manual input from the Recive Buffer
+
+
 MeEncoderOnBoard Encoder_1(SLOT1);
 MeEncoderOnBoard Encoder_2(SLOT2);
 MeUltrasonicSensor ultraSensor(PORT_7);
 MeRGBLed rgbled_0(0,12);
 
 //Used To enable Visual Debugging of mower
-bool LIGHT_DEBUG = true;
+bool LIGHT_DEBUG = false;
 
 //flag for Off state
 bool IS_ON;
@@ -31,6 +35,9 @@ char mode;
 // Varible used in the timing check
 unsigned long ENDTIME = 0;
 
+// Varible used in the timing check
+unsigned long READ_DELAY_TIME = 0;
+
 bool will_Change(int pwmRight, int pwmLeft){
   if (Encoder_1.getCurPwm() != pwmRight || Encoder_2.getCurPwm() != pwmLeft){
     return true;
@@ -40,20 +47,40 @@ bool will_Change(int pwmRight, int pwmLeft){
   }
 }
 
+bool ReadMessage(){
+  while(Serial.available() > 0){
+    if (Serial.available() > 0) {
+      inputChar = (char)Serial.read();     
+
+      if (inputChar == '<') {
+        inputString = "";
+        readData = true;
+      } else if (inputChar == '>' && readData) {
+        readData = false;
+        inputString.toCharArray(incomingData, inputString.length() + 1);
+        
+        Serial.println(inputString);
+
+        mode = *strtok(incomingData, &delimiter);
+        Serial.println(mode);
+        token = strtok(NULL, &delimiter);
+
+        if (token != NULL) {
+          pwmRight = atoi(token);
+          pwmLeft = atoi(strtok(NULL, &delimiter));
+        }
+      } else if (readData) {
+        inputString += inputChar;
+      }
+    }
+  }
+}
+
 //Set All RGBLeds To The Color Determined by the Values Red Green Blue
 void RGBLight(int red,int green,int blue){
   rgbled_0.setColor(0,red,green,blue);
   rgbled_0.show();
 }
-
-//Runs Engine Encoder Loops
-/*void RunEncoderLoops(){
-  for(int i = 0; i < 10; i++){
-    Encoder_1.loop();
-    Encoder_2.loop();
-    delay(50);
-  }
-}*/
 
 /*performs Avoidens routine Curently Reverces for 1 sec 
 and then turns left or Right for 0,5 then forward*/
@@ -102,13 +129,13 @@ void Avoid(void){
 }
 
 //Movment Control Sets Engiens PWMs
-void SetEnginenPWM(signed int pwmRight,signed int pwmLeft){
-  if(will_Change(pwmRight,pwmLeft)){
+void SetEnginenPWM(signed int engienPwmRight,signed int engienPwmLeft){
+  if(will_Change(engienPwmRight,engienPwmLeft)){
     if(LIGHT_DEBUG){
     RGBLight(0,128,0);//set Color Green
     }
-    Encoder_1.setTarPWM(pwmRight);//Right Engine negative
-    Encoder_2.setTarPWM(pwmLeft);//Left Engine
+    Encoder_1.setTarPWM(engienPwmRight);//Right Engine negative
+    Encoder_2.setTarPWM(engienPwmLeft);//Left Engine
     //RunEncoderLoops();
   }
 }
@@ -171,12 +198,13 @@ void setup(){   // put your setup code here, to run once:
 }
 
 void loop(){    // put your main code here, to run repeatedly:
-  if (Serial.available() > 0 && (Serial.peek() == 'I' || Serial.peek() == 'O' || Serial.peek() == 'M' || Serial.peek() == ' ')){
+    
+  if (Serial.available() > 0){
     if(LIGHT_DEBUG){
       RGBLight(128,0,0);//Show Color Color Red
     }
     
-    mode = Serial.read();
+    ReadMessage();
 
     if(mode != 'I'){
       buffer.clear();
@@ -226,7 +254,7 @@ void loop(){    // put your main code here, to run repeatedly:
           buffer.push(-128);
           buffer.push(128);
         }
-        }
+      }
       else{ //Distance Less Then 20 cm
         if(LIGHT_DEBUG){
           RGBLight(255,255,255);//Set Color White
@@ -280,54 +308,22 @@ void loop(){    // put your main code here, to run repeatedly:
       if(LIGHT_DEBUG){
         RGBLight(128,0,128);//Show Color purpule
       }
-      /*
-      if(Serial.available() > 0 && Serial.peek() != 'I' && Serial.peek() != 'O' && Serial.peek() != ' '){//Checks if The Serial recive Buffer contains data
 
-        if (Serial.available() > 0) {
-          inputChar = (char)Serial.read();
-
-          if (inputChar == '<') {
-            inputString = "";
-            readData = true;
-          } else if (inputChar == '>' && readData) {
-            readData = false;
-            inputString.toCharArray(incomingData, inputString.length() + 1);
-            token = strtok(incomingData, &delimiter);
-
-            while (token != NULL) {
-              Serial.println(token);
-              token = strtok(NULL, &delimiter);
-            }
-          } else if (readData) {
-            inputString += inputChar;
-          }
-        }
-        */        
-        //Convert Recived data To signed ints
-        signed int pwmRight = Serial.parseInt();//Read in a Int from the Recive Buffer
-        signed int pwmLeft = Serial.parseInt();//Read in a Int from the Recive Buffer
-        
-        Serial.print("pwmRight : ");
-        Serial.println(pwmRight);
-        Serial.print("pwmLeft : ");
-        Serial.println(pwmLeft);
-
-        //Checks if pwmRight are in allowed span
-        if(pwmRight > 255){
-          pwmRight = 255;
-        }else if(pwmRight < -255){
-          pwmRight = -255;
-        }
-        //Checks if pwmLeft are in allowed span
-        if(pwmLeft > 255){
-          pwmLeft = 255;
-        }else if(pwmLeft < -255){
-          pwmLeft = -255;
-        }
-        
-        //Execute Recived Movment Command
-        SetEnginenPWM(pwmRight,pwmLeft);
+      //Checks if pwmRight are in allowed span
+      if(pwmRight > 255){
+        pwmRight = 255;
+      }else if(pwmRight < -255){
+        pwmRight = -255;
       }
+      //Checks if pwmLeft are in allowed span
+      if(pwmLeft > 255){
+        pwmLeft = 255;
+      }else if(pwmLeft < -255){
+        pwmLeft = -255;
+      }
+      
+      //Execute Recived Movment Command
+      SetEnginenPWM(pwmRight,pwmLeft);
     break;
 
     case ' ':
