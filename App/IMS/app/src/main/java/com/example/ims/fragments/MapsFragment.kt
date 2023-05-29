@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.ims.views.MapView
 import com.example.ims.R
 import com.example.ims.activities.MainActivity
+import com.example.ims.data.Commands
 import com.example.ims.data.LocationMarker
 import com.example.ims.services.ImageApi
 import com.example.ims.services.PathApi
@@ -64,6 +65,10 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
                 startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
                 isStarted = true
 
+                PathApi().sendManualCommand(Commands.M_AUTO){
+                    Log.i("Start responseCode: ", it.toString())
+                }
+
                 CoroutineScope(Dispatchers.Main).launch {
                     val pathData = getPath()
                     for (marker in pathData) {
@@ -77,6 +82,10 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
                 startButton.setText(R.string.start_button)
                 startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#223a1d"))
                 isStarted = false
+
+                PathApi().sendManualCommand(Commands.M_OFF){
+                    Log.i("Stop responseCode: ", it.toString())
+                }
             }
         }
 

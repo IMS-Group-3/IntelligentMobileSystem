@@ -30,7 +30,7 @@ class PathApi {
 
         try {
             val responseCode = connection.responseCode
-            println("Response Code: $responseCode")
+            //println("Response Code: $responseCode")
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
