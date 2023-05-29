@@ -68,7 +68,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         backgroundBitmap = (backgroundDrawable as BitmapDrawable).bitmap
 
         // Dummy marker to display the mower icon at start of fragment
-        markers.add(LocationMarker(0,10, 20, false))
+        //markers.add(LocationMarker(0,10, 20, false))
 
         scaleDetector = ScaleGestureDetector(
             context,
