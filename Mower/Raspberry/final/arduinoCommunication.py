@@ -299,7 +299,7 @@ class IMS_arduino_communicator:
     def send_coordinates(self, is_collision=False):
         # If its the first message set the session start time
         if (self.mower_session_start == None):
-            self.mower_session_start = time.strftime("%H:%M")
+            self.mower_session_start = time.strftime("%Y-%m-%d %H%M%S")
 
             # check if enough time has passed since last message was sent to backend
         if (self.http_backend_request_delay()):
@@ -307,7 +307,7 @@ class IMS_arduino_communicator:
                 "startTime": self.mower_session_start,
                 "x": self.current_coordinates[0],
                 "y": self.current_coordinates[1],
-                "timestamp": "%Y%m%d %H%M%S",
+                "timestamp": "%Y-%m-%d %H%M%S",
                 "collisionOccured": is_collision
             }
             try:
