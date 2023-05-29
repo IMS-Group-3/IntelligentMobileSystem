@@ -27,9 +27,6 @@ class ImagePopUpActivity : AppCompatActivity() {
 
         //clickListener to close dialog
         closeDialog()
-
-        //Set title for popup
-        setPopupTitle()
     }
 
     private fun popupWindow(bitmap: Bitmap, imageClassification: String) {
@@ -62,13 +59,5 @@ class ImagePopUpActivity : AppCompatActivity() {
         closeButton?.setOnClickListener {
             finish()
         }
-    }
-
-    private fun setPopupTitle() {
-        //change "Cat" to the text we get from backend of the avoided collision
-        val text = "Cat"
-
-        val textView = findViewById<TextView>(R.id.popup_window_title)
-        textView.text = text
     }
 }

@@ -30,7 +30,7 @@ class PathApi {
 
         try {
             val responseCode = connection.responseCode
-            println("Response Code: $responseCode")
+            //println("Response Code: $responseCode")
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
@@ -57,8 +57,7 @@ class PathApi {
     }
 
     suspend fun getPathById(): Map<String, List<String>>? {
-        val checkIntervalMillis = 200L
-        val id = 1//getPathId()
+        val id = getPathId()
 
         val urlString = "$baseUrl/paths/$id"
         val markers = mutableMapOf<String, List<String>>()
@@ -77,8 +76,6 @@ class PathApi {
             println("Markers: $markers")
             return markers
         }
-        //check for new data every 0.2 sec
-        delay(checkIntervalMillis)
 
         //if markers is empty(no new data), return null
         return null
