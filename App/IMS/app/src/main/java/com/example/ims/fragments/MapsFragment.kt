@@ -107,7 +107,6 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
 
     // Handles collision notification
     override fun onCollision(imageId: Int) {
-
         (activity as? MainActivity)?.let { mainActivity ->
             ImageApi().getImageBitmapByID(
                 imageId,
