@@ -302,8 +302,8 @@ class IMS_arduino_communicator:
             self.mower_session_start = time.strftime("%Y-%m-%d %H:%M:%S")
 
             # check if enough time has passed since last message was sent to backend
-            x_cor = self.current_coordinates[0]
-            y_cor = self.current_coordinates[1]
+        x_cor = self.current_coordinates[0]
+        y_cor = self.current_coordinates[1]
         if (self.http_backend_request_delay()):
             json_payload = {
                 "startTime": self.mower_session_start,
