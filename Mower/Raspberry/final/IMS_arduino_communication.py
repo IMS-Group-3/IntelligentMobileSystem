@@ -97,6 +97,7 @@ class IMS_arduino_communicator:
                 #print(f"{arduino_id}: {received_str}")
                 if (arduino_id == 1):
                     if (received_str == "Collision"):
+                        print("Collision avoidance event occured")
                         if (self.current_coordinates != None):
                             self.send_avoidance_image()
                             self.send_coordinates(is_collision=True)
@@ -308,7 +309,7 @@ class IMS_arduino_communicator:
                 "x": self.current_coordinates[0],
                 "y": self.current_coordinates[1],
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "collisionOccured": 1 if (is_collision) else 0
+                "collisionOcurred": 1 if (is_collision) else 0
             }
             try:
                 #print(f"sending collision is_collision={is_collision}")
