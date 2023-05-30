@@ -337,12 +337,14 @@ class IMS_arduino_communicator:
             command = json.loads(json_data)["command"]
 
             if (command == "turn_off"):
+                self.mower_session_start = None
                 self.set_mower_state(Mower_state.Off.numeric_value)
                 print("mqtt_ turn off")
             elif (command == "autonomous"):
                 self.set_mower_state(Mower_state.Inside.numeric_value)
                 print("mqtt_ Autonomous")
             elif (command == "manual"):
+                self.mower_session_start = None
                 self.set_mower_state(Mower_state.Manual.numeric_value)
                 print("mqtt_ Manual")
         except json.JSONDecodeError as e:
