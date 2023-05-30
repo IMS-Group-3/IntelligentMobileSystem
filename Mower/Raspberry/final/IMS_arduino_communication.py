@@ -276,15 +276,15 @@ class IMS_arduino_communicator:
         self.bluetooth_callback(angle, strength)
 
     #TODO Fix Blocking while loop
-    def send_avoidance_image(self):
+    def send_avoidance_image(self,x_cor,y_cor):
 
         img_stream = self.img_handler.take_picture_and_compress(quality=75)
         base64_img = self.img_handler.encode_image_to_base64(img_stream)
         #print(f"Collision occured image sent: {base64_img[:100]}")
         json_payload = {
             "encodedImage": base64_img,
-            "x": self.current_coordinates[0],
-            "y": self.current_coordinates[1]
+            "x": x_cor,
+            "y": y_cor
         }
         timeout = 0
         while (timeout < 10):
@@ -302,18 +302,20 @@ class IMS_arduino_communicator:
             self.mower_session_start = time.strftime("%Y-%m-%d %H:%M:%S")
 
             # check if enough time has passed since last message was sent to backend
+            x_cor = self.current_coordinates[0]
+            y_cor = self.current_coordinates[1]
         if (self.http_backend_request_delay()):
             json_payload = {
                 "startTime": self.mower_session_start,
-                "x": self.current_coordinates[0],
-                "y": self.current_coordinates[1],
+                "x": x_cor,
+                "y": y_cor,
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "collisionOcurred": 1 if (is_collision) else 0
             }
             try:
                 #print(f"sending collision is_collision={is_collision}")
                 if(is_collision):
-                    self.send_avoidance_image()
+                    self.send_avoidance_image(x_cor,y_cor)
                 self.http_client.send_post_request(endpoint="paths/position",
                                                    data=json_payload)
             except Exception as e:
