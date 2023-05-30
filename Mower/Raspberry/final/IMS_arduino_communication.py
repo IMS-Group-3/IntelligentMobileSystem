@@ -310,14 +310,25 @@ class IMS_arduino_communicator:
                 "x": x_cor,
                 "y": y_cor,
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "collisionOcurred": 1 if (is_collision) else 0
+                "collisionOcurred": 0
             }
             try:
                 #print(f"sending collision is_collision={is_collision}")
                 if(is_collision):
+                    x_cor = self.current_coordinates[0]
+                    y_cor = self.current_coordinates[1]                    
+                    col_json_payload = {
+                        "startTime": self.mower_session_start,
+                        "x": x_cor,
+                        "y": y_cor,
+                        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "collisionOcurred":1
+                    }
                     self.send_avoidance_image(x_cor,y_cor)
-                self.http_client.send_post_request(endpoint="paths/position",
-                                                   data=json_payload)
+                    self.http_client.send_post_request(endpoint="paths/position",data=col_json_payload)
+                else      
+                    self.http_client.send_post_request(endpoint="paths/position",
+                                                       data=json_payload)
             except Exception as e:
                 print(
                     f"Error occured while sending coordinates to backend: {e}")
