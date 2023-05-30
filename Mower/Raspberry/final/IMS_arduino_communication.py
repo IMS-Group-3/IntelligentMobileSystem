@@ -312,7 +312,8 @@ class IMS_arduino_communicator:
             }
             try:
                 #print(f"sending collision is_collision={is_collision}")
-                self.send_avoidance_image()
+                if(is_collision):
+                    self.send_avoidance_image()
                 self.http_client.send_post_request(endpoint="paths/position",
                                                    data=json_payload)
             except Exception as e:
