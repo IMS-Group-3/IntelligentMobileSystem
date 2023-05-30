@@ -150,6 +150,7 @@ void isr_process_encoder1(void){
   }
 }
 
+
 //Interupt service rutine for encoder 2
 void isr_process_encoder2(void){
   if(digitalRead(Encoder_2.getPortB()) == 0){

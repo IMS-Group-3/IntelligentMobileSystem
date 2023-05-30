@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/dayTitlesContainer"
+    android:layout_height="wrap_content"
+    android:weightSum="7"
+    android:orientation="horizontal">
+
+    <include layout="@layout/calendar_day_title" />
+
+    <include layout="@layout/calendar_day_title" />
+
+    <include layout="@layout/calendar_day_title" />
+
+    <include layout="@layout/calendar_day_title" />
+
+    <include layout="@layout/calendar_day_title" />
+
+    <include layout="@layout/calendar_day_title" />
+
+    <include layout="@layout/calendar_day_title" />
+
+</LinearLayout>

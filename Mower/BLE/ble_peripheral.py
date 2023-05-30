@@ -91,7 +91,7 @@ try:
     while True:
         pass
 except KeyboardInterrupt:
-    print("\nPress Enter to exit :)")
+    print("\npress enter to exit :)")
 finally:
     # Set the stop flag
     stop_flag.set()
