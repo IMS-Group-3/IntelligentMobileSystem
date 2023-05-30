@@ -278,9 +278,10 @@ class IMS_arduino_communicator:
 
     #TODO Fix Blocking while loop
     def send_avoidance_image(self):
+
         img_stream = self.img_handler.take_picture_and_compress(quality=75)
         base64_img = self.img_handler.encode_image_to_base64(img_stream)
-
+        print(f"Collision occured image sent: {base64_img[:100]}")
         json_payload = {
             "encodedImage": base64_img,
             "x": self.current_coordinates[0],
@@ -299,7 +300,7 @@ class IMS_arduino_communicator:
     def send_coordinates(self, is_collision=False):
         # If its the first message set the session start time
         if (self.mower_session_start == None):
-            self.mower_session_start = time.strftime("%Y-%m-%d %H%M%S")
+            self.mower_session_start = time.strftime("%Y-%m-%d %H:%M:%S")
 
             # check if enough time has passed since last message was sent to backend
         if (self.http_backend_request_delay()):
@@ -307,10 +308,11 @@ class IMS_arduino_communicator:
                 "startTime": self.mower_session_start,
                 "x": self.current_coordinates[0],
                 "y": self.current_coordinates[1],
-                "timestamp": "%Y-%m-%d %H%M%S",
-                "collisionOccured": is_collision
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "collisionOccured": 1 if (is_collision) else 0
             }
             try:
+                print(f"sending collision is_collision={is_collision}")
                 self.http_client.send_post_request(endpoint="paths/position",
                                                    data=json_payload)
             except Exception as e:
