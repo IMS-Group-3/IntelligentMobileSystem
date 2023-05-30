@@ -11,7 +11,6 @@ from IMS_bluetooth_controller import BluetoothController as IMS_BLE
 from IMS_HTTP_requests import IMS_HTTP_request_client as HTTP_client
 from IMS_MQTT_listener import IMS_MQTT_listener as MQTT_Listener
 import math
-import decimal
 
 
 # Enum class that keeps tabs on the mower state and can return its value in both integer and character form
@@ -281,7 +280,7 @@ class IMS_arduino_communicator:
 
         img_stream = self.img_handler.take_picture_and_compress(quality=75)
         base64_img = self.img_handler.encode_image_to_base64(img_stream)
-        print(f"Collision occured image sent: {base64_img[:100]}")
+        #print(f"Collision occured image sent: {base64_img[:100]}")
         json_payload = {
             "encodedImage": base64_img,
             "x": self.current_coordinates[0],
@@ -312,7 +311,7 @@ class IMS_arduino_communicator:
                 "collisionOccured": 1 if (is_collision) else 0
             }
             try:
-                print(f"sending collision is_collision={is_collision}")
+                #print(f"sending collision is_collision={is_collision}")
                 self.http_client.send_post_request(endpoint="paths/position",
                                                    data=json_payload)
             except Exception as e:
