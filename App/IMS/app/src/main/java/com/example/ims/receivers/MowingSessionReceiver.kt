@@ -38,9 +38,9 @@ class MowingSessionReceiver : BroadcastReceiver() {
 
         Thread {
             try {
-                PathApi().sendManualCommand(Commands.M_AUTO){
+                /*PathApi().sendManualCommand(Commands.M_AUTO){
                     Log.i("responseCode: ", it.toString())
-                }
+                }*/
             } catch (e: Exception) {
                 // Handle exceptions
             }

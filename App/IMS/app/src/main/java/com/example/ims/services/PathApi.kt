@@ -1,5 +1,6 @@
 package com.example.ims.services
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -57,7 +58,7 @@ class PathApi {
     }
 
     suspend fun getPathById(): Map<String, List<String>>? {
-        val id = getPathId()
+        val id = 0//getPathId()
 
         val urlString = "$baseUrl/paths/$id"
         val markers = mutableMapOf<String, List<String>>()
@@ -65,6 +66,8 @@ class PathApi {
         val pathData = fetchPath(urlString)
 
         for ((positionId, valueList) in pathData) {
+            //println(valueList)
+
             //checks to see if positionId already exists in markers, only adds new positionId
             if (!markers.containsKey(positionId)) {
                 markers[positionId] = valueList

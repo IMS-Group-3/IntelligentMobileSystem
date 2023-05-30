@@ -27,7 +27,7 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     private var canvasHeight: Int = 150
     private var viewWidth: Int = 0
     private var viewHeight: Int = 0
-    private val markers = mutableListOf<LocationMarker>()
+    private var markers = mutableListOf<LocationMarker>()
     private val markerPaint = Paint()
     private val linePaint = Paint()
     private var markerRadius = 5f
@@ -346,6 +346,9 @@ class MapView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         matrix.postTranslate(width / 2f - markerCenterX, height / 2f - markerCenterY)
 
         invalidate()
+    }
+    fun removeMarkers() {
+        markers = mutableListOf<LocationMarker>()
     }
 
     // Returns the X and Y coordinates of the marker in the view

@@ -65,16 +65,19 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
                 startButton.setText(R.string.stop_button)
                 startButton.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#8B0000"))
                 isStarted = true
-
+                mapView.removeMarkers()
                 PathApi().sendManualCommand(Commands.M_AUTO){
                     Log.i("Start responseCode: ", it.toString())
                 }
 
                 CoroutineScope(Dispatchers.Main).launch {
-                    val pathData = getPath()
-                    for (marker in pathData) {
-                        if (isStopped) break // Exit the loop if stopped
-                        mapView.addMarker(marker)
+                    while(true) {
+                        val pathData = getPath()
+                        for (marker in pathData) {
+                            if (isStopped) break // Exit the loop if stopped
+                            mapView.addMarker(marker)
+                        }
+                        delay(200)
                     }
                 }
             } else {
@@ -146,34 +149,30 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
         val markers = mutableListOf<LocationMarker>()
         val displayedMarkers = mutableSetOf<LocationMarker>()
 
-        while (true) {
-            val pathData = pathApi.getPathById()
+        val pathData = pathApi.getPathById()
 
-            pathData?.let {
-                for ((key, valueList) in pathData) {
-                    val positionId = key.toInt()
-                    val x = valueList[0].toInt()
-                    val y = valueList[1].toInt()
-                    val collision = valueList[2].toInt()
-                    val collisionOccurred = collision != 0
+        pathData?.let {
+            for ((key, valueList) in pathData) {
+                val positionId = key.toInt()
+                val x = valueList[0].toInt()
+                val y = valueList[1].toInt()
+                val collision = valueList[2].toInt()
+                val collisionOccurred = collision != 0
 
-                    val locationMarker = LocationMarker(positionId, x, y, collisionOccurred)
+                val locationMarker = LocationMarker(positionId, x, y, collisionOccurred)
 
-                    //checks if displayedMarkers contains locationMarker, if not it adds it.
-                    //makes sure already displayed positions wont be added to markers again
-                    if (!displayedMarkers.contains(locationMarker)) {
-                        displayedMarkers.add(locationMarker)
-                        markers.add(locationMarker)
-                    }
+                //checks if displayedMarkers contains locationMarker, if not it adds it.
+                //makes sure already displayed positions wont be added to markers again
+                if (!displayedMarkers.contains(locationMarker)) {
+                    displayedMarkers.add(locationMarker)
+                    markers.add(locationMarker)
                 }
             }
-
-            if (markers.isNotEmpty()) {
-                println("Markers: $markers")
-
-                return markers
-            }
-            delay(200)
         }
+
+        if (markers.isNotEmpty()) {
+            return markers
+        }
+        return emptyList()
     }
 }
