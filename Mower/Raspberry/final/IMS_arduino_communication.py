@@ -99,7 +99,6 @@ class IMS_arduino_communicator:
                     if (received_str == "Collision"):
                         print("Collision avoidance event occured")
                         if (self.current_coordinates != None):
-                            self.send_avoidance_image()
                             self.send_coordinates(is_collision=True)
                 elif (arduino_id == 2):
                     try:
@@ -313,6 +312,7 @@ class IMS_arduino_communicator:
             }
             try:
                 #print(f"sending collision is_collision={is_collision}")
+                self.send_avoidance_image()
                 self.http_client.send_post_request(endpoint="paths/position",
                                                    data=json_payload)
             except Exception as e:
