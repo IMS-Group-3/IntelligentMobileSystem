@@ -325,10 +325,8 @@ class IMS_arduino_communicator:
                         "collisionOcurred":1
                     }
                     self.send_avoidance_image(x_cor,y_cor)
-                    self.http_client.send_post_request(endpoint="paths/position",data=col_json_payload)
-                else      
-                    self.http_client.send_post_request(endpoint="paths/position",
-                                                       data=json_payload)
+                    self.http_client.send_post_request(endpoint="paths/position",data=col_json_payload) 
+                self.http_client.send_post_request(endpoint="paths/position",data=json_payload)
             except Exception as e:
                 print(
                     f"Error occured while sending coordinates to backend: {e}")
