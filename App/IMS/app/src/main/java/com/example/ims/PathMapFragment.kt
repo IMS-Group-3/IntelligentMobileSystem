@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.isDigitsOnly
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -195,7 +196,10 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
                 val positionId = key.toInt()
                 val x = valueList[0].toInt()
                 val y = valueList[1].toInt()
-                val collision = valueList[2].toInt()
+                var collision = 0
+                if (valueList[2].isDigitsOnly()){
+                    collision = valueList[2].toInt()
+                }
                 val collisionOccurred = collision != 0
 
                 val locationMarker = LocationMarker(positionId, x, y, collisionOccurred)

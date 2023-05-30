@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.isDigitsOnly
 import com.example.ims.views.MapView
 import com.example.ims.R
 import com.example.ims.activities.MainActivity
@@ -168,6 +169,8 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
             }
 
             if (markers.isNotEmpty()) {
+                println("Markers: $markers")
+
                 return markers
             }
             delay(200)

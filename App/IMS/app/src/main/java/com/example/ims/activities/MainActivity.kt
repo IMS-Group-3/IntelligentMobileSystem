@@ -56,7 +56,13 @@ class MainActivity : AppCompatActivity(){
                     }
                     replaceFragment(ControlFragment())
                 }
-                R.id.history -> replaceFragment(HistoryFragment())
+                R.id.history -> {
+                    pathApi.getAllPaths() { paths ->
+                        historyViewModel.pathsList.postValue(paths)
+                    }
+                    replaceFragment(HistoryFragment())
+
+                }
 
                 else -> {
 

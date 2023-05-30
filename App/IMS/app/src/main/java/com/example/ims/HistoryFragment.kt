@@ -48,14 +48,19 @@ class HistoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         listview = view.findViewById<ListView>(R.id.pathListView)
+        if(historyViewModel.pathsList.value != null){
+            historyViewModel.adapter = PathsListAdapter(requireContext(), historyViewModel.pathsList.value!!)
+            listview?.adapter = historyViewModel.adapter
 
-        historyViewModel.adapter = PathsListAdapter(requireContext(), historyViewModel.pathsList.value!!)
-        listview?.adapter = historyViewModel.adapter
+            listview?.onItemClickListener = AdapterView.OnItemClickListener{ _, _, position, _ ->
+                val path = historyViewModel.pathsList.value!![position]
+                historyViewModel.pathInfoFromItemClick.value = path
+            }
+        }else{
+            listview?.adapter = PathsListAdapter(requireContext(),ArrayList())
 
-        listview?.onItemClickListener = AdapterView.OnItemClickListener{ _, _, position, _ ->
-            val path = historyViewModel.pathsList.value!![position]
-            historyViewModel.pathInfoFromItemClick.value = path
         }
+
 
     }
     companion object {
@@ -80,8 +85,9 @@ class HistoryFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
-        historyViewModel.adapter.notifyDataSetChanged()
+        if(historyViewModel.pathsList.value != null) {
+            historyViewModel.adapter.notifyDataSetChanged()
+        }
     }
 }
 

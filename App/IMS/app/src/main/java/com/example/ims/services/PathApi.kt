@@ -73,7 +73,6 @@ class PathApi {
 
         //if new data, return markers
         if (markers.isNotEmpty()) {
-            println("Markers: $markers")
             return markers
         }
 
