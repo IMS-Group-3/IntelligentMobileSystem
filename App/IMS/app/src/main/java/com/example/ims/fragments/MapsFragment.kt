@@ -67,19 +67,23 @@ class MapsFragment : Fragment(), MapView.OnCollisionListener {
                 isStarted = true
                 mapView.removeMarkers()
                 PathApi().sendManualCommand(Commands.M_AUTO){
-                    Log.i("Start responseCode: ", it.toString())
-                }
-
-                CoroutineScope(Dispatchers.Main).launch {
-                    while(true) {
-                        val pathData = getPath()
-                        for (marker in pathData) {
-                            if (isStopped) break // Exit the loop if stopped
-                            mapView.addMarker(marker)
+                    if(it == 200){
+                        Log.i("Start responseCode: ", it.toString())
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(500)
+                            while(true) {
+                                val pathData = getPath()
+                                for (marker in pathData) {
+                                    if (isStopped) break // Exit the loop if stopped
+                                    mapView.addMarker(marker)
+                                }
+                                delay(200)
+                            }
                         }
-                        delay(200)
                     }
                 }
+
+
             } else {
                 isStopped = true // Stop the loop
                 centerButton.hide()

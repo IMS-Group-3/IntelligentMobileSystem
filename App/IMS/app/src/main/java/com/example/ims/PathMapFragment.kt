@@ -174,7 +174,7 @@ class PathMapFragment : Fragment(), MapView.OnCollisionListener {
                 for (marker in pathData) {
                     if (isStopped) break // Exit the loop if stopped
                     mapView.addMarker(marker)
-                    delay(300)
+                    delay(100)
                 }
             }
         } else {
