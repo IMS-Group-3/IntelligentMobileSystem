@@ -13,24 +13,23 @@ bool remote = false;         // whether to use the given remote device for rangi
 int32_t coordinates[3];                                           // The array used to save and send the coordinates to the raspberry
 const uint8_t num_anchors = 4;                                    // the number of anchors
 uint16_t anchors[num_anchors] = {0x6716, 0x6721, 0x676a, 0x6742}; // the network id of the anchors
-int32_t anchors_x[num_anchors] = {0, 0, 0, 0};                    // anchor x-coorindates in mm
-int32_t anchors_y[num_anchors] = {0, 0, 0, 0};                    // anchor y-coordinates in mm
-int32_t heights[num_anchors] = {350, 0, 0, 200};                      // anchor z-coordinates in mm
+int32_t anchors_x[num_anchors] = {0, 0, 900, 900};                    // anchor x-coorindates in mm
+int32_t anchors_y[num_anchors] = {0, 1000, 1000, 0};                    // anchor y-coordinates in mm
+int32_t heights[num_anchors] = {0, 0, 0, 0};                      // anchor z-coordinates in mm
 
-uint8_t algorithm = POZYX_POS_ALG_UWB_ONLY; // positioning algorithm to use. try POZYX_POS_ALG_TRACKING for fast moving objects. | POZYX_POS_ALG_UWB_ONLY is default
+uint8_t algorithm = POZYX_POS_ALG_TRACKING; // positioning algorithm to use. try POZYX_POS_ALG_TRACKING for fast moving objects. | POZYX_POS_ALG_UWB_ONLY is default
 uint8_t dimension = POZYX_3D;               // positioning dimension
 int32_t height = 150;                        // height of device, required in 2.5D positioning
 
 // variables for sampling distance average
 
-const uint8_t num_samples = 75;
-int32_t distance_buffer[2][num_samples];
-int buffer_index[2] = {0, 0};
-int num_readings[2] = {0, 0};
-int8_t case_find_distance = 0;
-uint16_t destination_id[2] = {0x6721, 0x6742}; // the network id of the other pozyx devices
-
-uint8_t ranging_protocol = POZYX_RANGE_PROTOCOL_PRECISION; // ranging protocol of the Pozyx.
+//const uint8_t num_samples = 75;
+//int32_t distance_buffer[2][num_samples];
+//int buffer_index[2] = {0, 0};
+//int num_readings[2] = {0, 0};
+//int8_t case_find_distance = 0;
+//uint16_t destination_id[2] = {0x6721, 0x6742}; // the network id of the other pozyx devices
+//uint8_t ranging_protocol = POZYX_RANGE_PROTOCOL_PRECISION; // ranging protocol of the Pozyx.
 
 ////////////////////////////////////////////////
 
@@ -51,17 +50,17 @@ void setup()
     remote_id = NULL;
   }
   Serial.println("------------POZYX IMS-3------------");
-  Serial.println("NOTES:");
-  Serial.println("Start the system with the remote device @origin base station: ");
+  //Serial.println("NOTES:");
+  //Serial.println("Start the system with the remote device @origin base station: ");
 
   // set the ranging protocol
-  Pozyx.setRangingProtocol(ranging_protocol, remote_id);
-
+  //Pozyx.setRangingProtocol(ranging_protocol, remote_id);
+  /*
   while (case_find_distance < 2)
   { // Poll for the X & Y range upon start
     pollRange();
   }
-
+  */
   Serial.println(F("Performing manual anchor configuration:"));
   Serial.print("Anchor 0: ");
   Serial.print(anchors_x[0]);
@@ -127,6 +126,7 @@ void printCoordinates(coordinates_t coor)
   Serial.println(coor.z);
 }
 
+/*
 void pollRange()
 {
   device_range_t range;
@@ -195,7 +195,7 @@ int32_t findAverageDistance(int device_index)
   }
   return sum / num_readings[device_index];
 }
-
+*/
 // function to manually set the anchor coordinates
 void setAnchorsManual()
 {
